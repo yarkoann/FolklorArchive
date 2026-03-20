@@ -1,0 +1,5 @@
+Flask==2.3.3
+rdflib==7.0.0
+lxml==4.9.3
+SPARQLWrapper==2.0.0
+pandas==2.0.3

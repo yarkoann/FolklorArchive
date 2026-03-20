@@ -1,0 +1,227 @@
+{
+  "ethnos": [
+    {
+      "id": "chukchi",
+      "name": "Чукчи",
+      "alternative_names": [
+        "луораветланы"
+      ],
+      "region": "Чукотка"
+    },
+    {
+      "id": "nganasan",
+      "name": "Нганасаны",
+      "alternative_names": [
+        "ня"
+      ],
+      "region": "Таймыр"
+    },
+    {
+      "id": "enets",
+      "name": "Энцы",
+      "alternative_names": [
+        "эннэ"
+      ],
+      "region": "Таймыр"
+    },
+    {
+      "id": "evenk",
+      "name": "Эвенки",
+      "alternative_names": [
+        "тунгусы"
+      ],
+      "region": "Сибирь"
+    },
+    {
+      "id": "yakut",
+      "name": "Якуты",
+      "alternative_names": [
+        "саха"
+      ],
+      "region": "Якутия"
+    },
+    {
+      "id": "ethno_поляк",
+      "name": "Поляк",
+      "alternative_names": [],
+      "region": ""
+    },
+    {
+      "id": "ethno_швед",
+      "name": "Швед",
+      "alternative_names": [],
+      "region": ""
+    }
+  ],
+  "genres": [
+    {
+      "id": "throat_singing",
+      "name": "Горлохрипение",
+      "local_terms": [
+        "пилгэйнгэн"
+      ],
+      "ritual": false
+    },
+    {
+      "id": "personal_song",
+      "name": "Личная песня",
+      "local_terms": [
+        "мәнә бәлы",
+        "ситабы"
+      ],
+      "ritual": false
+    },
+    {
+      "id": "shamanic_ritual",
+      "name": "Шаманский обряд",
+      "local_terms": [
+        "Мэдодэ"
+      ],
+      "ritual": true
+    },
+    {
+      "id": "lullaby",
+      "name": "Колыбельная",
+      "local_terms": [
+        "бэвунг"
+      ],
+      "ritual": false
+    },
+    {
+      "id": "epic_tale",
+      "name": "Эпическое сказание",
+      "local_terms": [
+        "олонхо"
+      ],
+      "ritual": false
+    },
+    {
+      "id": "genre_опера",
+      "name": "Опера",
+      "local_terms": [],
+      "ritual": false
+    },
+    {
+      "id": "genre_сказка",
+      "name": "Сказка",
+      "local_terms": [],
+      "ritual": false
+    },
+    {
+      "id": "genre_эпопея",
+      "name": "Эпопея",
+      "local_terms": [],
+      "ritual": false
+    }
+  ],
+  "locations": [
+    {
+      "id": "taymyr",
+      "name": "Таймыр",
+      "type": "region"
+    },
+    {
+      "id": "chokurdakh",
+      "name": "Чокурдах",
+      "type": "settlement"
+    },
+    {
+      "id": "anadyr",
+      "name": "Анадырь",
+      "type": "city"
+    },
+    {
+      "id": "dudinka",
+      "name": "Дудинка",
+      "type": "city"
+    },
+    {
+      "id": "location_польша",
+      "name": "Польша",
+      "type": "other"
+    },
+    {
+      "id": "location_чукотка",
+      "name": "Чукотка",
+      "type": "other"
+    },
+    {
+      "id": "location_москва",
+      "name": "Москва",
+      "type": "other"
+    },
+    {
+      "id": "location_швеция",
+      "name": "Швеция",
+      "type": "other"
+    }
+  ],
+  "collections": [
+    {
+      "id": "disk_312",
+      "name": "Диск №312"
+    },
+    {
+      "id": "disk_396_2",
+      "name": "Диск №396(2)"
+    },
+    {
+      "id": "disk_245",
+      "name": "Диск №245"
+    },
+    {
+      "id": "collection_диск_7",
+      "name": "Диск №7"
+    },
+    {
+      "id": "collection_диск_91",
+      "name": "Диск №91"
+    },
+    {
+      "id": "collection_диск_129",
+      "name": "Диск №12(9)"
+    }
+  ],
+  "instruments": [
+    {
+      "id": "khomus",
+      "name": "Хомус",
+      "type": "idiophone",
+      "local_names": [
+        "варган"
+      ]
+    },
+    {
+      "id": "drum",
+      "name": "Бубен",
+      "type": "membranophone",
+      "local_names": [
+        "дундур"
+      ]
+    },
+    {
+      "id": "dargason",
+      "name": "Даргасон",
+      "type": "chordophone"
+    },
+    {
+      "id": "kyrympa",
+      "name": "Кырымпа",
+      "type": "chordophone"
+    }
+  ],
+  "ritual_status": [
+    {
+      "id": "public",
+      "name": "Публичный"
+    },
+    {
+      "id": "restricted",
+      "name": "Ограниченный"
+    },
+    {
+      "id": "secret",
+      "name": "Тайный"
+    }
+  ]
+}

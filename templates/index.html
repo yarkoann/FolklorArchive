@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФонограммАрхив АГИКИ - Система метаданных</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>📀 Фонограммархив АГИКИ</h1>
+        <p class="subtitle">Система метаданных фольклора народов Арктики</p>
+    </header>
+
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Поиск по названию, исполнителю..." autocomplete="off">
+            <button onclick="performSearch()" class="btn-primary">🔍 Найти</button>
+            <button onclick="clearSearch()" class="btn-secondary">✖ Очистить</button>
+            <button onclick="location.href='/add_recording'" class="btn-success">➕ Добавить запись</button>
+            <button onclick="exportMETS()" class="btn-info">📤 Экспорт</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Фасетная навигация -->
+        <aside class="facets-panel">
+            <h3>📊 Фильтры
+                <button onclick="resetFilters()" class="btn-link">сбросить</button>
+            </h3>
+
+            <div id="active-filters" class="active-filters"></div>
+
+            <div class="facet-group">
+                <h4>🌍 Этнос</h4>
+                <div id="facet-ethnos" class="facet-list"></div>
+            </div>
+
+            <div class="facet-group">
+                <h4>🎵 Жанр</h4>
+                <div id="facet-genre" class="facet-list"></div>
+            </div>
+
+            <div class="facet-group">
+                <h4>🔒 Этический статус</h4>
+                <div id="facet-status" class="facet-list"></div>
+            </div>
+
+            <div class="facet-group">
+                <h4>📅 Десятилетие</h4>
+                <div id="facet-decades" class="facet-list"></div>
+            </div>
+
+            <div class="facet-group">
+                <h4>📍 Локация</h4>
+                <div id="facet-location" class="facet-list"></div>
+            </div>
+
+            <div class="facet-group">
+                <h4>📀 Коллекция</h4>
+                <div id="facet-collection" class="facet-list"></div>
+            </div>
+
+        </aside>
+
+        <!-- Результаты поиска -->
+        <section class="results-panel">
+            <div class="results-header">
+                <span id="results-count">Найдено записей: 0</span>
+                <select id="sort-select" onchange="sortResults()">
+                    <option value="title">По названию</option>
+                    <option value="date_desc">Сначала новые</option>
+                    <option value="date_asc">Сначала старые</option>
+                </select>
+            </div>
+
+            <div id="results-list" class="results-grid"></div>
+
+            <!-- Пагинация -->
+            <div id="pagination" class="pagination"></div>
+        </section>
+    </div>
+</div>
+
+<!-- Модальное окно для детальной информации -->
+<div id="recording-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-content"></div>
+    </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

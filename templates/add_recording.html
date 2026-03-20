@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление записи - Фонограммархив АГИКИ</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>➕ Добавление новой записи</h1>
+        <a href="/" class="back-link">← Вернуться к поиску</a>
+    </header>
+
+    <form id="add-recording-form" class="recording-form">
+        <div class="form-section">
+            <h3>Основная информация</h3>
+
+            <div class="form-group">
+                <label for="title">Название записи *</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="inventory_number">Инвентарный номер</label>
+                    <input type="text" id="inventory_number" name="inventory_number"
+                           placeholder="Например: NG-2023-001">
+                </div>
+
+                <div class="form-group">
+                    <label for="recording_date">Дата записи</label>
+                    <input type="date" id="recording_date" name="recording_date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Длительность</label>
+                <input type="text" id="duration" name="duration" placeholder="Например: 45:30">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Информация об исполнителе</h3>
+
+            <div id="performers-container">
+                <!-- Первый исполнитель по умолчанию -->
+            </div>
+            <button type="button" onclick="addPerformer()" class="btn-add">+ Добавить еще исполнителя</button>
+        </div>
+
+        <div class="form-section">
+            <h3>Классификация</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="genre">Жанр</label>
+                    <select id="genre" name="genre">
+                        <option value="">Выберите жанр</option>
+                    </select>
+                    <div id="new-genre-container" style="display: none;" class="new-item-input">
+                        <input type="text" id="new-genre" placeholder="Введите название нового жанра">
+                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">
+                            Добавить жанр
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ethical_status">Этический статус *</label>
+                    <select id="ethical_status" name="ethical_status" required>
+                        <option value="">Выберите уровень доступа</option>
+                        <option value="публичный_доступ">Публичный доступ</option>
+                        <option value="ограниченный_доступ">Ограниченный доступ</option>
+                        <option value="требует_согласия_общины">Требует согласия общины</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location">Локация</label>
+                    <select id="location" name="location">
+                        <option value="">Выберите локацию</option>
+                    </select>
+                    <div id="new-location-container" style="display: none;" class="new-item-input">
+                        <input type="text" id="new-location" placeholder="Введите название новой локации">
+                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')"
+                                class="btn-add-new">Добавить локацию
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="collection">Коллекция</label>
+                    <select id="collection" name="collection">
+                        <option value="">Выберите коллекцию</option>
+                    </select>
+                    <div id="new-collection-container" style="display: none;" class="new-item-input">
+                        <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
+                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')"
+                                class="btn-add-new">Добавить коллекцию
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Местные термины</h3>
+            <div class="form-group">
+                <label for="local_terms">Местные термины (через запятую)</label>
+                <input type="text" id="local_terms" name="local_terms"
+                       placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
+                <small class="form-hint">Введите термины через запятую</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Описание</h3>
+            <div class="form-group">
+                <textarea id="description" name="description" rows="4"></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">💾 Сохранить запись</button>
+            <button type="button" onclick="location.href='/'" class="btn-secondary">Отмена</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let vocabularyData = {
+        genres: [],
+        locations: [],
+        collections: [],
+        ethnos: []
+    };
+
+    // Загрузка словарей при загрузке страницы
+    document.addEventListener('DOMContentLoaded', async function () {
+        await loadAllVocabulary();
+        addPerformer(); // Добавляем первого исполнителя
+        setupEventListeners();
+    });
+
+    // Загрузка всех словарей
+    async function loadAllVocabulary() {
+        try {
+            const [genres, locations, collections, ethnos] = await Promise.all([
+                fetch('/api/vocabulary/genres').then(r => r.json()),
+                fetch('/api/vocabulary/locations').then(r => r.json()),
+                fetch('/api/vocabulary/collections').then(r => r.json()),
+                fetch('/api/vocabulary/ethnos').then(r => r.json())
+            ]);
+
+            vocabularyData = {
+                genres: genres || [],
+                locations: locations || [],
+                collections: collections || [],
+                ethnos: ethnos || []
+            };
+
+            console.log('Словари загружены:', vocabularyData);
+
+            // Обновляем все селекты
+            updateAllSelects();
+
+        } catch (error) {
+            console.error('Ошибка загрузки словарей:', error);
+        }
+    }
+
+    // Обновление всех селектов
+    function updateAllSelects() {
+        updateSelect('genre', vocabularyData.genres);
+        updateSelect('location', vocabularyData.locations);
+        updateSelect('collection', vocabularyData.collections);
+
+        document.querySelectorAll('.ethnos-select').forEach(select => {
+            updateEthnosSelect(select);
+        });
+    }
+
+    // Обновление конкретного селекта
+    function updateSelect(selectId, items) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        const currentValue = select.value;
+
+        // Очищаем select, оставляя первую опцию
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        // Добавляем элементы из словаря
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+
+        // Добавляем опцию "Создать новый"
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+
+        // Восстанавливаем выбранное значение
+        if (currentValue && currentValue !== 'new') {
+            select.value = currentValue;
+        }
+    }
+
+    // Обновление селекта этноса
+    function updateEthnosSelect(select) {
+        const currentValue = select.value;
+
+        // Очищаем select, оставляя первую опцию
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        // Добавляем элементы из словаря
+        vocabularyData.ethnos.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+
+        // Добавляем опцию "Создать новый"
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+
+        // Восстанавливаем выбранное значение
+        if (currentValue && currentValue !== 'new') {
+            select.value = currentValue;
+        }
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+        // Жанр
+        document.getElementById('genre').addEventListener('change', function (e) {
+            document.getElementById('new-genre-container').style.display =
+                e.target.value === 'new' ? 'flex' : 'none';
+        });
+
+        // Локация
+        document.getElementById('location').addEventListener('change', function (e) {
+            document.getElementById('new-location-container').style.display =
+                e.target.value === 'new' ? 'flex' : 'none';
+        });
+
+        // Коллекция
+        document.getElementById('collection').addEventListener('change', function (e) {
+            document.getElementById('new-collection-container').style.display =
+                e.target.value === 'new' ? 'flex' : 'none';
+        });
+    }
+
+    // Добавление нового элемента в словарь
+    async function addNewItem(category, inputId, selectId) {
+        const input = document.getElementById(inputId);
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('Введите название');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({category, name})
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                // Добавляем в локальные данные
+                vocabularyData[category].push({name});
+
+                // Обновляем селект
+                updateSelect(selectId, vocabularyData[category]);
+
+                // Выбираем новый элемент
+                document.getElementById(selectId).value = name;
+
+                // Скрываем контейнер ввода
+                document.getElementById(inputId + '-container').style.display = 'none';
+                input.value = '';
+
+                console.log(`✅ Добавлен новый ${category}: ${name}`);
+            } else {
+                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении');
+        }
+    }
+
+    // Добавление нового исполнителя
+    function addPerformer() {
+        const container = document.getElementById('performers-container');
+
+        const entry = document.createElement('div');
+        entry.className = 'performer-entry';
+        entry.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Имя исполнителя</label>
+                        <input type="text" name="performer_name[]" placeholder="Например: Т.Д. Костеркин">
+                    </div>
+                    <div class="form-group">
+                        <label>Этнос</label>
+                        <select name="performer_ethnos[]" class="ethnos-select">
+                            <option value="">Выберите этнос</option>
+                        </select>
+                        <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
+                            <div class="new-item-input">
+                                <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
+                                <button type="button" onclick="addNewEthnos(this)" class="btn-add-new">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removePerformer(this)" class="btn-remove">✖</button>
+                </div>
+            `;
+
+        container.appendChild(entry);
+
+        // Заполняем селект этносами
+        const select = entry.querySelector('.ethnos-select');
+        updateEthnosSelect(select);
+
+        // Добавляем обработчик для показа поля ввода нового этноса
+        select.addEventListener('change', function () {
+            const container = this.closest('.form-group').querySelector('.new-ethnos-container');
+            if (container) {
+                container.style.display = this.value === 'new' ? 'block' : 'none';
+            }
+        });
+
+        updateRemoveButtonsVisibility();
+    }
+
+    // Удаление исполнителя
+    function removePerformer(btn) {
+        if (document.querySelectorAll('.performer-entry').length > 1) {
+            btn.closest('.performer-entry').remove();
+            updateRemoveButtonsVisibility();
+        }
+    }
+
+    // Обновление видимости кнопок удаления
+    function updateRemoveButtonsVisibility() {
+        const performers = document.querySelectorAll('.performer-entry');
+        performers.forEach((performer, index) => {
+            const removeBtn = performer.querySelector('.btn-remove');
+            if (removeBtn) {
+                removeBtn.style.display = performers.length === 1 ? 'none' : 'block';
+            }
+        });
+    }
+
+    // Добавление нового этноса
+    async function addNewEthnos(button) {
+        const container = button.closest('.new-ethnos-container');
+        const input = container.querySelector('.new-ethnos-input');
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('Введите название этноса');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ category: 'ethnos', name })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                // Добавляем в локальные данные
+                vocabularyData.ethnos.push({ name });
+
+                // Находим селект и обновляем его
+                const select = button.closest('.performer-entry').querySelector('.ethnos-select');
+                updateEthnosSelect(select);
+
+                // Выбираем новый этнос
+                select.value = name;
+
+                // Скрываем контейнер ввода
+                container.style.display = 'none';
+                input.value = '';
+
+                console.log(`✅ Добавлен новый этнос: ${name}`);
+            } else {
+                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении');
+        }
+    }
+
+    // Сохранение записи
+    document.getElementById('add-recording-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+
+        // Выводим все данные формы для отладки
+        console.log("📋 ДАННЫЕ ФОРМЫ:");
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: ${value}`);
+        }
+
+        const performers = [];
+        const performerNames = formData.getAll('performer_name[]');
+        const performerEthnos = formData.getAll('performer_ethnos[]');
+
+        console.log("👥 ИСПОЛНИТЕЛИ ИЗ ФОРМЫ:");
+        console.log("  performerNames:", performerNames);
+        console.log("  performerEthnos:", performerEthnos);
+
+        for (let i = 0; i < performerNames.length; i++) {
+            if (performerNames[i]) {
+                let ethnos = performerEthnos[i];
+                if (ethnos === 'new') {
+                    ethnos = '';
+                }
+                performers.push({
+                    name: performerNames[i],
+                    ethnos: ethnos || null
+                });
+            }
+        }
+
+        console.log("👥 ОБРАБОТАННЫЕ ИСПОЛНИТЕЛИ:", performers);
+
+        const localTermsStr = formData.get('local_terms') || '';
+        const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
+
+        const data = {
+            title: formData.get('title'),
+            inventory_number: formData.get('inventory_number'),
+            recording_date: formData.get('recording_date'),
+            duration: formData.get('duration'),
+            performers: performers,
+            genre: formData.get('genre') === 'new' ? '' : formData.get('genre'),
+            ethical_status: formData.get('ethical_status'),
+            location: formData.get('location') === 'new' ? '' : formData.get('location'),
+            collection: formData.get('collection') === 'new' ? '' : formData.get('collection'),
+            local_terms: localTerms,
+            description: formData.get('description')
+        };
+
+        console.log('📤 Отправка данных:', data);
+
+        try {
+            const response = await fetch('/api/add_recording', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                alert('Запись успешно добавлена!');
+                window.location.href = '/';
+            } else {
+                alert('Ошибка при добавлении: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Произошла ошибка при сохранении');
+        }
+    });
+</script>
+</body>
+</html>
