@@ -5,6 +5,7 @@ import json
 import os
 import csv
 import traceback
+import uuid
 from rdflib.namespace import RDF, RDFS
 
 app = Flask(__name__)
@@ -12,7 +13,7 @@ app = Flask(__name__)
 # Определяем пути
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ONTOLOGY_PATH = os.path.join(BASE_DIR, "ontology", "folklor_ontology.owl")
-DATA_PATH = os.path.join(BASE_DIR, "data", "recordings.csv")
+DATA_PATH = os.path.join(BASE_DIR, "data", "recordings.json")  # Изменено на .json
 VOCAB_PATH = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
 EXPORTS_DIR = os.path.join(BASE_DIR, "exports")
 
@@ -38,187 +39,193 @@ def load_vocabulary():
     }
 
 
-def ensure_csv_exists():
-    """Создание CSV файла если его нет"""
+def ensure_json_exists():
+    """Создание JSON файла если его нет"""
     if not os.path.exists(DATA_PATH):
-        with open(DATA_PATH, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['id', 'title', 'inventory_number', 'recording_date', 'duration',
-                             'performer', 'ethnos', 'genre', 'ethical_status', 'location',
-                             'collection', 'local_terms', 'description'])
-        print(f"✅ Создан новый CSV файл: {DATA_PATH}")
+        os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+        initial_data = {
+            'version': '1.0',
+            'last_updated': datetime.now().isoformat(),
+            'total_recordings': 0,
+            'recordings': []
+        }
+        with open(DATA_PATH, 'w', encoding='utf-8') as f:
+            json.dump(initial_data, f, ensure_ascii=False, indent=2)
+        print(f"✅ Создан новый JSON файл: {DATA_PATH}")
 
 
 def load_existing_data():
-    """Загрузка существующих данных из CSV без перезаписи"""
+    """Загрузка существующих данных из JSON в RDF граф"""
     if not os.path.exists(DATA_PATH):
-        ensure_csv_exists()
+        ensure_json_exists()
         return
 
     # Проверяем, есть ли уже записи в графе
     existing = manager.get_all_recordings()
     if existing:
-        print(f"📊 В графе уже есть {len(existing)} записей, пропускаем загрузку из CSV")
+        print(f"📊 В графе уже есть {len(existing)} записей, пропускаем загрузку из JSON")
         return
 
     print(f"\n{'=' * 60}")
-    print(f"📂 ЗАГРУЗКА ДАННЫХ ИЗ CSV")
+    print(f"📂 ЗАГРУЗКА ДАННЫХ ИЗ JSON")
     print(f"{'=' * 60}")
 
     try:
         with open(DATA_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            print(f"Найдено строк в CSV: {len(rows)}")
+            data = json.load(f)
+            recordings = data.get('recordings', [])
 
-            count = 0
-            for row in rows:
-                if not row.get('title'):
-                    continue
+        print(f"Найдено записей в JSON: {len(recordings)}")
 
-                print(f"\n📄 Загрузка: {row.get('title')}")
+        count = 0
+        for rec in recordings:
+            if not rec.get('title'):
+                continue
 
-                # Обработка множественных исполнителей
-                performers = []
-                performer_field = row.get('performer', '')
-                ethnos_field = row.get('ethnos', '')
+            print(f"\n📄 Загрузка: {rec.get('title')}")
 
-                if ';' in performer_field:
-                    # Несколько исполнителей
-                    performer_names = performer_field.split(';')
-                    performer_ethnos = ethnos_field.split(';') if ';' in ethnos_field else [''] * len(performer_names)
+            # Проверяем формат исполнителей
+            performers = rec.get('performers', [])
+            if isinstance(performers, str):
+                performers = [{'name': performers, 'ethnos': rec.get('ethnos', '')}]
 
-                    for i in range(len(performer_names)):
-                        if performer_names[i].strip():
-                            performers.append({
-                                'name': performer_names[i].strip(),
-                                'ethnos': performer_ethnos[i].strip() if i < len(performer_ethnos) else ''
-                            })
-                else:
-                    # Один исполнитель
-                    if performer_field.strip():
-                        performers.append({
-                            'name': performer_field.strip(),
-                            'ethnos': ethnos_field.strip() if ethnos_field else ''
-                        })
+            # Подготавливаем данные для add_recording (не используем _add_to_rdf_graph)
+            recording_data = {
+                'title': rec.get('title', ''),
+                'inventory_number': rec.get('inventory_number', ''),
+                'recording_date': rec.get('recording_date', ''),
+                'duration': rec.get('duration', ''),
+                'performers': performers,
+                'genre': rec.get('genre', ''),
+                'ethical_status': rec.get('ethical_status', ''),
+                'location': rec.get('location', ''),
+                'collection': rec.get('collection', ''),
+                'local_terms': rec.get('local_terms', []),
+                'description': rec.get('description', '')
+            }
 
-                print(f"   Исполнители: {performers}")
+            # Используем add_recording вместо прямого вызова _add_to_rdf_graph
+            manager.add_recording(recording_data)
+            print(f"   ✅ Запись добавлена в RDF")
+            count += 1
 
-                # Обработка местных терминов
-                local_terms = []
-                if 'local_terms' in row and row['local_terms']:
-                    terms_str = row['local_terms'].strip('"')
-                    local_terms = [t.strip() for t in terms_str.split(',') if t.strip()]
-                    print(f"   Местные термины: {local_terms}")
+        print(f"\n✅ Загружено {count} записей из JSON в RDF граф")
 
-                recording_data = {
-                    'title': row['title'],
-                    'inventory_number': row.get('inventory_number', ''),
-                    'recording_date': row.get('recording_date', ''),
-                    'duration': row.get('duration', ''),
-                    'performers': performers,
-                    'genre': row.get('genre', ''),
-                    'ethical_status': row.get('ethical_status', ''),
-                    'location': row.get('location', ''),
-                    'collection': row.get('collection', ''),
-                    'local_terms': local_terms,
-                    'description': row.get('description', '')
-                }
-
-                rec_id = manager.add_recording(recording_data)
-                print(f"   ✅ Запись добавлена с ID: {rec_id}")
-                count += 1
-
-            print(f"\n✅ Загружено {count} записей из CSV")
-
-            # Сохраняем граф после загрузки
-            manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
-            print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
+        # Сохраняем граф
+        manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
+        print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
 
     except Exception as e:
         print(f"❌ Ошибка при загрузке: {e}")
         traceback.print_exc()
 
 
-def save_to_csv(recording_data):
-    """Сохранение новой записи в CSV файл"""
-    csv_path = os.path.join(BASE_DIR, "data", "recordings.csv")
+def save_to_json(recording_data, recording_id=None):
+    """Сохранение записи в JSON файл (ЕДИНСТВЕННОЕ ХРАНИЛИЩЕ)"""
+    json_path = DATA_PATH
 
-    # Определяем новый ID
-    import csv
-    max_id = 0
-    rows = []
-
-    # Читаем существующие записи
-    if os.path.exists(csv_path):
-        with open(csv_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            for row in rows:
-                try:
-                    max_id = max(max_id, int(row.get('id', 0)))
-                except:
-                    pass
-
-    # Создаем новую запись
-    new_id = max_id + 1
-
-    # Форматирование исполнителей (поддержка множественных)
-    performers_str = ''
-    ethnos_str = ''
-    performers = recording_data.get('performers', [])
-
-    if performers and len(performers) > 0:
-        performer_names = []
-        performer_ethnos = []
-        for p in performers:
-            if p.get('name') and p['name'].strip():
-                performer_names.append(p['name'].strip())
-                performer_ethnos.append(p.get('ethnos', '').strip() if p.get('ethnos') else '')
-        performers_str = ';'.join(performer_names)
-        ethnos_str = ';'.join(performer_ethnos)
-        print(f"📝 Сохранение исполнителей в CSV: {performers_str} / {ethnos_str}")
-
-    # Форматирование местных терминов
-    local_terms = recording_data.get('local_terms', '')
-    if isinstance(local_terms, list):
-        local_terms_str = ','.join([t.strip() for t in local_terms if t.strip()])
+    # Загружаем существующие записи
+    if os.path.exists(json_path):
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            recordings = data.get('recordings', [])
     else:
-        local_terms_str = str(local_terms) if local_terms else ''
+        data = {'version': '1.0', 'recordings': []}
+        recordings = []
 
-    new_row = {
-        'id': str(new_id),
+    # Если ID не указан, генерируем новый
+    if not recording_id:
+        recording_id = f"rec_{uuid.uuid4().hex[:8]}"
+
+    # Проверяем, существует ли уже запись с таким ID
+    existing_index = None
+    for i, rec in enumerate(recordings):
+        if rec.get('id') == recording_id:
+            existing_index = i
+            break
+
+    # Создаем объект записи
+    new_recording = {
+        'id': recording_id,
         'title': recording_data.get('title', ''),
         'inventory_number': recording_data.get('inventory_number', ''),
         'recording_date': recording_data.get('recording_date', ''),
         'duration': recording_data.get('duration', ''),
-        'performer': performers_str,
-        'ethnos': ethnos_str,
+        'performers': recording_data.get('performers', []),
         'genre': recording_data.get('genre', ''),
         'ethical_status': recording_data.get('ethical_status', ''),
         'location': recording_data.get('location', ''),
         'collection': recording_data.get('collection', ''),
-        'local_terms': local_terms_str,
-        'description': recording_data.get('description', '')
+        'local_terms': recording_data.get('local_terms', []),
+        'description': recording_data.get('description', ''),
+        'updated_at': datetime.now().isoformat()
     }
 
-    rows.append(new_row)
+    # Добавляем created_at только для новой записи
+    if existing_index is None:
+        new_recording['created_at'] = datetime.now().isoformat()
+        recordings.append(new_recording)
+        print(f"✅ Добавлена новая запись в JSON: {recording_id}")
+    else:
+        # Сохраняем original created_at
+        if 'created_at' in recordings[existing_index]:
+            new_recording['created_at'] = recordings[existing_index]['created_at']
+        recordings[existing_index] = new_recording
+        print(f"✅ Обновлена запись в JSON: {recording_id}")
 
-    # Сохраняем обратно в CSV
-    with open(csv_path, 'w', encoding='utf-8', newline='') as f:
-        fieldnames = ['id', 'title', 'inventory_number', 'recording_date', 'duration',
-                      'performer', 'ethnos', 'genre', 'ethical_status', 'location',
-                      'collection', 'local_terms', 'description']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+    # Сохраняем обратно в JSON (ТОЛЬКО ОДИН ФАЙЛ)
+    data = {
+        'version': '1.0',
+        'last_updated': datetime.now().isoformat(),
+        'total_recordings': len(recordings),
+        'recordings': recordings
+    }
 
-    print(f"✅ CSV сохранен. Всего записей: {len(rows)}")
-    return new_id
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ JSON сохранен. Всего записей: {len(recordings)}")
+    return recording_id
+
+
+def delete_from_json(recording_id):
+    """Удаление записи из JSON файла"""
+    json_path = DATA_PATH
+
+    if not os.path.exists(json_path):
+        print(f"⚠️ JSON файл не найден: {json_path}")
+        return False
+
+    with open(json_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        recordings = data.get('recordings', [])
+
+    deleted = False
+    new_recordings = []
+    for rec in recordings:
+        if rec.get('id') == recording_id:
+            print(f"✅ Найдена запись для удаления: {rec.get('title')}")
+            deleted = True
+            # Не добавляем эту запись в новый список
+        else:
+            new_recordings.append(rec)
+
+    if deleted:
+        data['recordings'] = new_recordings
+        data['last_updated'] = datetime.now().isoformat()
+        data['total_recordings'] = len(new_recordings)
+
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"✅ Запись {recording_id} удалена из JSON")
+        return True
+    else:
+        print(f"⚠️ Запись {recording_id} не найдена в JSON")
+        return False
 
 
 # Загружаем существующие данные
-ensure_csv_exists()
+ensure_json_exists()
 load_existing_data()
 
 
@@ -303,24 +310,23 @@ def api_add_recording():
         else:
             print("  ❌ НЕТ ДАННЫХ ОБ ИСПОЛНИТЕЛЯХ!")
 
-        # Добавляем запись в граф
-        rec_id = manager.add_recording(data)
-        print(f"\n✅ Запись добавлена в граф с ID: {rec_id}")
+        # Сначала сохраняем в JSON, чтобы получить ID
+        recording_id = save_to_json(data)
+        print(f"✅ Запись сохранена в JSON с ID: {recording_id}")
+
+        # Добавляем ID в данные для RDF
+        data_with_id = {**data, 'id': recording_id}
+
+        # Добавляем запись в RDF граф
+        rec_id = manager.add_recording(data_with_id)
+        print(f"✅ Запись добавлена в RDF граф")
 
         # Сохраняем граф
         manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
         print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
 
-        # Сохраняем в CSV
-        try:
-            csv_id = save_to_csv(data)
-            print(f"✅ Запись сохранена в CSV с ID: {csv_id}")
-        except Exception as csv_error:
-            print(f"⚠️ Ошибка при сохранении в CSV: {csv_error}")
-            traceback.print_exc()
-
         print("=" * 60 + "\n")
-        return jsonify({'status': 'success', 'id': rec_id})
+        return jsonify({'status': 'success', 'id': recording_id})
 
     except Exception as e:
         print(f"❌ Ошибка при добавлении записи: {e}")
@@ -358,20 +364,17 @@ def api_update_recording(recording_id):
         print(f"   Collection: {data.get('collection')}")
         print(f"   Performers: {data.get('performers')}")
 
+        # Обновляем в JSON
+        save_to_json(data, recording_id)
+        print(f"✅ Запись обновлена в JSON")
+
+        # Обновляем в RDF графе
         success, message = manager.update_recording(recording_id, data)
 
         if success:
             # Сохраняем граф
             manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
             print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
-
-            # Обновляем запись в CSV
-            update_result = update_in_csv(recording_id, data)
-            if update_result:
-                print(f"✅ Запись обновлена в CSV")
-            else:
-                print(f"⚠️ Запись не найдена в CSV")
-
             return jsonify({'status': 'success', 'message': message})
         else:
             return jsonify({'status': 'error', 'message': message}), 400
@@ -382,160 +385,30 @@ def api_update_recording(recording_id):
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-def update_in_csv(recording_id, recording_data):
-    """Обновление записи в CSV файле"""
-    csv_path = os.path.join(BASE_DIR, "data", "recordings.csv")
-
-    if not os.path.exists(csv_path):
-        print(f"⚠️ CSV файл не найден: {csv_path}")
-        return False
-
-    rows = []
-    updated = False
-
-    # Читаем все строки
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        fieldnames = reader.fieldnames
-
-    # Находим и обновляем нужную строку
-    clean_id = recording_id.replace('rec_', '')
-    print(f"🔍 Поиск записи с ID {clean_id} в CSV")
-
-    for row in rows:
-        if row.get('id') == clean_id:
-            print(f"✅ Найдена запись в CSV: {row.get('title')}")
-
-            # Форматируем исполнителей для CSV
-            performers_str = ''
-            ethnos_str = ''
-            if recording_data.get('performers'):
-                performer_list = []
-                ethnos_list = []
-                for p in recording_data['performers']:
-                    if p.get('name') and p['name'].strip():
-                        performer_list.append(p['name'].strip())
-                        ethnos_list.append(p.get('ethnos', '').strip() if p.get('ethnos') else '')
-                performers_str = ';'.join(performer_list)
-                ethnos_str = ';'.join(ethnos_list)
-                print(f"📝 Исполнители для CSV: {performers_str}")
-                print(f"📝 Этносы для CSV: {ethnos_str}")
-
-            # Форматируем местные термины
-            local_terms_str = ''
-            if recording_data.get('local_terms'):
-                if isinstance(recording_data['local_terms'], list):
-                    local_terms_str = ','.join([t.strip() for t in recording_data['local_terms'] if t.strip()])
-                else:
-                    local_terms_str = recording_data['local_terms']
-
-            # Обновляем поля
-            row['title'] = recording_data.get('title', '')
-            row['inventory_number'] = recording_data.get('inventory_number', '')
-            row['recording_date'] = recording_data.get('recording_date', '')
-            row['duration'] = recording_data.get('duration', '')
-            row['performer'] = performers_str
-            row['ethnos'] = ethnos_str
-            row['genre'] = recording_data.get('genre', '')
-            row['ethical_status'] = recording_data.get('ethical_status', '')
-            row['location'] = recording_data.get('location', '')
-            row['collection'] = recording_data.get('collection', '')
-            row['local_terms'] = local_terms_str
-            row['description'] = recording_data.get('description', '')
-
-            print(f"📝 Обновление строки {clean_id} в CSV:")
-            print(f"   Title: {row['title']}")
-            print(f"   Performer: '{performers_str}'")
-            print(f"   Ethnos: '{ethnos_str}'")
-
-            updated = True
-            break
-
-    if updated:
-        # Сохраняем обратно в CSV
-        with open(csv_path, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        print(f"✅ Запись {recording_id} обновлена в CSV")
-        return True
-    else:
-        print(f"⚠️ Запись {recording_id} не найдена в CSV")
-        return False
-
-
 @app.route('/api/delete_recording/<recording_id>', methods=['DELETE'])
 def api_delete_recording(recording_id):
     """API для удаления записи"""
     try:
         print(f"🗑️ Удаление записи {recording_id}")
 
-        # Удаляем из графа
+        # Удаляем из JSON
+        delete_from_json(recording_id)
+
+        # Удаляем из RDF графа
         success, message = manager.delete_recording(recording_id)
 
         if success:
             # Сохраняем граф
             manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
             print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
-
-            # Удаляем из CSV
-            delete_result = delete_from_csv(recording_id)
-            if delete_result:
-                print(f"✅ Запись удалена из CSV")
-            else:
-                print(f"⚠️ Запись не найдена в CSV")
-
             return jsonify({'status': 'success', 'message': message})
         else:
             return jsonify({'status': 'error', 'message': message}), 404
+
     except Exception as e:
         print(f"❌ Ошибка удаления: {e}")
         traceback.print_exc()
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-def delete_from_csv(recording_id):
-    """Удаление записи из CSV файла"""
-    csv_path = os.path.join(BASE_DIR, "data", "recordings.csv")
-
-    if not os.path.exists(csv_path):
-        print(f"⚠️ CSV файл не найден: {csv_path}")
-        return False
-
-    rows = []
-    deleted = False
-    clean_id = recording_id.replace('rec_', '')
-
-    print(f"🔍 Поиск записи с ID {clean_id} в CSV для удаления")
-
-    # Читаем все строки
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        fieldnames = reader.fieldnames
-
-    # Фильтруем строки, оставляя все кроме удаляемой
-    new_rows = []
-    for row in rows:
-        if row.get('id') == clean_id:
-            print(f"✅ Найдена запись для удаления: {row.get('title')}")
-            deleted = True
-            # Не добавляем эту строку в new_rows
-        else:
-            new_rows.append(row)
-
-    if deleted:
-        # Сохраняем обратно в CSV (без удаленной строки)
-        with open(csv_path, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(new_rows)
-        print(f"✅ Запись {recording_id} удалена из CSV")
-        return True
-    else:
-        print(f"⚠️ Запись {recording_id} не найдена в CSV")
-        return False
 
 
 @app.route('/api/export_mets')

@@ -241,7 +241,7 @@ function displayResults(results) {
                     <span class="meta-item">🎤 ${escapeHtml(performersDisplay)}</span>
                 </div>
                 <div class="result-meta">
-                    <span class="meta-item">🌍 ${escapeHtml(ethnosDisplay)}</span>
+                    
                     <span class="meta-item">🎵 ${escapeHtml(recording.genre || 'Жанр не указан')}</span>
                     <span class="meta-item">📀 ${escapeHtml(collectionDisplay)}</span>
                 </div>

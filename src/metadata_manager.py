@@ -15,7 +15,7 @@ class FolklorMetadataManager:
         print(f"📁 Путь к онтологии: {ontology_path}")
 
         self.g = Graph()
-        self.FOLK = Namespace("http://agiki.ru/folklor#")
+        self.FOLK = Namespace("http://folklorarchive.ru/folklor#")
 
         try:
             # Проверяем существование файла
@@ -698,7 +698,7 @@ class FolklorMetadataManager:
         agent = ET.SubElement(metsHdr, "agent")
         agent.set("ROLE", "CREATOR")
         agent.set("TYPE", "ORGANIZATION")
-        agent.text = "АГИКИ Фонограммархив"
+        agent.text = "ФонограммAрхив"
 
         # Descriptive Metadata
         dmdSec = ET.SubElement(mets, "dmdSec")

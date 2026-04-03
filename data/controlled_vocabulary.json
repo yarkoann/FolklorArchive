@@ -41,14 +41,20 @@
       "region": "Якутия"
     },
     {
-      "id": "ethno_поляк",
-      "name": "Поляк",
+      "id": "ethno_поляки",
+      "name": "Поляки",
       "alternative_names": [],
       "region": ""
     },
     {
-      "id": "ethno_швед",
-      "name": "Швед",
+      "id": "ethno_шведы",
+      "name": "Шведы",
+      "alternative_names": [],
+      "region": ""
+    },
+    {
+      "id": "ethno_китайцы",
+      "name": "Китайцы",
       "alternative_names": [],
       "region": ""
     }
