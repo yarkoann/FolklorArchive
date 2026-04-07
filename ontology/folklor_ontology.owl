@@ -5,167 +5,20 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_71d3f10b">
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_9dee126f">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
-    <ns1:название xml:lang="ru">test китай сказка</ns1:название>
-    <ns1:инвентарныйНомер>NS-2026-001</ns1:инвентарныйНомер>
-    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-03-30</ns1:датаЗаписи>
-    <ns1:длительность>45:21</ns1:длительность>
-    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_32b2d264"/>
-    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_сказка"/>
-    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#ограниченный_доступ"/>
-    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_москва"/>
-    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_7"/>
-    <ns1:местныеТермины xml:lang="ru">Tónghuà</ns1:местныеТермины>
-    <ns1:описание xml:lang="ru">Якутская сказка на китайский лад</ns1:описание>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_9a3ae0f3">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_чокурдах">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Чокурдах</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_польша">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Польша</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_ed67f976">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
-    <ns1:название xml:lang="ru">Колыбельная эвенков</ns1:название>
-    <ns1:инвентарныйНомер>EV-2023-008</ns1:инвентарныйНомер>
-    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1975-05-12</ns1:датаЗаписи>
-    <ns1:длительность>03:20</ns1:длительность>
-    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_2c87fabd"/>
-    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_колыбельная"/>
+    <ns1:название xml:lang="ru">Горлохрипение чукчей</ns1:название>
+    <ns1:инвентарныйНомер>CH-2023-042</ns1:инвентарныйНомер>
+    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1992-03-20</ns1:датаЗаписи>
+    <ns1:длительность>12:15</ns1:длительность>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_78e11a14"/>
+    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_горлохрипение"/>
     <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#публичный_доступ"/>
     <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_чокурдах"/>
-    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_312"/>
-    <ns1:местныеТермины xml:lang="ru">бэвунг</ns1:местныеТермины>
-    <ns1:местныеТермины xml:lang="ru">авахи</ns1:местныеТермины>
-    <ns1:описание xml:lang="ru">Традиционная колыбельная песня</ns1:описание>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_1">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
-    <folk:название xml:lang="ru">Шаманский обряд нганасан</folk:название>
-    <folk:инвентарныйНомер>NG-2023-001</folk:инвентарныйНомер>
-    <folk:датаЗаписи>1985-07-15</folk:датаЗаписи>
-    <folk:длительность>45:30</folk:длительность>
-    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_шаманский_обряд"/>
-    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#ограниченный_доступ"/>
-    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_таймыр"/>
-    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_312"/>
-    <folk:местныеТермины xml:lang="ru">Мэдодэ</folk:местныеТермины>
-    <folk:местныеТермины xml:lang="ru">камлание</folk:местныеТермины>
-    <folk:описание xml:lang="ru">Запись шаманского камлания, бубен</folk:описание>
-    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_4bb745ff"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_москва">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Москва</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_4bb745ff">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Т.Д. Костеркин</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_нганасаны"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_китай">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Китай</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_54a880d8">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_колыбельная">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Колыбельная</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_2">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
-    <folk:название xml:lang="ru">Горлохрипение чукчей</folk:название>
-    <folk:инвентарныйНомер>CH-2023-042</folk:инвентарныйНомер>
-    <folk:датаЗаписи>1992-03-20</folk:датаЗаписи>
-    <folk:длительность>12:15</folk:длительность>
-    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_горлохрипение"/>
-    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
-    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_чокурдах"/>
-    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_3962"/>
-    <folk:местныеТермины xml:lang="ru">пилгэйнгэн</folk:местныеТермины>
-    <folk:местныеТермины xml:lang="ru">э'йвын</folk:местныеТермины>
-    <folk:описание xml:lang="ru">Исполнение пилгэйнгэн, горловое пение</folk:описание>
-    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_63319824"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ограниченный_доступ">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
-    <rdfs:label xml:lang="ru">ограниченный_доступ</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_эпическое_сказание">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Эпическое сказание</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_горлохрипение">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Горлохрипение</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_310f406e">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
-    <folk:название xml:lang="ru">Шведская опера</folk:название>
-    <folk:инвентарныйНомер>NS-2026-002</folk:инвентарныйНомер>
-    <folk:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-03-31</folk:датаЗаписи>
-    <folk:длительность>12:15</folk:длительность>
-    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_e9392c03"/>
-    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_81244f54"/>
-    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_опера"/>
-    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
-    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_москва"/>
-    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_129"/>
-    <folk:местныеТермины xml:lang="ru">Operasångare</folk:местныеТермины>
-    <folk:описание xml:lang="ru">Опера на основе якутских сказаний. Легенда о богатырях</folk:описание>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_4">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
-    <folk:название xml:lang="ru">Колыбельная эвенков</folk:название>
-    <folk:инвентарныйНомер>EV-2023-008</folk:инвентарныйНомер>
-    <folk:датаЗаписи>1975-05-12</folk:датаЗаписи>
-    <folk:длительность>03:20</folk:длительность>
-    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_колыбельная"/>
-    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
-    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_чокурдах"/>
-    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_312"/>
-    <folk:местныеТермины xml:lang="ru">бэвунг</folk:местныеТермины>
-    <folk:местныеТермины xml:lang="ru">авахи</folk:местныеТермины>
-    <folk:описание xml:lang="ru">Традиционная колыбельная песня</folk:описание>
-    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_7fdd6279"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_0edf032e">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">М.С. Яптунэ</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_энцы"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_москва">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Москва</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_87c5348a">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">М.С. Яптунэ</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_энцы"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_швеция">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Швеция</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_якуты">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Якуты</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_эвенки">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Эвенки</rdfs:label>
+    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_3962"/>
+    <ns1:местныеТермины xml:lang="ru">пилгэйнгэн</ns1:местныеТермины>
+    <ns1:местныеТермины xml:lang="ru">э'йвын</ns1:местныеТермины>
+    <ns1:описание xml:lang="ru">Исполнение пилгэйнгэн, горловое пение</ns1:описание>
   </rdf:Description>
   <rdf:Description rdf:about="http://agiki.ru/folklor#rec_3">
     <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
@@ -182,33 +35,59 @@
     <folk:описание xml:lang="ru">Исполнение мәнә бәлы, личная родовая песня</folk:описание>
     <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_0edf032e"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_таймыр">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Таймыр</rdfs:label>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_9a3ae0f3">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_ad149fdd">
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_b8ad82f4">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_d1557e6e">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_4">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
+    <folk:название xml:lang="ru">Колыбельная эвенков</folk:название>
+    <folk:инвентарныйНомер>EV-2023-008</folk:инвентарныйНомер>
+    <folk:датаЗаписи>1975-05-12</folk:датаЗаписи>
+    <folk:длительность>03:20</folk:длительность>
+    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_колыбельная"/>
+    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
+    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_чокурдах"/>
+    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_312"/>
+    <folk:местныеТермины xml:lang="ru">бэвунг</folk:местныеТермины>
+    <folk:местныеТермины xml:lang="ru">авахи</folk:местныеТермины>
+    <folk:описание xml:lang="ru">Традиционная колыбельная песня</folk:описание>
+    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_7fdd6279"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_чокурдах">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Чокурдах</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_71702571">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
+    <ns1:название xml:lang="ru">Шаманский обряд нганасан</ns1:название>
+    <ns1:инвентарныйНомер>NG-2023-001</ns1:инвентарныйНомер>
+    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1985-07-15</ns1:датаЗаписи>
+    <ns1:длительность>45:30</ns1:длительность>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_23f53b14"/>
+    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_шаманский_обряд"/>
+    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#ограниченный_доступ"/>
+    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_таймыр"/>
+    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_312"/>
+    <ns1:местныеТермины xml:lang="ru">Мэдодэ</ns1:местныеТермины>
+    <ns1:местныеТермины xml:lang="ru">камлание</ns1:местныеТермины>
+    <ns1:описание xml:lang="ru">Запись шаманского камлания, бубен</ns1:описание>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_b5536cd8">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
     <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
     <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_эпопея">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Эпопея</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_359e9be8">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
-    <ns1:название xml:lang="ru">Личная песня энцев</ns1:название>
-    <ns1:инвентарныйНомер>EN-2023-015</ns1:инвентарныйНомер>
-    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1988-11-10</ns1:датаЗаписи>
-    <ns1:длительность>08:45</ns1:длительность>
-    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_87c5348a"/>
-    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_личная_песня"/>
-    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#требует_согласия_общины"/>
-    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_таймыр"/>
-    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_245"/>
-    <ns1:местныеТермины xml:lang="ru">мәнә бәлы</ns1:местныеТермины>
-    <ns1:местныеТермины xml:lang="ru">ситабы</ns1:местныеТермины>
-    <ns1:описание xml:lang="ru">Исполнение мәнә бәлы, личная родовая песня</ns1:описание>
   </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_5c912603">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
@@ -240,330 +119,443 @@
     <folk:описание xml:lang="ru">Фрагмент якутского героического эпоса</folk:описание>
     <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_2021378c"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_78e11a14">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">А.Н. Тынель</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_чукчи"/>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_359e9be8">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
+    <ns1:название xml:lang="ru">Личная песня энцев</ns1:название>
+    <ns1:инвентарныйНомер>EN-2023-015</ns1:инвентарныйНомер>
+    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1988-11-10</ns1:датаЗаписи>
+    <ns1:длительность>08:45</ns1:длительность>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_87c5348a"/>
+    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_личная_песня"/>
+    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#требует_согласия_общины"/>
+    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_таймыр"/>
+    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_245"/>
+    <ns1:местныеТермины xml:lang="ru">мәнә бәлы</ns1:местныеТермины>
+    <ns1:местныеТермины xml:lang="ru">ситабы</ns1:местныеТермины>
+    <ns1:описание xml:lang="ru">Исполнение мәнә бәлы, личная родовая песня</ns1:описание>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_bdf4e99e">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев У.У.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_310f406e">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
+    <folk:название xml:lang="ru">Шведская опера</folk:название>
+    <folk:инвентарныйНомер>NS-2026-002</folk:инвентарныйНомер>
+    <folk:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-03-31</folk:датаЗаписи>
+    <folk:длительность>12:15</folk:длительность>
+    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_e9392c03"/>
+    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_81244f54"/>
+    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_опера"/>
+    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
+    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_москва"/>
+    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_129"/>
+    <folk:местныеТермины xml:lang="ru">Operasångare</folk:местныеТермины>
+    <folk:описание xml:lang="ru">Опера на основе якутских сказаний. Легенда о богатырях</folk:описание>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_чукчи">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Чукчи</rdfs:label>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_ed67f976">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
+    <ns1:название xml:lang="ru">Колыбельная эвенков</ns1:название>
+    <ns1:инвентарныйНомер>EV-2023-008</ns1:инвентарныйНомер>
+    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1975-05-12</ns1:датаЗаписи>
+    <ns1:длительность>03:20</ns1:длительность>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_2c87fabd"/>
+    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_колыбельная"/>
+    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#публичный_доступ"/>
+    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_чокурдах"/>
+    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_312"/>
+    <ns1:местныеТермины xml:lang="ru">бэвунг</ns1:местныеТермины>
+    <ns1:местныеТермины xml:lang="ru">авахи</ns1:местныеТермины>
+    <ns1:описание xml:lang="ru">Традиционная колыбельная песня</ns1:описание>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#Исполнитель">
+  <rdf:Description rdf:about="http://agiki.ru/folklor#АудиоЗапись">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:label xml:lang="ru">Исполнитель</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_поляк">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Поляк</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_опера">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Опера</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_5778ab77">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Корн Е.Е</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_23f53b14">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">Т.Д. Костеркин</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_нганасаны"/>
+    <rdfs:label xml:lang="ru">АудиоЗапись</rdfs:label>
   </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_59858688">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
     <ns1:имя xml:lang="ru">Чуев У.У.</ns1:имя>
     <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_поляк"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_сказка">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Сказка</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_2c87fabd">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">А.А. Немтушкина</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_эвенки"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_af6b6b2d">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">Куп С.А.</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_швед"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_поляк">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Поляк</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_6a138f0e">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">В.О. Каратаев</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_якуты"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_d1557e6e">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_швед">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Швед</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_7">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №7</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_129">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №12(9)</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_008a6851">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_71702571">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
-    <ns1:название xml:lang="ru">Шаманский обряд нганасан</ns1:название>
-    <ns1:инвентарныйНомер>NG-2023-001</ns1:инвентарныйНомер>
-    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1985-07-15</ns1:датаЗаписи>
-    <ns1:длительность>45:30</ns1:длительность>
-    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_23f53b14"/>
-    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_шаманский_обряд"/>
-    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#ограниченный_доступ"/>
-    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_таймыр"/>
-    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_312"/>
-    <ns1:местныеТермины xml:lang="ru">Мэдодэ</ns1:местныеТермины>
-    <ns1:местныеТермины xml:lang="ru">камлание</ns1:местныеТермины>
-    <ns1:описание xml:lang="ru">Запись шаманского камлания, бубен</ns1:описание>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#Коллекция">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:label xml:lang="ru">Коллекция</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_988a3645">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_827cd25a">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_опера">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Опера</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_f711ed54">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_9dee126f">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
-    <ns1:название xml:lang="ru">Горлохрипение чукчей</ns1:название>
-    <ns1:инвентарныйНомер>CH-2023-042</ns1:инвентарныйНомер>
-    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1992-03-20</ns1:датаЗаписи>
-    <ns1:длительность>12:15</ns1:длительность>
-    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_78e11a14"/>
-    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_горлохрипение"/>
-    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#публичный_доступ"/>
-    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_чокурдах"/>
-    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_3962"/>
-    <ns1:местныеТермины xml:lang="ru">пилгэйнгэн</ns1:местныеТермины>
-    <ns1:местныеТермины xml:lang="ru">э'йвын</ns1:местныеТермины>
-    <ns1:описание xml:lang="ru">Исполнение пилгэйнгэн, горловое пение</ns1:описание>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_энцы">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Энцы</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_чокурдах">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Чокурдах</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_2021378c">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">В.О. Каратаев</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_якуты"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_нганасаны">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Нганасаны</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_0a6879cc">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Куркни Н.Н.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_007afbfd">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
-    <ns1:имя xml:lang="ru">Ли Мао Ти</ns1:имя>
-    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китай"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_245">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №245</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_71839b65">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Корн Е.Е</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#Локация">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:label xml:lang="ru">Локация</rdfs:label>
-  </rdf:Description>
   <rdf:Description rdf:about="http://agiki.ru/folklor#Жанр">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
     <rdfs:label xml:lang="ru">Жанр</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_чукчи">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Чукчи</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_c3ea1b5d">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_личная_песня">
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_шаманский_обряд">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Личная песня</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_таймыр">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
-    <rdfs:label xml:lang="ru">Таймыр</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_швед">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Швед</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_e9392c03">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев У.У.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_3962">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №396(2)</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_312">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №312</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_нганасаны">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Нганасаны</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_шаманский_обряд">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
     <rdfs:label xml:lang="ru">Шаманский обряд</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_129">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №12(9)</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_7fdd6279">
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_4bb745ff">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">А.А. Немтушкина</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
+    <folk:имя xml:lang="ru">Т.Д. Костеркин</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_нганасаны"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#публичный_доступ">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
-    <rdfs:label xml:lang="ru">публичный_доступ</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_3962">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №396(2)</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_245">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №245</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_горлохрипение">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Горлохрипение</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_8715286e">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_2">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
+    <folk:название xml:lang="ru">Горлохрипение чукчей</folk:название>
+    <folk:инвентарныйНомер>CH-2023-042</folk:инвентарныйНомер>
+    <folk:датаЗаписи>1992-03-20</folk:датаЗаписи>
+    <folk:длительность>12:15</folk:длительность>
+    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_горлохрипение"/>
+    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#публичный_доступ"/>
+    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_чокурдах"/>
+    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_3962"/>
+    <folk:местныеТермины xml:lang="ru">пилгэйнгэн</folk:местныеТермины>
+    <folk:местныеТермины xml:lang="ru">э'йвын</folk:местныеТермины>
+    <folk:описание xml:lang="ru">Исполнение пилгэйнгэн, горловое пение</folk:описание>
+    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_63319824"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://agiki.ru/folklor#perf_e5d97cc5">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
     <folk:имя xml:lang="ru">Чуев У.У.</folk:имя>
     <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
   </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#публичный_доступ">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
+    <rdfs:label xml:lang="ru">публичный_доступ</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_988a3645">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_москва">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Москва</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_87c5348a">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">М.С. Яптунэ</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_энцы"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_чукчи">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Чукчи</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_2021378c">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">В.О. Каратаев</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_якуты"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#Этнос">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="ru">Этнос</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_китай">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Китай</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#rec_71d3f10b">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#АудиоЗапись"/>
+    <ns1:название xml:lang="ru">test китай сказка</ns1:название>
+    <ns1:инвентарныйНомер>NS-2026-001</ns1:инвентарныйНомер>
+    <ns1:датаЗаписи rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-03-30</ns1:датаЗаписи>
+    <ns1:длительность>45:21</ns1:длительность>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_135d8e39"/>
+    <ns1:имеетИсполнителя rdf:resource="http://folklorarchive.ru/folklor#perf_21b9d8b5"/>
+    <ns1:имеетЖанр rdf:resource="http://folklorarchive.ru/folklor#genre_сказка"/>
+    <ns1:этическийСтатус rdf:resource="http://folklorarchive.ru/folklor#публичный_доступ"/>
+    <ns1:записанаВЛокации rdf:resource="http://folklorarchive.ru/folklor#loc_москва"/>
+    <ns1:входитВКоллекцию rdf:resource="http://folklorarchive.ru/folklor#coll_диск_7"/>
+    <ns1:местныеТермины xml:lang="ru">Tónghuà</ns1:местныеТермины>
+    <ns1:описание xml:lang="ru">Якутская сказка на китайский лад</ns1:описание>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_af6b6b2d">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Куп С.А.</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_6cb3a3c3">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Ли Мао Ти</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китайцы"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_швеция">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Швеция</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_c3ea1b5d">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_e9392c03">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев У.У.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_3962">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №396(2)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_71839b65">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Корн Е.Е</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_81244f54">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_якуты">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Якуты</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_129">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №12(9)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_2c87fabd">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">А.А. Немтушкина</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_эвенки"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_личная_песня">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Личная песня</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_шаманский_обряд">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Шаманский обряд</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#rec_1">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#АудиоЗапись"/>
+    <folk:название xml:lang="ru">Шаманский обряд нганасан</folk:название>
+    <folk:инвентарныйНомер>NG-2023-001</folk:инвентарныйНомер>
+    <folk:датаЗаписи>1985-07-15</folk:датаЗаписи>
+    <folk:длительность>45:30</folk:длительность>
+    <folk:имеетЖанр rdf:resource="http://agiki.ru/folklor#genre_шаманский_обряд"/>
+    <folk:этическийСтатус rdf:resource="http://agiki.ru/folklor#ограниченный_доступ"/>
+    <folk:записанаВЛокации rdf:resource="http://agiki.ru/folklor#loc_таймыр"/>
+    <folk:входитВКоллекцию rdf:resource="http://agiki.ru/folklor#coll_диск_312"/>
+    <folk:местныеТермины xml:lang="ru">Мэдодэ</folk:местныеТермины>
+    <folk:местныеТермины xml:lang="ru">камлание</folk:местныеТермины>
+    <folk:описание xml:lang="ru">Запись шаманского камлания, бубен</folk:описание>
+    <folk:имеетИсполнителя rdf:resource="http://agiki.ru/folklor#perf_4bb745ff"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_эпопея">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Эпопея</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_6a138f0e">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">В.О. Каратаев</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_якуты"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_312">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №312</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_энцы">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Энцы</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_ad149fdd">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_эвенки">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
     <rdfs:label xml:lang="ru">Эвенки</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_b8ad82f4">
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_0edf032e">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+    <folk:имя xml:lang="ru">М.С. Яптунэ</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_энцы"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#АудиоЗапись">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:label xml:lang="ru">АудиоЗапись</rdfs:label>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#требует_согласия_общины">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
+    <rdfs:label xml:lang="ru">требует_согласия_общины</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_b5536cd8">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_129">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №12(9)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_чокурдах">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Чокурдах</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_7">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №7</rdfs:label>
   </rdf:Description>
   <rdf:Description rdf:about="http://agiki.ru/folklor#perf_5c2a4cad">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
     <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
     <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_личная_песня">
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_78e11a14">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">А.Н. Тынель</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_чукчи"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_008a6851">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_опера">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Личная песня</rdfs:label>
+    <rdfs:label xml:lang="ru">Опера</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_23f53b14">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Т.Д. Костеркин</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_нганасаны"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ограниченный_доступ">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
+    <rdfs:label xml:lang="ru">ограниченный_доступ</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_чукчи">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Чукчи</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_таймыр">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Таймыр</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_827cd25a">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#Коллекция">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="ru">Коллекция</rdfs:label>
   </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_32b2d264">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
     <ns1:имя xml:lang="ru">Ли Мао Ти</ns1:имя>
     <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китайцы"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_312">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
-    <rdfs:label xml:lang="ru">Диск №312</rdfs:label>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_007afbfd">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Ли Мао Ти</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китай"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#требует_согласия_общины">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#ЭтическийСтатус"/>
-    <rdfs:label xml:lang="ru">требует_согласия_общины</rdfs:label>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#Исполнитель">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="ru">Исполнитель</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_шаманский_обряд">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
-    <rdfs:label xml:lang="ru">Шаманский обряд</rdfs:label>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_якуты">
-    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Якуты</rdfs:label>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_135d8e39">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Ли Мао Ти</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китайцы"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_колыбельная">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
     <rdfs:label xml:lang="ru">Колыбельная</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#Этнос">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
-    <rdfs:label xml:lang="ru">Этнос</rdfs:label>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_якуты">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Якуты</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_энцы">
-    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
-    <rdfs:label xml:lang="ru">Энцы</rdfs:label>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_швед">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Швед</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_f711ed54">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_8715286e">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Норн Ворн</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_сказка">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Сказка</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_эпическое_сказание">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Эпическое сказание</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_личная_песня">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Личная песня</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_245">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №245</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#perf_21b9d8b5">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Исполнитель"/>
+    <ns1:имя xml:lang="ru">Ци Рей Па</ns1:имя>
+    <ns1:принадлежитКЭтносу rdf:resource="http://folklorarchive.ru/folklor#ethnos_китайцы"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://agiki.ru/folklor#perf_63319824">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
     <folk:имя xml:lang="ru">А.Н. Тынель</folk:имя>
     <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_чукчи"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_энцы">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Энцы</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#coll_диск_245">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №245</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_7fdd6279">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">А.А. Немтушкина</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_54a880d8">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев В.С.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#loc_москва">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Москва</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_швед">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Швед</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_312">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №312</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_горлохрипение">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Горлохрипение</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#coll_диск_3962">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Коллекция"/>
+    <rdfs:label xml:lang="ru">Диск №396(2)</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_0a6879cc">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Куркни Н.Н.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_эвенки">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Эвенки</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_таймыр">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Таймыр</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_горлохрипение">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Горлохрипение</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#loc_польша">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Локация"/>
+    <rdfs:label xml:lang="ru">Польша</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_bdf4e99e">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
+    <folk:имя xml:lang="ru">Чуев У.У.</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_поляк"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_поляк">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Поляк</rdfs:label>
   </rdf:Description>
   <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_китайцы">
     <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
@@ -573,9 +565,33 @@
     <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
     <rdfs:label xml:lang="ru">Эпическое сказание</rdfs:label>
   </rdf:Description>
-  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_81244f54">
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#ethnos_нганасаны">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Нганасаны</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#Локация">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label xml:lang="ru">Локация</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_нганасаны">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Нганасаны</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#perf_5778ab77">
     <rdf:type rdf:resource="http://agiki.ru/folklor#Исполнитель"/>
-    <folk:имя xml:lang="ru">Куп С.А.</folk:имя>
-    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_швед"/>
+    <folk:имя xml:lang="ru">Корн Е.Е</folk:имя>
+    <folk:принадлежитКЭтносу rdf:resource="http://agiki.ru/folklor#ethnos_эвенки"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#ethnos_поляк">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Этнос"/>
+    <rdfs:label xml:lang="ru">Поляк</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://folklorarchive.ru/folklor#genre_опера">
+    <rdf:type rdf:resource="http://folklorarchive.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Опера</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://agiki.ru/folklor#genre_колыбельная">
+    <rdf:type rdf:resource="http://agiki.ru/folklor#Жанр"/>
+    <rdfs:label xml:lang="ru">Колыбельная</rdfs:label>
   </rdf:Description>
 </rdf:RDF>

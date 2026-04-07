@@ -188,6 +188,20 @@
       "name": "Диск №12(9)"
     }
   ],
+  "ritual_status": [
+    {
+      "id": "public",
+      "name": "Публичный"
+    },
+    {
+      "id": "restricted",
+      "name": "Ограниченный"
+    },
+    {
+      "id": "secret",
+      "name": "Тайный"
+    }
+  ],
   "instruments": [
     {
       "id": "khomus",
@@ -214,20 +228,12 @@
       "id": "kyrympa",
       "name": "Кырымпа",
       "type": "chordophone"
-    }
-  ],
-  "ritual_status": [
-    {
-      "id": "public",
-      "name": "Публичный"
     },
     {
-      "id": "restricted",
-      "name": "Ограниченный"
-    },
-    {
-      "id": "secret",
-      "name": "Тайный"
+      "id": "instrument_эрху",
+      "name": "Эрху",
+      "type": "other",
+      "local_names": []
     }
   ]
 }

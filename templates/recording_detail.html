@@ -3,216 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Детальная информация - ФонограммАрхив</title>
+    <title>Детальная информация - Фольклорный архив</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="detail-container">
-        <div class="detail-header">
-            <a href="/" class="back-link">← На главную</a>
-            <h1>Детальная информация</h1>
-            <p>ID записи: <span id="recording-id-display"></span></p>
-        </div>
-
-        <div class="detail-content" id="recording-detail">
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <p>Загрузка данных...</p>
-            </div>
-        </div>
-
-        <!-- Кнопки действий будут добавлены сюда JavaScript'ом -->
-        <div id="detail-actions-container"></div>
-
-
+<div class="detail-container">
+    <div class="detail-header">
+        <a href="/" class="back-link">← На главную</a>
+        <h1>Детальная информация</h1>
+        <p>ID записи: <span id="recording-id-display"></span></p>
     </div>
 
-    <script>
-        // Получаем ID записи из URL
-        const pathParts = window.location.pathname.split('/');
-        const recordingId = pathParts[pathParts.length - 1];
+    <div class="detail-content" id="recording-detail">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Загрузка данных...</p>
+        </div>
+    </div>
 
-        // Отображаем ID на странице
-        document.getElementById('recording-id-display').textContent = recordingId;
+    <div id="detail-actions-container"></div>
 
-        console.log('Загрузка записи с ID:', recordingId);
+    <a href="/" class="back-button">← Вернуться к поиску</a>
+</div>
 
-        async function loadRecordingDetails() {
-            try {
-                const response = await fetch(`/api/recording/${recordingId}`);
+<script>
+    const pathParts = window.location.pathname.split('/');
+    const recordingId = pathParts[pathParts.length - 1];
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ошибка! статус: ${response.status}`);
-                }
+    document.getElementById('recording-id-display').textContent = recordingId;
 
-                const data = await response.json();
-                console.log('Получены данные:', data);
-
-                if (data.error) {
-                    showError(data.error);
-                    return;
-                }
-
-                displayRecordingDetails(data);
-
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                showError(error.message);
+    async function loadRecordingDetails() {
+        try {
+            const response = await fetch(`/api/recording/${recordingId}`);
+            if (!response.ok) throw new Error(`HTTP ошибка! статус: ${response.status}`);
+            const data = await response.json();
+            if (data.error) {
+                showError(data.error);
+                return;
             }
+            displayRecordingDetails(data);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            showError(error.message);
+        }
+    }
+
+    function displayRecordingDetails(recording) {
+        const statusClass = getStatusClass(recording.status);
+        const statusName = getStatusName(recording.status);
+        const durationDisplay = recording.duration || 'Не указана';
+        const localTermsDisplay = recording.local_terms ?
+            (Array.isArray(recording.local_terms) ? recording.local_terms.join(', ') : recording.local_terms) : 'Не указаны';
+
+        // Форма исполнения для отображения
+        const performanceFormMap = {
+            'vocal': 'Вокальная',
+            'instrumental': 'Инструментальная',
+            'vocal_instrumental': 'Вокально-инструментальная'
+        };
+
+        // Построение таблицы исполнителей с инструментами
+        let performersRowsHtml = '';
+        if (recording.performers && recording.performers.length > 0) {
+            for (let i = 0; i < recording.performers.length; i++) {
+                const performer = recording.performers[i];
+                const performanceForm = performanceFormMap[performer.performance_form] || performer.performance_form || 'Не указана';
+
+                // Формируем строку с инструментами
+                let instrumentsText = '';
+                if (performer.instruments && performer.instruments.length > 0) {
+                    instrumentsText = performer.instruments.map(inst => inst.name).join(', ');
+                } else {
+                    instrumentsText = 'Не указаны';
+                }
+
+                performersRowsHtml += `
+                        <tr>
+                            <th>${recording.performers.length > 1 ? `Исполнитель ${i + 1}:` : 'Исполнитель:'}</th>
+                            <td>
+                                <strong>${escapeHtml(performer.name || 'Не указан')}</strong>
+                                ${performer.ethnos ? `<span style="color: #666;"> (${escapeHtml(performer.ethnos)})</span>` : ''}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Форма исполнения:</th>
+                            <td>${escapeHtml(performanceForm)}</td>
+                        </tr>
+                        ${performer.instruments && performer.instruments.length > 0 ? `
+                        <tr>
+                            <th>Инструменты:</th>
+                            <td>${escapeHtml(instrumentsText)}</td>
+                        </tr>
+                        ` : ''}
+                        ${i < recording.performers.length - 1 ? '<tr><td colspan="2" style="padding: 5px;"></td></tr>' : ''}
+                    `;
+            }
+        } else if (recording.performer) {
+            // Старый формат
+            performersRowsHtml = `
+                    <tr>
+                        <th>Исполнитель:</th>
+                        <td>
+                            <strong>${escapeHtml(recording.performer)}</strong>
+                            ${recording.ethnos ? `<span style="color: #666;"> (${escapeHtml(recording.ethnos)})</span>` : ''}
+                        </td>
+                    </tr>
+                `;
+        } else {
+            performersRowsHtml = `
+                    <tr>
+                        <th>Исполнитель:</th>
+                        <td>Не указан</td>
+                    </tr>
+                `;
         }
 
-        function displayRecordingDetails(recording) {
-            const statusClass = getStatusClass(recording.status);
-            const statusName = getStatusName(recording.status);
 
-            // Форматируем длительность
-            const durationDisplay = formatDuration(recording.duration);
-
-            // Форматируем местные термины
-            const localTermsDisplay = recording.local_terms ?
-                (Array.isArray(recording.local_terms) ? recording.local_terms.join(', ') : recording.local_terms) : 'Не указаны';
-
-            // Обработка множественных исполнителей - ИСПРАВЛЕНО!
-            let performersHtml = '';
-            console.log('Исполнители из API:', recording.performers);
-
-            if (recording.performers && recording.performers.length > 0) {
-                for (let i = 0; i < recording.performers.length; i++) {
-                    const performer = recording.performers[i];
-                    console.log(`Исполнитель ${i+1}:`, performer);
-
-                    performersHtml += `
-                        <tr>
-                            <th>Исполнитель ${recording.performers.length > 1 ? i+1 : ''}:</th>
-                            <td>${escapeHtml(performer.name || 'Не указан')} ${performer.ethnos ? `(${escapeHtml(performer.ethnos)})` : ''}</td>
-                        </tr>
-                    `;
-                }
-            } else {
-                // Проверяем старый формат (на всякий случай)
-                if (recording.performer) {
-                    performersHtml = `
-                        <tr>
-                            <th>Исполнитель:</th>
-                            <td>${escapeHtml(recording.performer)} ${recording.ethnos ? `(${escapeHtml(recording.ethnos)})` : ''}</td>
-                        </tr>
-                    `;
-                } else {
-                    performersHtml = `
-                        <tr>
-                            <th>Исполнитель:</th>
-                            <td>Не указан</td>
-                        </tr>
-                    `;
-                }
-            }
-
-            const html = `
+        const mainHtml = `
+                <!-- ОСНОВНАЯ ИНФОРМАЦИЯ -->
                 <div class="detail-section">
                     <h3>Основная информация</h3>
                     <table class="detail-table">
-                        <tr>
-                            <th>Название:</th>
-                            <td>${escapeHtml(recording.title || 'Не указано')}</td>
-                        </tr>
-                        <tr>
-                            <th>Инвентарный номер:</th>
-                            <td>${escapeHtml(recording.inventory_number || 'Не указан')}</td>
-                        </tr>
-                        <tr>
-                            <th>Дата записи:</th>
-                            <td>${escapeHtml(recording.date || 'Не указана')}</td>
-                        </tr>
-                        <tr>
-                            <th>Длительность:</th>
-                            <td>${durationDisplay}</td>
-                        </tr>
-                        <tr>
-                            <th>Жанр:</th>
-                            <td>${escapeHtml(recording.genre || 'Не указан')}</td>
-                        </tr>
-                        <tr>
-                            <th>Локация:</th>
-                            <td>${escapeHtml(recording.location || 'Не указана')}</td>
-                        </tr>
-                        <tr>
-                            <th>Коллекция:</th>
-                            <td>${escapeHtml(recording.collection || 'Не указана')}</td>
-                        </tr>
-                        <tr>
-                            <th>Этический статус:</th>
-                            <td><span class="status-badge ${statusClass}">${statusName}</span></td>
-                        </tr>
+                        <tr><th>Название:</th><td>${escapeHtml(recording.title || 'Не указано')}</td></tr>
+                        <tr><th>Инвентарный номер:</th><td>${escapeHtml(recording.inventory_number || 'Не указан')}</td></tr>
+                        <tr><th>Дата записи:</th><td>${escapeHtml(recording.date || 'Не указана')}</td></tr>
+                        <tr><th>Длительность:</th><td>${durationDisplay}</td></tr>
+
                     </table>
                 </div>
 
+                <!-- ИСПОЛНИТЕЛИ -->
                 <div class="detail-section">
-                    <h3>Информация об исполнителе</h3>
+                    <h3>Исполнители</h3>
                     <table class="detail-table">
-                        ${performersHtml}
+                        ${performersRowsHtml}
+                    </table>
+                </div>
+
+
+
+                <!-- КЛАССИФИКАЦИЯ -->
+                <div class="detail-section">
+                    <h3>Классификация</h3>
+                    <table class="detail-table">
+                        <tr><th>Жанр:</th><td>${escapeHtml(recording.genre || 'Не указан')}</td></tr>
+                        <tr><th>Локация:</th><td>${escapeHtml(recording.location || 'Не указана')}</td></tr>
+                        <tr><th>Коллекция:</th><td>${escapeHtml(recording.collection || 'Не указана')}</td></tr>
+                        <tr><th>Этический статус:</th><td><span class="status-badge ${statusClass}">${statusName}</span></td></tr>
                     </table>
                 </div>
 
                 <div class="detail-section">
                     <h3>Местные термины</h3>
-                    <table class="detail-table">
-                        <tr>
-                            <th>Термины:</th>
-                            <td>${escapeHtml(localTermsDisplay)}</td>
-                        </tr>
-                    </table>
+                    <table class="detail-table"><tr><th>Термины:</th><td>${escapeHtml(localTermsDisplay)}</td></tr></table>
                 </div>
 
                 <div class="detail-section">
                     <h3>Описание</h3>
-                    <table class="detail-table">
-                        <tr>
-                            <th>Описание:</th>
-                            <td>${escapeHtml(recording.description || 'Нет описания')}</td>
-                        </tr>
-                    </table>
+                    <table class="detail-table"><tr><th>Описание:</th><td>${escapeHtml(recording.description || 'Нет описания')}</td></tr></table>
                 </div>
+
+
+
+
             `;
 
-            document.getElementById('recording-detail').innerHTML = html;
+        document.getElementById('recording-detail').innerHTML = mainHtml;
 
-            // Добавляем кнопки действий отдельно
-            const actionsContainer = document.getElementById('detail-actions-container');
-            actionsContainer.innerHTML = `
+        const actionsContainer = document.getElementById('detail-actions-container');
+        actionsContainer.innerHTML = `
                 <div class="detail-actions">
                     <button onclick="location.href='/edit_recording/${recordingId}'" class="btn-warning">✏️ Редактировать</button>
                     <button onclick="deleteRecording()" class="btn-danger">🗑️ Удалить</button>
                 </div>
             `;
-        }
+    }
 
-        function formatDuration(duration) {
-            if (!duration) return 'Не указана';
-            return duration;
-        }
-
-        function showError(message) {
-            const html = `
+    function showError(message) {
+        const html = `
                 <div class="error">
                     <h3>❌ Ошибка при загрузке данных</h3>
                     <p>${escapeHtml(message)}</p>
                     <p>Пожалуйста, попробуйте вернуться на главную страницу и выбрать другую запись.</p>
                 </div>
-                <div class="debug-info">
-                    <h4>Отладочная информация</h4>
-                    <pre>ID записи: ${escapeHtml(recordingId)}</pre>
-                </div>
             `;
+        document.getElementById('recording-detail').innerHTML = html;
+        document.getElementById('detail-actions-container').innerHTML = '';
+    }
 
-            document.getElementById('recording-detail').innerHTML = html;
-            document.getElementById('detail-actions-container').innerHTML = '';
-        }
-
-        function deleteRecording() {
-            if (confirm('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')) {
-                fetch(`/api/delete_recording/${recordingId}`, {
-                    method: 'DELETE'
-                })
+    function deleteRecording() {
+        if (confirm('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')) {
+            fetch(`/api/delete_recording/${recordingId}`, {method: 'DELETE'})
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
@@ -226,38 +207,37 @@
                     console.error('Error:', error);
                     alert('Произошла ошибка при удалении');
                 });
-            }
         }
+    }
 
-        function getStatusClass(status) {
-            if (!status) return 'status-public';
-            if (status.includes('публичный')) return 'status-public';
-            if (status.includes('ограниченный')) return 'status-restricted';
-            if (status.includes('согласия')) return 'status-community';
-            return 'status-public';
-        }
+    function getStatusClass(status) {
+        if (!status) return 'status-public';
+        if (status.includes('публичный')) return 'status-public';
+        if (status.includes('ограниченный')) return 'status-restricted';
+        if (status.includes('согласия')) return 'status-community';
+        return 'status-public';
+    }
 
-        function getStatusName(status) {
-            if (!status) return 'Публичный доступ';
-            if (status.includes('публичный')) return 'Публичный доступ';
-            if (status.includes('ограниченный')) return 'Ограниченный доступ';
-            if (status.includes('согласия')) return 'Требует согласия общины';
-            return status;
-        }
+    function getStatusName(status) {
+        if (!status) return 'Публичный доступ';
+        if (status.includes('публичный')) return 'Публичный доступ';
+        if (status.includes('ограниченный')) return 'Ограниченный доступ';
+        if (status.includes('согласия')) return 'Требует согласия общины';
+        return status;
+    }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            if (typeof text !== 'string') text = String(text);
-            return text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
+    function escapeHtml(text) {
+        if (!text) return '';
+        if (typeof text !== 'string') text = String(text);
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
-        // Загружаем данные при загрузке страницы
-        loadRecordingDetails();
-    </script>
+    loadRecordingDetails();
+</script>
 </body>
 </html>

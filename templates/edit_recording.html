@@ -7,604 +7,770 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="edit-container">
-        <div class="edit-header">
-            <a href="/" class="back-link">← На главную</a>
-            <h1>Редактирование записи</h1>
-        </div>
-
-        <div class="edit-form" id="edit-form">
-            <div class="loading">Загрузка данных...</div>
-        </div>
+<div class="edit-container">
+    <div class="edit-header">
+        <a href="/" class="back-link">← На главную</a>
+        <h1>Редактирование записи</h1>
     </div>
 
-    <script>
-        const recordingId = window.location.pathname.split('/').pop();
-        let vocabularyData = {
-            genres: [],
-            locations: [],
-            collections: [],
-            ethnos: []
-        };
-        let recordingData = null;
+    <div class="edit-form" id="edit-form">
+        <div class="loading">Загрузка данных...</div>
+    </div>
+</div>
 
-        // Загрузка всех данных
-        async function loadAllData() {
-            try {
-                // Загружаем словари
-                const [genres, locations, collections, ethnos] = await Promise.all([
-                    fetch('/api/vocabulary/genres').then(r => r.json()),
-                    fetch('/api/vocabulary/locations').then(r => r.json()),
-                    fetch('/api/vocabulary/collections').then(r => r.json()),
-                    fetch('/api/vocabulary/ethnos').then(r => r.json())
-                ]);
+<script>
+    const recordingId = window.location.pathname.split('/').pop();
+    let vocabularyData = {
+        genres: [],
+        locations: [],
+        collections: [],
+        ethnos: [],
+        instruments: []
+    };
+    let recordingData = null;
 
-                vocabularyData = {
-                    genres: genres || [],
-                    locations: locations || [],
-                    collections: collections || [],
-                    ethnos: ethnos || []
-                };
+    async function loadAllData() {
+        try {
+            const [genres, locations, collections, ethnos, instruments] = await Promise.all([
+                fetch('/api/vocabulary/genres').then(r => r.json()),
+                fetch('/api/vocabulary/locations').then(r => r.json()),
+                fetch('/api/vocabulary/collections').then(r => r.json()),
+                fetch('/api/vocabulary/ethnos').then(r => r.json()),
+                fetch('/api/vocabulary/instruments').then(r => r.json()).catch(() => [])
+            ]);
 
-                console.log('Словари загружены:', vocabularyData);
+            vocabularyData = {
+                genres: genres || [],
+                locations: locations || [],
+                collections: collections || [],
+                ethnos: ethnos || [],
+                instruments: instruments || []
+            };
 
-                // Загружаем запись
-                const response = await fetch(`/api/recording/${recordingId}`);
-                recordingData = await response.json();
+            const response = await fetch(`/api/recording/${recordingId}`);
+            recordingData = await response.json();
 
-                if (recordingData.error) {
-                    alert('Ошибка загрузки записи');
-                    window.location.href = '/';
-                    return;
-                }
-
-                console.log('Данные записи:', recordingData);
-                displayEditForm();
-
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                alert('Ошибка при загрузке данных');
-            }
-        }
-
-        // Отображение формы редактирования
-        function displayEditForm() {
-            // Преобразуем данные исполнителей
-            const performers = [];
-
-            // Проверяем, есть ли поле performers (новый формат)
-            if (recordingData.performers && recordingData.performers.length > 0) {
-                // Используем массив performers
-                for (let i = 0; i < recordingData.performers.length; i++) {
-                    performers.push({
-                        name: recordingData.performers[i].name || '',
-                        ethnos: recordingData.performers[i].ethnos || ''
-                    });
-                }
-            }
-            // Проверяем старый формат (performer и ethnos как строки)
-            else if (recordingData.performer) {
-                const performerNames = Array.isArray(recordingData.performer) ? recordingData.performer : [recordingData.performer];
-                const performerEthnos = Array.isArray(recordingData.ethnos) ? recordingData.ethnos : [recordingData.ethnos || ''];
-
-                for (let i = 0; i < performerNames.length; i++) {
-                    if (performerNames[i]) {
-                        performers.push({
-                            name: performerNames[i] || '',
-                            ethnos: performerEthnos[i] || ''
-                        });
-                    }
-                }
+            if (recordingData.error) {
+                alert('Ошибка загрузки записи');
+                window.location.href = '/';
+                return;
             }
 
-            // Если нет исполнителей, добавляем одного пустого
-            if (performers.length === 0) {
-                performers.push({ name: '', ethnos: '' });
-            }
+            console.log('Данные записи:', recordingData);
+            displayEditForm();
 
-            console.log('Обработанные исполнители для формы:', performers);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            alert('Ошибка при загрузке данных');
+        }
+    }
 
-            const localTermsStr = recordingData.local_terms ?
-                (Array.isArray(recordingData.local_terms) ? recordingData.local_terms.join(', ') : recordingData.local_terms) : '';
+    function displayEditForm() {
+        // Обработка исполнителей
+        let performers = [];
 
-            const html = `
-                <form id="edit-recording-form">
-                    <div class="form-section">
-                        <h3>Основная информация</h3>
-
-                        <div class="form-group">
-                            <label for="title">Название записи *</label>
-                            <input type="text" id="title" name="title" value="${escapeHtml(recordingData.title || '')}" required>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="inventory_number">Инвентарный номер</label>
-                                <input type="text" id="inventory_number" name="inventory_number"
-                                       value="${escapeHtml(recordingData.inventory_number || '')}">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="recording_date">Дата записи</label>
-                                <input type="date" id="recording_date" name="recording_date"
-                                       value="${escapeHtml(recordingData.date || '')}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="duration">Длительность</label>
-                            <input type="text" id="duration" name="duration"
-                                   value="${escapeHtml(recordingData.duration || '')}"
-                                   placeholder="Например: 45:30">
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Информация об исполнителе</h3>
-
-                        <div id="performers-container">
-                            ${renderPerformers(performers)}
-                        </div>
-                        <button type="button" onclick="addPerformer()" class="btn-add">+ Добавить еще исполнителя</button>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Классификация</h3>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="genre">Жанр</label>
-                                <select id="genre" name="genre">
-                                    <option value="">Выберите жанр</option>
-                                    ${vocabularyData.genres.map(g =>
-                                        `<option value="${g.name}" ${recordingData.genre === g.name ? 'selected' : ''}>${g.name}</option>`
-                                    ).join('')}
-                                    <option value="new">➕ Создать новый...</option>
-                                </select>
-                                <div id="new-genre-container" style="display: none;" class="new-item-input">
-                                    <input type="text" id="new-genre" placeholder="Введите название нового жанра">
-                                    <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="ethical_status">Этический статус *</label>
-                                <select id="ethical_status" name="ethical_status" required>
-                                    <option value="">Выберите уровень доступа</option>
-                                    <option value="публичный_доступ" ${recordingData.status === 'публичный_доступ' ? 'selected' : ''}>Публичный доступ</option>
-                                    <option value="ограниченный_доступ" ${recordingData.status === 'ограниченный_доступ' ? 'selected' : ''}>Ограниченный доступ</option>
-                                    <option value="требует_согласия_общины" ${recordingData.status === 'требует_согласия_общины' ? 'selected' : ''}>Требует согласия общины</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="location">Локация</label>
-                                <select id="location" name="location">
-                                    <option value="">Выберите локацию</option>
-                                    ${vocabularyData.locations.map(l =>
-                                        `<option value="${l.name}" ${recordingData.location === l.name ? 'selected' : ''}>${l.name}</option>`
-                                    ).join('')}
-                                    <option value="new">➕ Создать новый...</option>
-                                </select>
-                                <div id="new-location-container" style="display: none;" class="new-item-input">
-                                    <input type="text" id="new-location" placeholder="Введите название новой локации">
-                                    <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="collection">Коллекция</label>
-                                <select id="collection" name="collection">
-                                    <option value="">Выберите коллекцию</option>
-                                    ${vocabularyData.collections.map(c =>
-                                        `<option value="${c.name}" ${recordingData.collection === c.name ? 'selected' : ''}>${c.name}</option>`
-                                    ).join('')}
-                                    <option value="new">➕ Создать новый...</option>
-                                </select>
-                                <div id="new-collection-container" style="display: none;" class="new-item-input">
-                                    <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
-                                    <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Местные термины</h3>
-                        <div class="form-group">
-                            <label for="local_terms">Местные термины (через запятую)</label>
-                            <input type="text" id="local_terms" name="local_terms"
-                                   value="${escapeHtml(localTermsStr)}"
-                                   placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
-                            <small class="form-hint">Введите термины через запятую</small>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3>Описание</h3>
-                        <div class="form-group">
-                            <textarea id="description" name="description" rows="4">${escapeHtml(recordingData.description || '')}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-save">💾 Сохранить изменения</button>
-                        <button type="button" onclick="window.location.href='/recording/${recordingId}'" class="btn-cancel">Отмена</button>
-                    </div>
-                </form>
-            `;
-
-            document.getElementById('edit-form').innerHTML = html;
-            setupEventListeners();
-            updateRemoveButtonsVisibility();
-
-            // Добавляем обработчики для отслеживания изменений в селектах этносов
-            document.querySelectorAll('.ethnos-select').forEach(select => {
-                select.addEventListener('change', function(e) {
-                    console.log('Изменен этнос:', this.value);
-                });
-            });
+        if (recordingData.performers && recordingData.performers.length > 0) {
+            performers = recordingData.performers;
+        } else if (recordingData.performer) {
+            // Старый формат
+            performers = [{
+                name: recordingData.performer || '',
+                ethnos: recordingData.ethnos || '',
+                performance_form: '',
+                instruments: []
+            }];
         }
 
-        // Рендеринг исполнителей
-        function renderPerformers(performers) {
-            let html = '';
-            performers.forEach((performer, index) => {
-                const selectedEthnos = performer.ethnos || '';
-                console.log(`Рендеринг исполнителя ${index}:`, performer);
-
-                html += `
-                    <div class="performer-entry" data-performer-index="${index}">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Имя исполнителя</label>
-                                <input type="text" name="performer_name[]" value="${escapeHtml(performer.name)}" placeholder="Например: Т.Д. Костеркин">
-                            </div>
-                            <div class="form-group">
-                                <label>Этнос</label>
-                                <select name="performer_ethnos[]" class="ethnos-select">
-                                    <option value="">Выберите этнос</option>
-                                    ${vocabularyData.ethnos.map(e =>
-                                        `<option value="${e.name}" ${selectedEthnos === e.name ? 'selected' : ''}>${e.name}</option>`
-                                    ).join('')}
-                                    <option value="new">➕ Создать новый...</option>
-                                </select>
-                                <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
-                                    <div class="new-item-input">
-                                        <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
-                                        <button type="button" onclick="addNewEthnos(this)" class="btn-add-new">Добавить</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" onclick="removePerformer(this)" class="btn-remove" ${performers.length === 1 ? 'style="display: none;"' : ''}>✖</button>
-                        </div>
-                    </div>
-                `;
-            });
-            return html;
+        if (performers.length === 0) {
+            performers = [{
+                name: '',
+                ethnos: '',
+                performance_form: '',
+                instruments: []
+            }];
         }
 
-        // Обновление видимости кнопок удаления
-        function updateRemoveButtonsVisibility() {
-            const performers = document.querySelectorAll('.performer-entry');
-            performers.forEach((performer, index) => {
-                const removeBtn = performer.querySelector('.btn-remove');
-                if (removeBtn) {
-                    removeBtn.style.display = performers.length === 1 ? 'none' : 'block';
-                }
-            });
-        }
+        const localTermsStr = recordingData.local_terms ?
+            (Array.isArray(recordingData.local_terms) ? recordingData.local_terms.join(', ') : recordingData.local_terms) : '';
 
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            // Жанр
-            document.getElementById('genre').addEventListener('change', function(e) {
-                document.getElementById('new-genre-container').style.display =
-                    e.target.value === 'new' ? 'flex' : 'none';
-            });
-
-            // Локация
-            document.getElementById('location').addEventListener('change', function(e) {
-                document.getElementById('new-location-container').style.display =
-                    e.target.value === 'new' ? 'flex' : 'none';
-            });
-
-            // Коллекция
-            document.getElementById('collection').addEventListener('change', function(e) {
-                document.getElementById('new-collection-container').style.display =
-                    e.target.value === 'new' ? 'flex' : 'none';
-            });
-
-            // Этносы для всех селектов
-            document.querySelectorAll('.ethnos-select').forEach(select => {
-                // Убираем старые обработчики и добавляем новые
-                select.removeEventListener('change', handleEthnosChange);
-                select.addEventListener('change', handleEthnosChange);
-            });
-        }
-
-        // Отдельная функция для обработки изменения этноса
-        function handleEthnosChange(e) {
-            const container = this.closest('.form-group').querySelector('.new-ethnos-container');
-            if (container) {
-                container.style.display = this.value === 'new' ? 'block' : 'none';
-            }
-            console.log('Этнос изменен на:', this.value);
-        }
-
-        // Добавление нового исполнителя
-        function addPerformer() {
-            const container = document.getElementById('performers-container');
-
-            const entry = document.createElement('div');
-            entry.className = 'performer-entry';
-            entry.innerHTML = `
-                <div class="form-row">
+        const html = `
+            <form id="edit-recording-form">
+                <div class="form-section">
+                    <h3>Основная информация</h3>
                     <div class="form-group">
-                        <label>Имя исполнителя</label>
-                        <input type="text" name="performer_name[]" placeholder="Например: Т.Д. Костеркин">
+                        <label for="title">Название записи *</label>
+                        <input type="text" id="title" name="title" value="${escapeHtml(recordingData.title || '')}" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="inventory_number">Инвентарный номер</label>
+                            <input type="text" id="inventory_number" name="inventory_number" value="${escapeHtml(recordingData.inventory_number || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label for="recording_date">Дата записи</label>
+                            <input type="date" id="recording_date" name="recording_date" value="${escapeHtml(recordingData.date || '')}">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Этнос</label>
-                        <select name="performer_ethnos[]" class="ethnos-select">
-                            <option value="">Выберите этнос</option>
-                            ${vocabularyData.ethnos.map(e =>
-                                `<option value="${e.name}">${e.name}</option>`
-                            ).join('')}
-                            <option value="new">➕ Создать новый...</option>
-                        </select>
-                        <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
-                            <div class="new-item-input">
-                                <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
-                                <button type="button" onclick="addNewEthnos(this)" class="btn-add-new">Добавить</button>
+                        <label for="duration">Длительность</label>
+                        <input type="text" id="duration" name="duration" value="${escapeHtml(recordingData.duration || '')}" placeholder="Например: 45:30">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Информация об исполнителях</h3>
+                    <div id="performers-container">
+                        ${renderPerformers(performers)}
+                    </div>
+                    <button type="button" onclick="addPerformer()" class="btn-add">+ Добавить еще исполнителя</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>Классификация</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="genre">Жанр</label>
+                            <select id="genre" name="genre">
+                                <option value="">Выберите жанр</option>
+                                ${vocabularyData.genres.map(g => `<option value="${g.name}" ${recordingData.genre === g.name ? 'selected' : ''}>${g.name}</option>`).join('')}
+                                <option value="new">➕ Создать новый...</option>
+                            </select>
+                            <div id="new-genre-container" style="display: none;" class="new-item-input">
+                                <input type="text" id="new-genre" placeholder="Введите название нового жанра">
+                                <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ethical_status">Этический статус *</label>
+                            <select id="ethical_status" name="ethical_status" required>
+                                <option value="">Выберите уровень доступа</option>
+                                <option value="публичный_доступ" ${recordingData.status === 'публичный_доступ' ? 'selected' : ''}>Публичный доступ</option>
+                                <option value="ограниченный_доступ" ${recordingData.status === 'ограниченный_доступ' ? 'selected' : ''}>Ограниченный доступ</option>
+                                <option value="требует_согласия_общины" ${recordingData.status === 'требует_согласия_общины' ? 'selected' : ''}>Требует согласия общины</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">Локация</label>
+                            <select id="location" name="location">
+                                <option value="">Выберите локацию</option>
+                                ${vocabularyData.locations.map(l => `<option value="${l.name}" ${recordingData.location === l.name ? 'selected' : ''}>${l.name}</option>`).join('')}
+                                <option value="new">➕ Создать новый...</option>
+                            </select>
+                            <div id="new-location-container" style="display: none;" class="new-item-input">
+                                <input type="text" id="new-location" placeholder="Введите название новой локации">
+                                <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="collection">Коллекция</label>
+                            <select id="collection" name="collection">
+                                <option value="">Выберите коллекцию</option>
+                                ${vocabularyData.collections.map(c => `<option value="${c.name}" ${recordingData.collection === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}
+                                <option value="new">➕ Создать новый...</option>
+                            </select>
+                            <div id="new-collection-container" style="display: none;" class="new-item-input">
+                                <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
+                                <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
                             </div>
                         </div>
                     </div>
-                    <button type="button" onclick="removePerformer(this)" class="btn-remove">✖</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>Местные термины</h3>
+                    <div class="form-group">
+                        <label for="local_terms">Местные термины (через запятую)</label>
+                        <input type="text" id="local_terms" name="local_terms" value="${escapeHtml(localTermsStr)}" placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
+                        <small class="form-hint">Введите термины через запятую</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Описание</h3>
+                    <div class="form-group">
+                        <textarea id="description" name="description" rows="4">${escapeHtml(recordingData.description || '')}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">💾 Сохранить изменения</button>
+                    <button type="button" onclick="window.location.href='/recording/${recordingId}'" class="btn-cancel">Отмена</button>
+                </div>
+            </form>
+        `;
+
+        document.getElementById('edit-form').innerHTML = html;
+        setupEventListeners();
+    }
+
+    function renderPerformers(performers) {
+        let html = '';
+        performers.forEach((performer, index) => {
+            const performanceForm = performer.performance_form || '';
+            const showInstruments = (performanceForm === 'instrumental' || performanceForm === 'vocal_instrumental');
+
+            html += `
+                <div class="performer-entry" data-performer-index="${index}" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50;">Исполнитель ${index + 1}</h4>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Имя исполнителя</label>
+                            <input type="text" name="performer_name[]" value="${escapeHtml(performer.name || '')}" placeholder="Например: Т.Д. Костеркин" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Этнос</label>
+                            <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${index})">
+                                <option value="">Выберите этнос</option>
+                                ${vocabularyData.ethnos.map(e => `<option value="${e.name}" ${performer.ethnos === e.name ? 'selected' : ''}>${e.name}</option>`).join('')}
+                                <option value="new">➕ Создать новый...</option>
+                            </select>
+                            <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
+                                <div class="new-item-input">
+                                    <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
+                                    <button type="button" onclick="addNewEthnos(this, ${index})" class="btn-add-new">Добавить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Форма исполнения</label>
+                            <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this, ${index})">
+                                <option value="">Выберите форму исполнения</option>
+                                <option value="vocal" ${performanceForm === 'vocal' ? 'selected' : ''}>Вокальная</option>
+                                <option value="instrumental" ${performanceForm === 'instrumental' ? 'selected' : ''}>Инструментальная</option>
+                                <option value="vocal_instrumental" ${performanceForm === 'vocal_instrumental' ? 'selected' : ''}>Вокально-инструментальная</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="instruments-section-${index}" style="display: ${showInstruments ? 'block' : 'none'};">
+                        <div class="form-group">
+                            <label>Музыкальные инструменты</label>
+                            <div id="instruments-container-${index}" class="instruments-container">
+                                ${renderInstruments(performer.instruments || [], index)}
+                            </div>
+                            <button type="button" onclick="addInstrument(${index})" class="btn-add" style="margin-top: 10px;">+ Добавить инструмент</button>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top: 10px;">✖</button>
                 </div>
             `;
+        });
+        return html;
+    }
 
-            container.appendChild(entry);
-
-            // Добавляем обработчик для нового селекта
-            const select = entry.querySelector('.ethnos-select');
-            select.addEventListener('change', handleEthnosChange);
-
-            updateRemoveButtonsVisibility();
+    function renderInstruments(instruments, performerIndex) {
+        if (!instruments || instruments.length === 0) {
+            return '<div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>';
         }
 
-        // Удаление исполнителя
-        function removePerformer(btn) {
-            const performerEntry = btn.closest('.performer-entry');
-            performerEntry.remove();
-            updateRemoveButtonsVisibility();
+        let html = '';
+        instruments.forEach((instrument, idx) => {
+            html += `
+                <div class="instrument-entry" data-instrument-idx="${idx}" style="margin-bottom: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
+                                <option value="">Выберите инструмент</option>
+                                ${vocabularyData.instruments.map(i => `<option value="${i.name}" ${instrument.name === i.name ? 'selected' : ''}>${i.name}</option>`).join('')}
+                                <option value="new">➕ Создать новый...</option>
+                            </select>
+                            <div class="new-instrument-container" style="display: none; margin-top: 5px;">
+                                <div class="new-item-input" style="display: flex; gap: 5px;">
+                                    <input type="text" class="new-instrument-input" placeholder="Введите название нового инструмента" style="flex: 1;">
+                                    <button type="button" onclick="addNewInstrument(this, ${performerIndex})" class="btn-add-new">Добавить</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeInstrument(this, ${performerIndex})" class="btn-remove" style="width: 36px; height: 36px;">✖</button>
+                    </div>
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    function setupEventListeners() {
+        document.getElementById('genre').addEventListener('change', function (e) {
+            document.getElementById('new-genre-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
+        });
+        document.getElementById('location').addEventListener('change', function (e) {
+            document.getElementById('new-location-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
+        });
+        document.getElementById('collection').addEventListener('change', function (e) {
+            document.getElementById('new-collection-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
+        });
+    }
+
+    function handleEthnosChange(select, performerIndex) {
+        const container = select.closest('.form-group').querySelector('.new-ethnos-container');
+        if (container) {
+            container.style.display = select.value === 'new' ? 'block' : 'none';
         }
+    }
 
-        // Добавление нового элемента в словарь
-        async function addNewItem(category, inputId, selectId) {
-            const input = document.getElementById(inputId);
-            const name = input.value.trim();
+    function handlePerformanceFormChange(select, performerIndex) {
+        const instrumentsSection = document.getElementById(`instruments-section-${performerIndex}`);
+        const value = select.value;
 
-            if (!name) {
-                alert('Введите название');
-                return;
+        if (value === 'instrumental' || value === 'vocal_instrumental') {
+            instrumentsSection.style.display = 'block';
+            const container = document.getElementById(`instruments-container-${performerIndex}`);
+            if (container && container.querySelectorAll('.instrument-entry').length === 0 && !container.querySelector('.empty-instruments-msg')) {
+                addInstrument(performerIndex);
             }
-
-            try {
-                const response = await fetch('/api/add_to_vocabulary', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ category, name })
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    // Добавляем в локальные данные
-                    vocabularyData[category].push({ name });
-
-                    // Обновляем селект
-                    const select = document.getElementById(selectId);
-                    updateSelect(select, vocabularyData[category]);
-
-                    // Выбираем новый элемент
-                    select.value = name;
-
-                    // Скрываем контейнер ввода
-                    document.getElementById(inputId + '-container').style.display = 'none';
-                    input.value = '';
-
-                    console.log(`✅ Добавлен новый ${category}: ${name}`);
-                } else {
-                    alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при добавлении');
-            }
+        } else {
+            instrumentsSection.style.display = 'none';
         }
+    }
 
-        // Обновление селекта
-        function updateSelect(select, items) {
-            const currentValue = select.value;
+    function addPerformer() {
+        const container = document.getElementById('performers-container');
+        const performerCount = document.querySelectorAll('.performer-entry').length;
 
-            // Очищаем select, оставляя первую опцию
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
+        const entry = document.createElement('div');
+        entry.className = 'performer-entry';
+        entry.setAttribute('data-performer-index', performerCount);
+        entry.style.marginBottom = '20px';
+        entry.style.padding = '15px';
+        entry.style.background = '#f8f9fa';
+        entry.style.borderRadius = '8px';
 
-            // Добавляем элементы из словаря
-            items.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.name;
-                option.textContent = item.name;
-                select.appendChild(option);
-            });
+        entry.innerHTML = `
+            <h4 style="margin: 0 0 15px 0; color: #2c3e50;">Исполнитель ${performerCount + 1}</h4>
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label>Имя исполнителя</label>
+                    <input type="text" name="performer_name[]" placeholder="Например: Т.Д. Костеркин" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Этнос</label>
+                    <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${performerCount})">
+                        <option value="">Выберите этнос</option>
+                        ${vocabularyData.ethnos.map(e => `<option value="${e.name}">${e.name}</option>`).join('')}
+                        <option value="new">➕ Создать новый...</option>
+                    </select>
+                    <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
+                        <div class="new-item-input">
+                            <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
+                            <button type="button" onclick="addNewEthnos(this, ${performerCount})" class="btn-add-new">Добавить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            // Добавляем опцию "Создать новый"
-            const newOption = document.createElement('option');
-            newOption.value = 'new';
-            newOption.textContent = '➕ Создать новый...';
-            select.appendChild(newOption);
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label>Форма исполнения</label>
+                    <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this, ${performerCount})">
+                        <option value="">Выберите форму исполнения</option>
+                        <option value="vocal">Вокальная (пение без инструментов)</option>
+                        <option value="instrumental">Инструментальная (только инструменты)</option>
+                        <option value="vocal_instrumental">Вокально-инструментальная (пение с инструментами)</option>
+                    </select>
+                </div>
+            </div>
 
-            // Восстанавливаем выбранное значение
-            if (currentValue && currentValue !== 'new') {
-                select.value = currentValue;
-            }
+            <div id="instruments-section-${performerCount}" style="display: none;">
+                <div class="form-group">
+                    <label>Музыкальные инструменты</label>
+                    <div id="instruments-container-${performerCount}" class="instruments-container">
+                        <div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>
+                    </div>
+                    <button type="button" onclick="addInstrument(${performerCount})" class="btn-add" style="margin-top: 10px;">+ Добавить инструмент</button>
+                </div>
+            </div>
+
+            <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top: 10px;">✖</button>
+        `;
+
+        container.appendChild(entry);
+        updatePerformerNumbers();
+    }
+
+    function removePerformer(btn) {
+        if (document.querySelectorAll('.performer-entry').length > 1) {
+            btn.closest('.performer-entry').remove();
+            updatePerformerNumbers();
+        } else {
+            alert('Должен быть хотя бы один исполнитель');
         }
+    }
 
-        // Добавление нового этноса
-        async function addNewEthnos(button) {
-            const container = button.closest('.new-ethnos-container');
-            const input = container.querySelector('.new-ethnos-input');
-            const name = input.value.trim();
+    function updatePerformerNumbers() {
+        const performers = document.querySelectorAll('.performer-entry');
+        performers.forEach((performer, index) => {
+            const title = performer.querySelector('h4');
+            if (title) {
+                title.textContent = `Исполнитель ${index + 1}`;
+            }
+            // Обновляем индексы в атрибутах
+            performer.setAttribute('data-performer-index', index);
 
-            if (!name) {
-                alert('Введите название этноса');
-                return;
+            // Обновляем ID секций инструментов
+            const instrumentsSection = performer.querySelector('[id^="instruments-section-"]');
+            if (instrumentsSection) {
+                const oldId = instrumentsSection.id;
+                const newId = `instruments-section-${index}`;
+                instrumentsSection.id = newId;
             }
 
-            try {
-                const response = await fetch('/api/add_to_vocabulary', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ category: 'ethnos', name })
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    // Добавляем в локальные данные
-                    vocabularyData.ethnos.push({ name });
-
-                    // Находим селект и обновляем его
-                    const select = button.closest('.performer-entry').querySelector('.ethnos-select');
-
-                    // Сохраняем текущее значение перед обновлением
-                    const currentValue = select.value;
-
-                    // Обновляем селект
-                    updateSelect(select, vocabularyData.ethnos);
-
-                    // Выбираем новый этнос
-                    select.value = name;
-
-                    // Скрываем контейнер ввода
-                    container.style.display = 'none';
-                    input.value = '';
-
-                    console.log(`✅ Добавлен новый этнос: ${name}`);
-                } else {
-                    alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при добавлении');
+            const instrumentsContainer = performer.querySelector('[id^="instruments-container-"]');
+            if (instrumentsContainer) {
+                const oldId = instrumentsContainer.id;
+                const newId = `instruments-container-${index}`;
+                instrumentsContainer.id = newId;
             }
-        }
 
-        // Сохранение изменений
-        document.addEventListener('submit', async function(e) {
-            if (e.target && e.target.id === 'edit-recording-form') {
-                e.preventDefault();
+            // Обновляем обработчики
+            const perfFormSelect = performer.querySelector('.performance-form-select');
+            if (perfFormSelect) {
+                const oldOnchange = perfFormSelect.getAttribute('onchange');
+                perfFormSelect.setAttribute('onchange', `handlePerformanceFormChange(this, ${index})`);
+            }
 
-                const formData = new FormData(e.target);
-                const performers = [];
-
-                const performerNames = formData.getAll('performer_name[]');
-                const performerEthnos = formData.getAll('performer_ethnos[]');
-
-                console.log('Собираем исполнителей из формы:');
-                console.log('performerNames:', performerNames);
-                console.log('performerEthnos:', performerEthnos);
-
-                for (let i = 0; i < performerNames.length; i++) {
-                    if (performerNames[i] && performerNames[i].trim()) {
-                        let ethnos = performerEthnos[i];
-                        // Если выбрано "new", оставляем пустым
-                        if (ethnos === 'new') {
-                            ethnos = '';
-                        }
-
-                        performers.push({
-                            name: performerNames[i].trim(),
-                            ethnos: ethnos || null
-                        });
-                        console.log(`  Исполнитель ${i+1}: ${performerNames[i].trim()} (${ethnos || 'нет этноса'})`);
-                    }
-                }
-
-                const localTermsStr = formData.get('local_terms') || '';
-                const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
-
-                // Получаем значения, проверяя что они не "new"
-                let genre = formData.get('genre');
-                if (genre === 'new') genre = '';
-
-                let location = formData.get('location');
-                if (location === 'new') location = '';
-
-                let collection = formData.get('collection');
-                if (collection === 'new') collection = '';
-
-                const updatedData = {
-                    title: formData.get('title'),
-                    inventory_number: formData.get('inventory_number'),
-                    recording_date: formData.get('recording_date'),
-                    duration: formData.get('duration'),
-                    performers: performers,
-                    genre: genre,
-                    ethical_status: formData.get('ethical_status'),
-                    location: location,
-                    collection: collection,
-                    local_terms: localTerms,
-                    description: formData.get('description')
-                };
-
-                console.log('Отправляемые данные:', JSON.stringify(updatedData, null, 2));
-
-                try {
-                    const response = await fetch(`/api/update_recording/${recordingId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(updatedData)
-                    });
-
-                    const result = await response.json();
-
-                    if (result.status === 'success') {
-                        alert('Запись успешно обновлена!');
-                        window.location.href = `/recording/${recordingId}`;
-                    } else {
-                        alert('Ошибка при обновлении: ' + result.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Произошла ошибка при сохранении');
-                }
+            const ethnosSelect = performer.querySelector('.ethnos-select');
+            if (ethnosSelect) {
+                const oldOnchange = ethnosSelect.getAttribute('onchange');
+                ethnosSelect.setAttribute('onchange', `handleEthnosChange(this, ${index})`);
             }
         });
+    }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+    function addInstrument(performerIndex) {
+        const container = document.getElementById(`instruments-container-${performerIndex}`);
+        if (!container) return;
+
+        const emptyMsg = container.querySelector('.empty-instruments-msg');
+        if (emptyMsg) emptyMsg.remove();
+
+        const instrumentId = Date.now() + Math.random();
+
+        const entry = document.createElement('div');
+        entry.className = 'instrument-entry';
+        entry.setAttribute('data-instrument-id', instrumentId);
+        entry.style.marginBottom = '10px';
+        entry.innerHTML = `
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
+                        <option value="">Выберите инструмент</option>
+                        ${vocabularyData.instruments.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                        <option value="new">➕ Создать новый...</option>
+                    </select>
+                    <div class="new-instrument-container" style="display: none; margin-top: 5px;">
+                        <div class="new-item-input" style="display: flex; gap: 5px;">
+                            <input type="text" class="new-instrument-input" placeholder="Введите название нового инструмента" style="flex: 1;">
+                            <button type="button" onclick="addNewInstrument(this, ${performerIndex})" class="btn-add-new">Добавить</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="removeInstrument(this, ${performerIndex})" class="btn-remove" style="width: 36px; height: 36px;">✖</button>
+            </div>
+        `;
+        container.appendChild(entry);
+    }
+
+    function removeInstrument(btn, performerIndex) {
+        const entry = btn.closest('.instrument-entry');
+        if (entry) {
+            entry.remove();
         }
 
-        // Загружаем данные
-        loadAllData();
-    </script>
+        const container = document.getElementById(`instruments-container-${performerIndex}`);
+        if (container && container.children.length === 0) {
+            container.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>';
+        }
+    }
+
+    function handleInstrumentChange(select, performerIndex) {
+        const container = select.closest('.instrument-entry').querySelector('.new-instrument-container');
+        if (container) {
+            container.style.display = select.value === 'new' ? 'block' : 'none';
+        }
+    }
+
+    async function addNewInstrument(button, performerIndex) {
+        const container = button.closest('.new-instrument-container');
+        const input = container.querySelector('.new-instrument-input');
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('Введите название инструмента');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: 'instruments', name: name })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                vocabularyData.instruments.push({ name: name });
+
+                // Обновляем все селекты инструментов для этого исполнителя
+                const container = document.getElementById(`instruments-container-${performerIndex}`);
+                if (container) {
+                    const selects = container.querySelectorAll('.instrument-select');
+                    selects.forEach(select => {
+                        updateInstrumentSelect(select);
+                    });
+                }
+
+                const select = button.closest('.instrument-entry').querySelector('.instrument-select');
+                if (select) select.value = name;
+
+                container.style.display = 'none';
+                input.value = '';
+                console.log(`✅ Добавлен новый инструмент: ${name}`);
+            } else {
+                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении');
+        }
+    }
+
+    function updateInstrumentSelect(select) {
+        const currentValue = select.value;
+
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        vocabularyData.instruments.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+
+        if (currentValue && currentValue !== 'new') {
+            select.value = currentValue;
+        }
+    }
+
+    async function addNewEthnos(button, performerIndex) {
+        const container = button.closest('.new-ethnos-container');
+        const input = container.querySelector('.new-ethnos-input');
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('Введите название этноса');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: 'ethnos', name })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                vocabularyData.ethnos.push({ name });
+                const select = button.closest('.performer-entry').querySelector('.ethnos-select');
+                updateEthnosSelect(select);
+                select.value = name;
+                container.style.display = 'none';
+                input.value = '';
+                console.log(`✅ Добавлен новый этнос: ${name}`);
+            } else {
+                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении');
+        }
+    }
+
+    function updateEthnosSelect(select) {
+        const currentValue = select.value;
+
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        vocabularyData.ethnos.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+
+        if (currentValue && currentValue !== 'new') {
+            select.value = currentValue;
+        }
+    }
+
+    async function addNewItem(category, inputId, selectId) {
+        const input = document.getElementById(inputId);
+        const name = input.value.trim();
+
+        if (!name) {
+            alert('Введите название');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, name })
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                vocabularyData[category].push({ name });
+                const select = document.getElementById(selectId);
+                updateSelect(select, vocabularyData[category]);
+                select.value = name;
+                document.getElementById(inputId + '-container').style.display = 'none';
+                input.value = '';
+            } else {
+                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении');
+        }
+    }
+
+    function updateSelect(select, items) {
+        const currentValue = select.value;
+        while (select.options.length > 1) select.remove(1);
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+        if (currentValue && currentValue !== 'new') select.value = currentValue;
+    }
+
+    // Сохранение изменений
+    document.addEventListener('submit', async function (e) {
+        if (e.target && e.target.id === 'edit-recording-form') {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const performers = [];
+
+            const performerNames = formData.getAll('performer_name[]');
+            const performerEthnos = formData.getAll('performer_ethnos[]');
+            const performerPerformanceForms = formData.getAll('performer_performance_form[]');
+
+            for (let i = 0; i < performerNames.length; i++) {
+                if (performerNames[i] && performerNames[i].trim()) {
+                    let ethnos = performerEthnos[i];
+                    if (ethnos === 'new') ethnos = '';
+
+                    // Собираем инструменты для этого исполнителя
+                    const instruments = [];
+                    const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
+                    for (let j = 0; j < instrumentNames.length; j++) {
+                        if (instrumentNames[j] && instrumentNames[j] !== 'new' && instrumentNames[j] !== '') {
+                            instruments.push({ name: instrumentNames[j].trim() });
+                        }
+                    }
+
+                    performers.push({
+                        name: performerNames[i].trim(),
+                        ethnos: ethnos || null,
+                        performance_form: performerPerformanceForms[i] || '',
+                        instruments: instruments
+                    });
+                }
+            }
+
+            const localTermsStr = formData.get('local_terms') || '';
+            const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
+
+            let genre = formData.get('genre');
+            if (genre === 'new') genre = '';
+
+            let location = formData.get('location');
+            if (location === 'new') location = '';
+
+            let collection = formData.get('collection');
+            if (collection === 'new') collection = '';
+
+            const updatedData = {
+                title: formData.get('title'),
+                inventory_number: formData.get('inventory_number'),
+                recording_date: formData.get('recording_date'),
+                duration: formData.get('duration'),
+                performers: performers,
+                genre: genre,
+                ethical_status: formData.get('ethical_status'),
+                location: location,
+                collection: collection,
+                local_terms: localTerms,
+                description: formData.get('description')
+            };
+
+            console.log('Отправляемые данные:', JSON.stringify(updatedData, null, 2));
+
+            try {
+                const response = await fetch(`/api/update_recording/${recordingId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert('Запись успешно обновлена!');
+                    window.location.href = `/recording/${recordingId}`;
+                } else {
+                    alert('Ошибка при обновлении: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при сохранении');
+            }
+        }
+    });
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    loadAllData();
+</script>
 </body>
 </html>

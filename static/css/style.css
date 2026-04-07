@@ -165,19 +165,61 @@ body {
     color: white;
 }
 
-.btn-primary { background: var(--secondary-color); }
-.btn-secondary { background: #95a5a6; }
-.btn-success { background: var(--success-color); }
-.btn-info { background: var(--warning-color); }
-.btn-warning { background: var(--edit-color); }
-.btn-warning:hover { background: var(--edit-dark); }
-.btn-danger { background: var(--danger-color); }
-.btn-danger:hover { background: #c0392b; }
-.btn-save { background: var(--success-color); }
-.btn-cancel { background: #95a5a6; }
-.btn-add { background: var(--secondary-color); padding: 8px 15px; margin-top: 10px; }
-.btn-add-new { background: var(--success-color); padding: 8px 15px; font-size: 12px; }
-.btn-add-new:hover { background: #219a52; }
+.btn-primary {
+    background: var(--secondary-color);
+}
+
+.btn-secondary {
+    background: #95a5a6;
+}
+
+.btn-success {
+    background: var(--success-color);
+}
+
+.btn-info {
+    background: var(--warning-color);
+}
+
+.btn-warning {
+    background: var(--edit-color);
+}
+
+.btn-warning:hover {
+    background: var(--edit-dark);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-save {
+    background: var(--success-color);
+}
+
+.btn-cancel {
+    background: #95a5a6;
+}
+
+.btn-add {
+    background: var(--secondary-color);
+    padding: 8px 15px;
+    margin-top: 10px;
+}
+
+.btn-add-new {
+    background: var(--success-color);
+    padding: 8px 15px;
+    font-size: 12px;
+}
+
+.btn-add-new:hover {
+    background: #219a52;
+}
 
 .btn-primary:hover, .btn-secondary:hover, .btn-success:hover,
 .btn-info:hover, .btn-save:hover, .btn-cancel:hover {
@@ -544,6 +586,7 @@ input:focus, select:focus, textarea:focus {
     display: block;
 }
 
+
 .form-actions {
     display: flex;
     gap: 10px;
@@ -633,8 +676,12 @@ input:focus, select:focus, textarea:focus {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .error {
@@ -673,6 +720,57 @@ input:focus, select:focus, textarea:focus {
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+.instrument-entry {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.instrument-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.instrument-field {
+    flex: 1;
+}
+
+.instrument-field label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 12px;
+}
+
+.instrument-field select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn-remove-instrument {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    margin-top: 20px;
+}
+
+.btn-remove-instrument:hover {
+    background: #c0392b;
 }
 
 @keyframes fadeIn {
@@ -737,4 +835,16 @@ input:focus, select:focus, textarea:focus {
     .detail-header h1, .edit-header h1, .header h1 {
         margin-top: 10px;
     }
+
+    .instrument-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-remove-instrument {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+
 }

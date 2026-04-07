@@ -1,0 +1,176 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-07T23:51:06.778451",
+  "total_recordings": 6,
+  "recordings": [
+    {
+      "id": "1",
+      "title": "Шаманский обряд нганасан",
+      "inventory_number": "NG-2023-001",
+      "recording_date": "1985-07-15",
+      "duration": "45:30",
+      "performers": [
+        {
+          "name": "Т.Д. Костеркин",
+          "ethnos": "Нганасаны",
+          "performance_form": "vocal_instrumental",
+          "instruments": [
+            {
+              "name": "Бубен"
+            }
+          ]
+        }
+      ],
+      "genre": "Шаманский обряд",
+      "ethical_status": "ограниченный_доступ",
+      "location": "Таймыр",
+      "collection": "Диск №312",
+      "local_terms": [
+        "Мэдодэ",
+        "камлание"
+      ],
+      "description": "Запись шаманского камлания, бубен",
+      "updated_at": "2026-04-07T23:50:51.987446",
+      "created_at": "2026-04-03T14:12:59.189188"
+    },
+    {
+      "id": "2",
+      "title": "Горлохрипение чукчей",
+      "inventory_number": "CH-2023-042",
+      "recording_date": "1992-03-20",
+      "duration": "12:15",
+      "performers": [
+        {
+          "name": "А.Н. Тынель",
+          "ethnos": "Чукчи",
+          "performance_form": "vocal",
+          "instruments": []
+        }
+      ],
+      "genre": "Горлохрипение",
+      "ethical_status": "публичный_доступ",
+      "location": "Чокурдах",
+      "collection": "Диск №396(2)",
+      "local_terms": [
+        "пилгэйнгэн",
+        "э'йвын"
+      ],
+      "description": "Исполнение пилгэйнгэн, горловое пение",
+      "updated_at": "2026-04-07T23:49:56.815448",
+      "created_at": "2026-04-03T14:12:59.189188"
+    },
+    {
+      "id": "3",
+      "title": "Личная песня энцев",
+      "inventory_number": "EN-2023-015",
+      "recording_date": "1988-11-10",
+      "duration": "08:45",
+      "performers": [
+        {
+          "name": "М.С. Яптунэ",
+          "ethnos": "Энцы",
+          "performance_form": "vocal",
+          "instruments": []
+        }
+      ],
+      "genre": "Личная песня",
+      "ethical_status": "требует_согласия_общины",
+      "location": "Таймыр",
+      "collection": "Диск №245",
+      "local_terms": [
+        "мәнә бәлы",
+        "ситабы"
+      ],
+      "description": "Исполнение мәнә бәлы, личная родовая песня",
+      "updated_at": "2026-04-07T23:50:33.703448",
+      "created_at": "2026-04-03T14:12:59.189188"
+    },
+    {
+      "id": "4",
+      "title": "Колыбельная эвенков",
+      "inventory_number": "EV-2023-008",
+      "recording_date": "1975-05-12",
+      "duration": "03:20",
+      "performers": [
+        {
+          "name": "А.А. Немтушкина",
+          "ethnos": "Эвенки",
+          "performance_form": "vocal",
+          "instruments": []
+        }
+      ],
+      "genre": "Колыбельная",
+      "ethical_status": "публичный_доступ",
+      "location": "Чокурдах",
+      "collection": "Диск №312",
+      "local_terms": [
+        "бэвунг",
+        "авахи"
+      ],
+      "description": "Традиционная колыбельная песня",
+      "updated_at": "2026-04-07T23:50:20.948446",
+      "created_at": "2026-04-03T14:12:59.189188"
+    },
+    {
+      "id": "5",
+      "title": "Эпическое сказание олонхо",
+      "inventory_number": "YK-2023-091",
+      "recording_date": "1995-08-30",
+      "duration": "120:00",
+      "performers": [
+        {
+          "name": "В.О. Каратаев",
+          "ethnos": "Якуты",
+          "performance_form": "vocal",
+          "instruments": []
+        }
+      ],
+      "genre": "Эпическое сказание",
+      "ethical_status": "публичный_доступ",
+      "location": "Чокурдах",
+      "collection": "Диск №396(2)",
+      "local_terms": [
+        "олонхо",
+        "тойук"
+      ],
+      "description": "Фрагмент якутского героического эпоса",
+      "updated_at": "2026-04-07T23:51:06.778451",
+      "created_at": "2026-04-03T14:12:59.189188"
+    },
+    {
+      "id": "rec_71d3f10b",
+      "title": "test китай сказка",
+      "inventory_number": "NS-2026-001",
+      "recording_date": "2026-03-30",
+      "duration": "45:21",
+      "performers": [
+        {
+          "name": "Ли Мао Ти",
+          "ethnos": "Китайцы",
+          "performance_form": "vocal",
+          "instruments": []
+        },
+        {
+          "name": "Ци Рей Па",
+          "ethnos": "Китайцы",
+          "performance_form": "instrumental",
+          "instruments": [
+            {
+              "name": "Эрху"
+            }
+          ]
+        }
+      ],
+      "genre": "Сказка",
+      "ethical_status": "публичный_доступ",
+      "location": "Москва",
+      "collection": "Диск №7",
+      "local_terms": [
+        "Tónghuà"
+      ],
+      "description": "Якутская сказка на китайский лад",
+      "updated_at": "2026-04-07T23:07:44.755603",
+      "created_at": "2026-04-03T15:20:32.626279"
+    }
+  ]
+}

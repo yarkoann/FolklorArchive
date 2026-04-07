@@ -10,22 +10,18 @@ from rdflib.namespace import RDF, RDFS
 
 app = Flask(__name__)
 
-# Определяем пути
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ONTOLOGY_PATH = os.path.join(BASE_DIR, "ontology", "folklor_ontology.owl")
-DATA_PATH = os.path.join(BASE_DIR, "data", "recordings.json")  # Изменено на .json
+DATA_PATH = os.path.join(BASE_DIR, "data", "recordings.json")
 VOCAB_PATH = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
 EXPORTS_DIR = os.path.join(BASE_DIR, "exports")
 
-# Создаем папку для экспорта
 os.makedirs(EXPORTS_DIR, exist_ok=True)
 
-# Инициализируем менеджер
 manager = FolklorMetadataManager(ontology_path=ONTOLOGY_PATH)
 
 
 def load_vocabulary():
-    """Загрузка контролируемого словаря"""
     if os.path.exists(VOCAB_PATH):
         with open(VOCAB_PATH, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -40,7 +36,6 @@ def load_vocabulary():
 
 
 def ensure_json_exists():
-    """Создание JSON файла если его нет"""
     if not os.path.exists(DATA_PATH):
         os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
         initial_data = {
@@ -55,12 +50,10 @@ def ensure_json_exists():
 
 
 def load_existing_data():
-    """Загрузка существующих данных из JSON в RDF граф"""
     if not os.path.exists(DATA_PATH):
         ensure_json_exists()
         return
 
-    # Проверяем, есть ли уже записи в графе
     existing = manager.get_all_recordings()
     if existing:
         print(f"📊 В графе уже есть {len(existing)} записей, пропускаем загрузку из JSON")
@@ -84,12 +77,10 @@ def load_existing_data():
 
             print(f"\n📄 Загрузка: {rec.get('title')}")
 
-            # Проверяем формат исполнителей
             performers = rec.get('performers', [])
             if isinstance(performers, str):
                 performers = [{'name': performers, 'ethnos': rec.get('ethnos', '')}]
 
-            # Подготавливаем данные для add_recording (не используем _add_to_rdf_graph)
             recording_data = {
                 'title': rec.get('title', ''),
                 'inventory_number': rec.get('inventory_number', ''),
@@ -104,14 +95,12 @@ def load_existing_data():
                 'description': rec.get('description', '')
             }
 
-            # Используем add_recording вместо прямого вызова _add_to_rdf_graph
             manager.add_recording(recording_data)
             print(f"   ✅ Запись добавлена в RDF")
             count += 1
 
         print(f"\n✅ Загружено {count} записей из JSON в RDF граф")
 
-        # Сохраняем граф
         manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
         print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
 
@@ -121,10 +110,8 @@ def load_existing_data():
 
 
 def save_to_json(recording_data, recording_id=None):
-    """Сохранение записи в JSON файл (ЕДИНСТВЕННОЕ ХРАНИЛИЩЕ)"""
     json_path = DATA_PATH
 
-    # Загружаем существующие записи
     if os.path.exists(json_path):
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -133,27 +120,24 @@ def save_to_json(recording_data, recording_id=None):
         data = {'version': '1.0', 'recordings': []}
         recordings = []
 
-    # Если ID не указан, генерируем новый
     if not recording_id:
         recording_id = f"rec_{uuid.uuid4().hex[:8]}"
 
-    # Проверяем, существует ли уже запись с таким ID
     existing_index = None
     for i, rec in enumerate(recordings):
         if rec.get('id') == recording_id:
             existing_index = i
             break
 
-    # Создаем объект записи
     new_recording = {
         'id': recording_id,
         'title': recording_data.get('title', ''),
         'inventory_number': recording_data.get('inventory_number', ''),
-        'recording_date': recording_data.get('recording_date', ''),
+        'recording_date': recording_data.get('recording_date', '') or recording_data.get('date', ''),
         'duration': recording_data.get('duration', ''),
         'performers': recording_data.get('performers', []),
         'genre': recording_data.get('genre', ''),
-        'ethical_status': recording_data.get('ethical_status', ''),
+        'ethical_status': recording_data.get('ethical_status', '') or recording_data.get('status', 'публичный_доступ'),
         'location': recording_data.get('location', ''),
         'collection': recording_data.get('collection', ''),
         'local_terms': recording_data.get('local_terms', []),
@@ -161,19 +145,16 @@ def save_to_json(recording_data, recording_id=None):
         'updated_at': datetime.now().isoformat()
     }
 
-    # Добавляем created_at только для новой записи
     if existing_index is None:
         new_recording['created_at'] = datetime.now().isoformat()
         recordings.append(new_recording)
         print(f"✅ Добавлена новая запись в JSON: {recording_id}")
     else:
-        # Сохраняем original created_at
         if 'created_at' in recordings[existing_index]:
             new_recording['created_at'] = recordings[existing_index]['created_at']
         recordings[existing_index] = new_recording
         print(f"✅ Обновлена запись в JSON: {recording_id}")
 
-    # Сохраняем обратно в JSON (ТОЛЬКО ОДИН ФАЙЛ)
     data = {
         'version': '1.0',
         'last_updated': datetime.now().isoformat(),
@@ -189,7 +170,6 @@ def save_to_json(recording_data, recording_id=None):
 
 
 def delete_from_json(recording_id):
-    """Удаление записи из JSON файла"""
     json_path = DATA_PATH
 
     if not os.path.exists(json_path):
@@ -206,7 +186,6 @@ def delete_from_json(recording_id):
         if rec.get('id') == recording_id:
             print(f"✅ Найдена запись для удаления: {rec.get('title')}")
             deleted = True
-            # Не добавляем эту запись в новый список
         else:
             new_recordings.append(rec)
 
@@ -249,10 +228,6 @@ def recording_detail(recording_id):
     return render_template('recording_detail.html', recording_id=recording_id)
 
 
-@app.route('/search')
-def search_page():
-    return render_template('search.html')
-
 
 @app.route('/api/facet_search')
 def api_facet_search():
@@ -270,13 +245,14 @@ def api_facet_search():
         filters['collection'] = request.args.get('collection')
     if request.args.get('decade'):
         filters['decade'] = request.args.get('decade')
+    if request.args.get('performance_form'):
+        filters['performance_form'] = request.args.get('performance_form')
     if request.args.get('q'):
         filters['search'] = request.args.get('q')
 
     page = int(request.args.get('page', 1))
     sort = request.args.get('sort', 'title')
 
-    print(f"🔥 API получены фильтры: {filters}")
     results = manager.facet_search(filters=filters, page=page, sort=sort)
     return jsonify(results)
 
@@ -289,39 +265,21 @@ def api_facets():
 
 @app.route('/api/add_recording', methods=['POST'])
 def api_add_recording():
-    """API для добавления записи"""
     try:
         data = request.json
         print("\n" + "=" * 60)
         print("📥 ПОЛУЧЕНЫ ДАННЫЕ ДЛЯ ДОБАВЛЕНИЯ:")
         print("=" * 60)
         print(f"Title: {data.get('title')}")
-        print(f"Genre: {data.get('genre')}")
-        print(f"Location: {data.get('location')}")
-        print(f"Collection: {data.get('collection')}")
-        print(f"Ethical status: {data.get('ethical_status')}")
+        print(f"Performers: {data.get('performers')}")
 
-        # Детальный вывод исполнителей
-        print("\n👥 ИСПОЛНИТЕЛИ:")
-        performers = data.get('performers', [])
-        if performers:
-            for i, p in enumerate(performers):
-                print(f"  {i + 1}. Имя: '{p.get('name')}', Этнос: '{p.get('ethnos')}'")
-        else:
-            print("  ❌ НЕТ ДАННЫХ ОБ ИСПОЛНИТЕЛЯХ!")
-
-        # Сначала сохраняем в JSON, чтобы получить ID
         recording_id = save_to_json(data)
         print(f"✅ Запись сохранена в JSON с ID: {recording_id}")
 
-        # Добавляем ID в данные для RDF
         data_with_id = {**data, 'id': recording_id}
-
-        # Добавляем запись в RDF граф
         rec_id = manager.add_recording(data_with_id)
         print(f"✅ Запись добавлена в RDF граф")
 
-        # Сохраняем граф
         manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
         print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
 
@@ -334,14 +292,51 @@ def api_add_recording():
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
 
-@app.route('/api/recording/<recording_id>')
+@app.route('/api/recording/<recording_id>', methods=['GET'])
 def api_get_recording(recording_id):
+    """API для получения детальной информации о записи"""
     print(f"🔍 Запрос детальной информации для ID: {recording_id}")
     try:
+        # Пробуем получить из JSON
+        if os.path.exists(DATA_PATH):
+            with open(DATA_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for rec in data.get('recordings', []):
+                    if rec.get('id') == recording_id:
+                        print(f"✅ Найдена запись в JSON: {rec.get('title')}")
+                        # Приводим к единому формату
+                        formatted_rec = {
+                            'id': rec.get('id'),
+                            'title': rec.get('title', ''),
+                            'inventory_number': rec.get('inventory_number', ''),
+                            'date': rec.get('recording_date', '') or rec.get('date', ''),
+                            'duration': rec.get('duration', ''),
+                            'status': rec.get('ethical_status', '') or rec.get('status', ''),
+                            'genre': rec.get('genre', ''),
+                            'location': rec.get('location', ''),
+                            'collection': rec.get('collection', ''),
+                            'description': rec.get('description', ''),
+                            'local_terms': rec.get('local_terms', []),
+                            'performers': rec.get('performers', []),
+                            'created_at': rec.get('created_at', ''),
+                            'updated_at': rec.get('updated_at', '')
+                        }
+
+                        # Если нет performers, но есть старые поля
+                        if not formatted_rec['performers'] and rec.get('performer'):
+                            formatted_rec['performers'] = [{
+                                'name': rec.get('performer', ''),
+                                'ethnos': rec.get('ethnos', ''),
+                                'performance_form': rec.get('performance_form', ''),
+                                'instruments': rec.get('instruments', [])
+                            }]
+
+                        return jsonify(formatted_rec)
+
+        # Если не нашли в JSON, пробуем из RDF
         recording = manager.get_recording_by_id(recording_id)
         if recording:
-            print(f"✅ Найдена запись: {recording.get('title')}")
-            print(f"   Исполнители: {recording.get('performers')}")
+            print(f"✅ Найдена запись в RDF: {recording.get('title')}")
             return jsonify(recording)
         else:
             print(f"❌ Запись не найдена: {recording_id}")
@@ -354,25 +349,18 @@ def api_get_recording(recording_id):
 
 @app.route('/api/update_recording/<recording_id>', methods=['POST'])
 def api_update_recording(recording_id):
-    """API для обновления записи"""
     try:
         data = request.json
         print(f"📝 Обновление записи {recording_id}:")
         print(f"   Title: {data.get('title')}")
-        print(f"   Genre: {data.get('genre')}")
-        print(f"   Location: {data.get('location')}")
-        print(f"   Collection: {data.get('collection')}")
         print(f"   Performers: {data.get('performers')}")
 
-        # Обновляем в JSON
         save_to_json(data, recording_id)
         print(f"✅ Запись обновлена в JSON")
 
-        # Обновляем в RDF графе
         success, message = manager.update_recording(recording_id, data)
 
         if success:
-            # Сохраняем граф
             manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
             print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
             return jsonify({'status': 'success', 'message': message})
@@ -387,18 +375,13 @@ def api_update_recording(recording_id):
 
 @app.route('/api/delete_recording/<recording_id>', methods=['DELETE'])
 def api_delete_recording(recording_id):
-    """API для удаления записи"""
     try:
         print(f"🗑️ Удаление записи {recording_id}")
 
-        # Удаляем из JSON
         delete_from_json(recording_id)
-
-        # Удаляем из RDF графа
         success, message = manager.delete_recording(recording_id)
 
         if success:
-            # Сохраняем граф
             manager.g.serialize(destination=ONTOLOGY_PATH, format="xml")
             print(f"✅ Граф сохранен в {ONTOLOGY_PATH}")
             return jsonify({'status': 'success', 'message': message})
@@ -427,14 +410,12 @@ def api_export_mets():
 
 @app.route('/api/vocabulary/<category>')
 def api_get_vocabulary(category):
-    """API для получения элементов словаря"""
     items = manager.get_vocabulary_by_category(category)
     return jsonify(items)
 
 
 @app.route('/api/add_to_vocabulary', methods=['POST'])
 def api_add_to_vocabulary():
-    """API для добавления элемента в словарь"""
     try:
         data = request.json
         category = data.get('category')
@@ -443,7 +424,6 @@ def api_add_to_vocabulary():
         if not category or not name:
             return jsonify({'error': 'Не указана категория или название'}), 400
 
-        # Проверяем допустимые категории
         valid_categories = ['ethnos', 'genres', 'locations', 'collections', 'instruments']
         if category not in valid_categories:
             return jsonify({'error': 'Недопустимая категория'}), 400
@@ -456,7 +436,6 @@ def api_add_to_vocabulary():
 
 @app.route('/debug/recordings')
 def debug_recordings():
-    """Отладка - показать все записи"""
     recordings = manager.get_all_recordings()
     return jsonify(recordings)
 

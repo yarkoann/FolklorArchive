@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Функция очистки поиска
 function clearSearch() {
     console.log('Очистка поиска');
     const searchInput = document.getElementById('search-input');
@@ -52,8 +51,6 @@ async function loadFacets() {
 }
 
 function displayFacets(facets) {
-    console.log('Отображение фасетов:', facets);
-
     // Этносы
     let ethnosHtml = '';
     for (let [name, count] of Object.entries(facets.ethnos || {})) {
@@ -63,9 +60,7 @@ function displayFacets(facets) {
         </div>`;
     }
     const ethnosDiv = document.getElementById('facet-ethnos');
-    if (ethnosDiv) {
-        ethnosDiv.innerHTML = ethnosHtml || '<p>Нет данных</p>';
-    }
+    if (ethnosDiv) ethnosDiv.innerHTML = ethnosHtml || '<p>Нет данных</p>';
 
     // Жанры
     let genreHtml = '';
@@ -76,9 +71,27 @@ function displayFacets(facets) {
         </div>`;
     }
     const genreDiv = document.getElementById('facet-genre');
-    if (genreDiv) {
-        genreDiv.innerHTML = genreHtml || '<p>Нет данных</p>';
+    if (genreDiv) genreDiv.innerHTML = genreHtml || '<p>Нет данных</p>';
+
+    // Форма исполнения
+    const performanceFormNames = {
+        'vocal': 'Вокальная',
+        'instrumental': 'Инструментальная',
+        'vocal_instrumental': 'Вокально-инструментальная'
+    };
+
+    let performanceHtml = '';
+    for (let [form, count] of Object.entries(facets.performance_form || {})) {
+        if (count > 0) {
+            const displayName = performanceFormNames[form] || form;
+            const isActive = currentFilters.performance_form === form;
+            performanceHtml += `<div class="facet-item ${isActive ? 'active' : ''}" onclick="addFilter('performance_form', '${form}')">
+                ${displayName} <span class="facet-count">(${count})</span>
+            </div>`;
+        }
     }
+    const performanceDiv = document.getElementById('facet-performance');
+    if (performanceDiv) performanceDiv.innerHTML = performanceHtml || '<p>Нет данных</p>';
 
     // Этический статус
     const statusNames = {
@@ -98,9 +111,7 @@ function displayFacets(facets) {
         }
     }
     const statusDiv = document.getElementById('facet-status');
-    if (statusDiv) {
-        statusDiv.innerHTML = statusHtml || '<p>Нет данных</p>';
-    }
+    if (statusDiv) statusDiv.innerHTML = statusHtml || '<p>Нет данных</p>';
 
     // Локации
     let locationHtml = '';
@@ -111,9 +122,7 @@ function displayFacets(facets) {
         </div>`;
     }
     const locationDiv = document.getElementById('facet-location');
-    if (locationDiv) {
-        locationDiv.innerHTML = locationHtml || '<p>Нет данных</p>';
-    }
+    if (locationDiv) locationDiv.innerHTML = locationHtml || '<p>Нет данных</p>';
 
     // Коллекции
     let collectionHtml = '';
@@ -124,13 +133,10 @@ function displayFacets(facets) {
         </div>`;
     }
     const collectionDiv = document.getElementById('facet-collection');
-    if (collectionDiv) {
-        collectionDiv.innerHTML = collectionHtml || '<p>Нет данных</p>';
-    }
+    if (collectionDiv) collectionDiv.innerHTML = collectionHtml || '<p>Нет данных</p>';
 
     // Десятилетия
     let decadesHtml = '';
-    // Сортируем десятилетия по порядку
     const sortedDecades = Object.entries(facets.decades || {}).sort((a, b) => a[0].localeCompare(b[0]));
     for (let [decade, count] of sortedDecades) {
         const isActive = currentFilters.decade === decade;
@@ -139,9 +145,7 @@ function displayFacets(facets) {
         </div>`;
     }
     const decadesDiv = document.getElementById('facet-decades');
-    if (decadesDiv) {
-        decadesDiv.innerHTML = decadesHtml || '<p>Нет данных</p>';
-    }
+    if (decadesDiv) decadesDiv.innerHTML = decadesHtml || '<p>Нет данных</p>';
 }
 
 async function performSearch(page = 1) {
@@ -163,12 +167,9 @@ async function performSearch(page = 1) {
             url += `&q=${encodeURIComponent(query)}`;
         }
 
-        // Добавляем все фильтры из currentFilters
-        console.log('Добавление фильтров в URL:', currentFilters);
         for (let [key, value] of Object.entries(currentFilters)) {
             if (value) {
                 url += `&${key}=${encodeURIComponent(value)}`;
-                console.log(`  Добавлен параметр: ${key}=${value}`);
             }
         }
 
@@ -204,44 +205,108 @@ function displayResults(results) {
         return;
     }
 
+    const performanceFormMap = {
+        'vocal': 'Вокальная',
+        'instrumental': 'Инструментальная',
+        'vocal_instrumental': 'Вокально-инструментальная'
+    };
+
+    const performanceIconMap = {
+        'vocal': '🎤',
+        'instrumental': '🎸',
+        'vocal_instrumental': '🎤🎸'
+    };
+
+    // Используем Set для уникальных ID записей (убираем дублирование)
+    const uniqueResults = [];
+    const seenIds = new Set();
+
+    for (const recording of results) {
+        if (!seenIds.has(recording.id)) {
+            seenIds.add(recording.id);
+            uniqueResults.push(recording);
+        }
+    }
+
     let html = '';
-    results.forEach(recording => {
+    for (const recording of uniqueResults) {
         const statusClass = getStatusClass(recording.status);
         const statusName = getStatusName(recording.status);
-
-        // Формируем URL для детальной информации
         const detailUrl = `/recording/${recording.id}`;
-
-        // Добавляем отображение коллекции
         const collectionDisplay = recording.collection ? recording.collection : 'Не указана';
 
-        // Форматируем исполнителей
+        // Используем computed_performance_form или performance_form
+        let performanceForm = recording.computed_performance_form || recording.performance_form;
+        let performanceFormDisplay = performanceFormMap[performanceForm] || '';
+        let performanceIcon = performanceIconMap[performanceForm] || '🎵';
+
+        // Если форма не определена, пытаемся определить из исполнителей
+        if (!performanceForm && recording.performers && recording.performers.length > 0) {
+            let hasVocal = false;
+            let hasInstrumental = false;
+
+            for (const performer of recording.performers) {
+                const form = performer.performance_form;
+                if (form === 'vocal') hasVocal = true;
+                else if (form === 'instrumental') hasInstrumental = true;
+                else if (form === 'vocal_instrumental') {
+                    hasVocal = true;
+                    hasInstrumental = true;
+                    break;
+                }
+            }
+
+            if (hasVocal && hasInstrumental) {
+                performanceFormDisplay = 'Вокально-инструментальная';
+                performanceIcon = '🎤🎸';
+            } else if (hasVocal) {
+                performanceFormDisplay = 'Вокальная';
+                performanceIcon = '🎤';
+            } else if (hasInstrumental) {
+                performanceFormDisplay = 'Инструментальная';
+                performanceIcon = '🎸';
+            } else {
+                performanceFormDisplay = 'Форма не указана';
+                performanceIcon = '🎵';
+            }
+        } else if (!performanceFormDisplay) {
+            performanceFormDisplay = 'Форма не указана';
+            performanceIcon = '🎵';
+        }
+
+        // Форматируем исполнителей (кратко)
         let performersDisplay = '';
         if (recording.performers && recording.performers.length > 0) {
-            performersDisplay = recording.performers.map(p => {
-                if (p.ethnos) {
-                    return `${p.name} (${p.ethnos})`;
+            const uniquePerformers = [];
+            const seenNames = new Set();
+            for (const p of recording.performers) {
+                if (!seenNames.has(p.name)) {
+                    seenNames.add(p.name);
+                    uniquePerformers.push(p);
                 }
+            }
+            performersDisplay = uniquePerformers.map(p => {
+                if (p.ethnos) return `${p.name} (${p.ethnos})`;
                 return p.name;
             }).join(', ');
+        } else if (recording.performer) {
+            performersDisplay = recording.performer;
+            if (recording.ethnos) performersDisplay += ` (${recording.ethnos})`;
         } else {
             performersDisplay = 'Неизвестен';
         }
-
-        // Форматируем этносы для фильтрации (берем первый этнос для простоты)
-        const ethnosDisplay = recording.performers && recording.performers.length > 0 && recording.performers[0].ethnos
-            ? recording.performers[0].ethnos
-            : 'Не указан';
 
         html += `
             <div class="result-card" onclick="window.location.href='${detailUrl}'">
                 <div class="result-title">${escapeHtml(recording.title)}</div>
                 <div class="result-meta">
                     <span class="meta-item">📅 ${recording.date || 'Дата неизвестна'}</span>
+                    <span class="meta-item">${performanceIcon} ${escapeHtml(performanceFormDisplay)}</span>
+                </div>
+                <div class="result-meta">
                     <span class="meta-item">🎤 ${escapeHtml(performersDisplay)}</span>
                 </div>
                 <div class="result-meta">
-                    
                     <span class="meta-item">🎵 ${escapeHtml(recording.genre || 'Жанр не указан')}</span>
                     <span class="meta-item">📀 ${escapeHtml(collectionDisplay)}</span>
                 </div>
@@ -251,7 +316,7 @@ function displayResults(results) {
                 </div>
             </div>
         `;
-    });
+    }
 
     resultsDiv.innerHTML = html;
 }
@@ -267,12 +332,10 @@ function displayPagination(data) {
 
     let html = '<div class="pagination-controls">';
 
-    // Кнопка "Предыдущая"
     if (data.page > 1) {
         html += `<button class="page-btn" onclick="performSearch(${data.page - 1})">←</button>`;
     }
 
-    // Номера страниц
     for (let i = 1; i <= data.total_pages; i++) {
         if (i === 1 || i === data.total_pages || (i >= data.page - 2 && i <= data.page + 2)) {
             html += `<button class="page-btn ${i === data.page ? 'active' : ''}" 
@@ -282,7 +345,6 @@ function displayPagination(data) {
         }
     }
 
-    // Кнопка "Следующая"
     if (data.page < data.total_pages) {
         html += `<button class="page-btn" onclick="performSearch(${data.page + 1})">→</button>`;
     }
@@ -295,7 +357,6 @@ function addFilter(type, value) {
     console.log(`Добавление фильтра: ${type}=${value}`);
     currentFilters[type] = value;
     currentPage = 1;
-    console.log('Текущие фильтры после добавления:', currentFilters);
     loadFacets();
     performSearch(1);
     updateActiveFilters();
@@ -342,6 +403,14 @@ function updateActiveFilters() {
                 'требует_согласия_общины': 'Требует согласия'
             };
             displayValue = statusNames[value] || value;
+        }
+        if (type === 'performance_form') {
+            const perfNames = {
+                'vocal': 'Вокальная',
+                'instrumental': 'Инструментальная',
+                'vocal_instrumental': 'Вокально-инструментальная'
+            };
+            displayValue = perfNames[value] || value;
         }
         html += `<span class="filter-tag" onclick="removeFilter('${type}')">${type}: ${displayValue} ✖</span>`;
     }
