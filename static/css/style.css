@@ -773,6 +773,22 @@ input:focus, select:focus, textarea:focus {
     background: #c0392b;
 }
 
+/* tooltip */
+.result-card {
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+
+.result-card[title] {
+    cursor: help;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -815,7 +831,6 @@ input:focus, select:focus, textarea:focus {
         width: 120px;
     }
 
-    /* Кнопка "Вернуться к поиску" на мобильных устройствах */
     .back-link {
         position: static;
         display: inline-block;
@@ -844,6 +859,10 @@ input:focus, select:focus, textarea:focus {
     .btn-remove-instrument {
         width: 100%;
         margin-top: 10px;
+    }
+
+    .result-card:hover {
+        z-index: 10;
     }
 
 

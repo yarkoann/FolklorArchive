@@ -97,7 +97,7 @@ class FolklorMetadataManager:
             return None
 
     def get_all_recordings(self):
-        """Получение всех записей"""
+        """Получение всех записей - ТОЛЬКО ИЗ JSON"""
         try:
             json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                      "data", "recordings.json")
@@ -115,17 +115,13 @@ class FolklorMetadataManager:
                             overall_form = self._determine_overall_performance_form(performers)
                             rec['computed_performance_form'] = overall_form
 
-                            # Для обратной совместимости со старыми записями
+                            # Для обратной совместимости
                             if 'performance_form' not in rec:
                                 rec['performance_form'] = overall_form
-
-                            # Убеждаемся, что status есть
                             if 'status' not in rec and 'ethical_status' in rec:
                                 rec['status'] = rec['ethical_status']
                             elif 'status' not in rec:
                                 rec['status'] = 'публичный_доступ'
-
-                            # Убеждаемся, что date есть
                             if 'date' not in rec and 'recording_date' in rec:
                                 rec['date'] = rec['recording_date']
 

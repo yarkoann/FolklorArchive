@@ -68,6 +68,9 @@
     function displayEditForm() {
         // Обработка исполнителей
         let performers = [];
+        let durationHours = 0;
+        let durationMinutes = 0;
+        let durationSeconds = 0;
 
         if (recordingData.performers && recordingData.performers.length > 0) {
             performers = recordingData.performers;
@@ -93,6 +96,21 @@
         const localTermsStr = recordingData.local_terms ?
             (Array.isArray(recordingData.local_terms) ? recordingData.local_terms.join(', ') : recordingData.local_terms) : '';
 
+        const durationStr = recordingData.duration || '';
+        if (durationStr) {
+            const parts = durationStr.split(':');
+            if (parts.length === 2) {
+                // Формат ММ:СС
+                durationMinutes = parseInt(parts[0]) || 0;
+                durationSeconds = parseInt(parts[1]) || 0;
+            } else if (parts.length === 3) {
+                // Формат ЧЧ:ММ:СС
+                durationHours = parseInt(parts[0]) || 0;
+                durationMinutes = parseInt(parts[1]) || 0;
+                durationSeconds = parseInt(parts[2]) || 0;
+            }
+        }
+
         const html = `
             <form id="edit-recording-form">
                 <div class="form-section">
@@ -112,8 +130,19 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="duration">Длительность</label>
-                        <input type="text" id="duration" name="duration" value="${escapeHtml(recordingData.duration || '')}" placeholder="Например: 45:30">
+                        <label>Длительность</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="${durationHours}"
+                                   style="width: 80px; padding: 10px;">
+                            <span>:</span>
+                            <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="${durationMinutes}"
+                                   style="width: 80px; padding: 10px;">
+                            <span>:</span>
+                            <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="${durationSeconds}"
+                                   style="width: 80px; padding: 10px;">
+                        </div>
+                        <input type="hidden" id="duration" name="duration">
+                        <small class="form-hint">Введите часы, минуты и секунды</small>
                     </div>
                 </div>
 
@@ -181,7 +210,7 @@
                 <div class="form-section">
                     <h3>Местные термины</h3>
                     <div class="form-group">
-                        <label for="local_terms">Местные термины (через запятую)</label>
+                        <label for="local_terms">Местные термины</label>
                         <input type="text" id="local_terms" name="local_terms" value="${escapeHtml(localTermsStr)}" placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
                         <small class="form-hint">Введите термины через запятую</small>
                     </div>
@@ -202,8 +231,70 @@
         `;
 
         document.getElementById('edit-form').innerHTML = html;
+
+        // Настраиваем обновление скрытого поля длительности
+        function updateDuration() {
+            const hours = document.getElementById('duration_hours').value || 0;
+            const minutes = document.getElementById('duration_minutes').value || 0;
+            const seconds = document.getElementById('duration_seconds').value || 0;
+
+            let durationStr = '';
+            if (parseInt(hours) > 0) {
+                durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+            } else {
+                durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+            }
+
+            const durationField = document.getElementById('duration');
+            if (durationField) {
+                durationField.value = durationStr;
+            }
+        }
+
+        const hoursField = document.getElementById('duration_hours');
+        const minutesField = document.getElementById('duration_minutes');
+        const secondsField = document.getElementById('duration_seconds');
+
+        if (hoursField) hoursField.addEventListener('input', updateDuration);
+        if (minutesField) minutesField.addEventListener('input', updateDuration);
+        if (secondsField) secondsField.addEventListener('input', updateDuration);
+
+        // Инициализируем скрытое поле
+        updateDuration();
+
         setupEventListeners();
+        setupPerformanceFormListeners();
     }
+
+    function updateDuration() {
+        const hours = document.getElementById('duration_hours')?.value || 0;
+        const minutes = document.getElementById('duration_minutes')?.value || 0;
+        const seconds = document.getElementById('duration_seconds')?.value || 0;
+
+        let durationStr = '';
+        if (parseInt(hours) > 0) {
+            durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+        } else {
+            durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+        }
+
+        const durationField = document.getElementById('duration');
+        if (durationField) {
+            durationField.value = durationStr;
+        }
+    }
+
+    function setupPerformanceFormListeners() {
+        document.querySelectorAll('.performance-form-select').forEach(select => {
+            const performerId = select.getAttribute('data-performer-id');
+            if (performerId) {
+                select.addEventListener('change', function() {
+                    handlePerformanceFormChange(this, performerId);
+                });
+            }
+        });
+    }
+
 
     function renderPerformers(performers) {
         let html = '';
@@ -369,9 +460,9 @@
                     <label>Форма исполнения</label>
                     <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this, ${performerCount})">
                         <option value="">Выберите форму исполнения</option>
-                        <option value="vocal">Вокальная (пение без инструментов)</option>
-                        <option value="instrumental">Инструментальная (только инструменты)</option>
-                        <option value="vocal_instrumental">Вокально-инструментальная (пение с инструментами)</option>
+                        <option value="vocal">Вокальная</option>
+                        <option value="instrumental">Инструментальная</option>
+                        <option value="vocal_instrumental">Вокально-инструментальная</option>
                     </select>
                 </div>
             </div>
@@ -508,14 +599,14 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category: 'instruments', name: name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category: 'instruments', name: name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                vocabularyData.instruments.push({ name: name });
+                vocabularyData.instruments.push({name: name});
 
                 // Обновляем все селекты инструментов для этого исполнителя
                 const container = document.getElementById(`instruments-container-${performerIndex}`);
@@ -578,14 +669,14 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category: 'ethnos', name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category: 'ethnos', name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                vocabularyData.ethnos.push({ name });
+                vocabularyData.ethnos.push({name});
                 const select = button.closest('.performer-entry').querySelector('.ethnos-select');
                 updateEthnosSelect(select);
                 select.value = name;
@@ -637,14 +728,14 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category, name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category, name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                vocabularyData[category].push({ name });
+                vocabularyData[category].push({name});
                 const select = document.getElementById(selectId);
                 updateSelect(select, vocabularyData[category]);
                 select.value = name;
@@ -697,7 +788,7 @@
                     const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
                     for (let j = 0; j < instrumentNames.length; j++) {
                         if (instrumentNames[j] && instrumentNames[j] !== 'new' && instrumentNames[j] !== '') {
-                            instruments.push({ name: instrumentNames[j].trim() });
+                            instruments.push({name: instrumentNames[j].trim()});
                         }
                     }
 
@@ -741,7 +832,7 @@
             try {
                 const response = await fetch(`/api/update_recording/${recordingId}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(updatedData)
                 });
 

@@ -36,8 +36,19 @@
             </div>
 
             <div class="form-group">
-                <label for="duration">Длительность</label>
-                <input type="text" id="duration" name="duration" placeholder="Например: 45:30">
+                <label>Длительность</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="0"
+                           style="width: 80px; padding: 10px;">
+                    <span>:</span>
+                    <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="0"
+                           style="width: 80px; padding: 10px;">
+                    <span>:</span>
+                    <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="0"
+                           style="width: 80px; padding: 10px;">
+                </div>
+                <input type="hidden" id="duration" name="duration">
+                <small class="form-hint">Введите часы, минуты и секунды</small>
             </div>
         </div>
 
@@ -58,7 +69,9 @@
                     </select>
                     <div id="new-genre-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-genre" placeholder="Введите название нового жанра">
-                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
+                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">
+                            Добавить жанр
+                        </button>
                     </div>
                 </div>
 
@@ -81,7 +94,9 @@
                     </select>
                     <div id="new-location-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-location" placeholder="Введите название новой локации">
-                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
+                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')"
+                                class="btn-add-new">Добавить локацию
+                        </button>
                     </div>
                 </div>
 
@@ -92,7 +107,9 @@
                     </select>
                     <div id="new-collection-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
-                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
+                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')"
+                                class="btn-add-new">Добавить коллекцию
+                        </button>
                     </div>
                 </div>
             </div>
@@ -101,10 +118,12 @@
         <div class="form-section">
             <h3>Местные термины</h3>
             <div class="form-group">
-                <label for="local_terms">Местные термины (через запятую)</label>
+                <label for="local_terms">Местные термины</label>
+
                 <input type="text" id="local_terms" name="local_terms"
                        placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
                 <small class="form-hint">Введите термины через запятую</small>
+
             </div>
         </div>
 
@@ -135,7 +154,41 @@
     document.addEventListener('DOMContentLoaded', async function () {
         await loadAllVocabulary();
         addPerformer();
+
+        // Настраиваем обновление скрытого поля длительности
+        setupDurationListener();
     });
+
+    function setupDurationListener() {
+        function updateDuration() {
+            const hours = document.getElementById('duration_hours').value || 0;
+            const minutes = document.getElementById('duration_minutes').value || 0;
+            const seconds = document.getElementById('duration_seconds').value || 0;
+
+            let durationStr = '';
+            if (parseInt(hours) > 0) {
+                durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+            } else {
+                durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+            }
+
+            const durationField = document.getElementById('duration');
+            if (durationField) {
+                durationField.value = durationStr;
+            }
+        }
+
+        const hoursField = document.getElementById('duration_hours');
+        const minutesField = document.getElementById('duration_minutes');
+        const secondsField = document.getElementById('duration_seconds');
+
+        if (hoursField) hoursField.addEventListener('input', updateDuration);
+        if (minutesField) minutesField.addEventListener('input', updateDuration);
+        if (secondsField) secondsField.addEventListener('input', updateDuration);
+
+        // Инициализируем скрытое поле
+        updateDuration();
+    }
 
     async function loadAllVocabulary() {
         try {
@@ -277,14 +330,14 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category, name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category, name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                vocabularyData[category].push({ name });
+                vocabularyData[category].push({name});
                 const select = document.getElementById(selectId);
                 updateSelect(selectId, vocabularyData[category]);
                 select.value = name;
@@ -400,14 +453,14 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category: 'ethnos', name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category: 'ethnos', name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                vocabularyData.ethnos.push({ name });
+                vocabularyData.ethnos.push({name});
                 const select = button.closest('.performer-entry').querySelector('.ethnos-select');
                 updateEthnosSelect(select);
                 select.value = name;
@@ -487,15 +540,15 @@
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category: 'instruments', name: name })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category: 'instruments', name: name})
             });
 
             const result = await response.json();
 
             if (result.status === 'success') {
                 // Добавляем в локальный словарь
-                vocabularyData.instruments.push({ name: name });
+                vocabularyData.instruments.push({name: name});
 
                 // ВАЖНО: Обновляем ВСЕ селекты инструментов на странице
                 refreshAllInstrumentSelects();
@@ -520,9 +573,62 @@
         }
     }
 
+    function validateDuration(duration) {
+        if (!duration || duration.trim() === '') {
+            return true; // Пустое значение допустимо
+        }
+
+        // Регулярное выражение для форматов:
+        // ММ:СС - 45:30
+        // ЧЧ:ММ:СС - 01:15:30
+        const pattern = /^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$/;
+
+        if (!pattern.test(duration)) {
+            return false;
+        }
+
+        // Дополнительная проверка: значения не должны быть слишком большими
+        const parts = duration.split(':');
+        if (parts.length === 2) {
+            // ММ:СС
+            const minutes = parseInt(parts[0], 10);
+            const seconds = parseInt(parts[1], 10);
+            if (minutes > 599) { // Максимум 599 минут (почти 10 часов)
+                return false;
+            }
+            if (seconds > 59) {
+                return false;
+            }
+        } else if (parts.length === 3) {
+            // ЧЧ:ММ:СС
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            const seconds = parseInt(parts[2], 10);
+            if (hours > 99) { // Максимум 99 часов
+                return false;
+            }
+            if (minutes > 59 || seconds > 59) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
     // Сохранение записи
     document.getElementById('add-recording-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Валидация длительности
+        const durationInput = document.getElementById('duration');
+        const duration = durationInput.value;
+
+        if (!validateDuration(duration)) {
+            alert('Неверный формат длительности!\n\nИспользуйте формат:\n- ММ:СС (например 45:30)\n- ЧЧ:ММ:СС (например 01:15:30)\n\nМинуты не более 599, секунды не более 59');
+            durationInput.focus();
+            return;
+        }
 
         const formData = new FormData(e.target);
         const performers = [];
@@ -540,7 +646,7 @@
                 const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
                 for (let j = 0; j < instrumentNames.length; j++) {
                     if (instrumentNames[j] && instrumentNames[j] !== 'new' && instrumentNames[j] !== '') {
-                        instruments.push({ name: instrumentNames[j].trim() });
+                        instruments.push({name: instrumentNames[j].trim()});
                     }
                 }
 
@@ -584,7 +690,7 @@
         try {
             const response = await fetch('/api/add_recording', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
 

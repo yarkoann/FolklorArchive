@@ -217,7 +217,7 @@ function displayResults(results) {
         'vocal_instrumental': '🎤🎸'
     };
 
-    // Используем Set для уникальных ID записей (убираем дублирование)
+    // Используем Set для уникальных ID записей
     const uniqueResults = [];
     const seenIds = new Set();
 
@@ -234,6 +234,15 @@ function displayResults(results) {
         const statusName = getStatusName(recording.status);
         const detailUrl = `/recording/${recording.id}`;
         const collectionDisplay = recording.collection ? recording.collection : 'Не указана';
+
+        // Подготовка описания для tooltip
+        let descriptionText = recording.description || 'Описание отсутствует';
+        // Ограничиваем длину для tooltip (максимум 300 символов)
+        if (descriptionText.length > 300) {
+            descriptionText = descriptionText.substring(0, 300) + '...';
+        }
+        // Экранируем для использования в атрибуте title
+        const tooltipText = escapeHtml(descriptionText).replace(/"/g, '&quot;');
 
         // Используем computed_performance_form или performance_form
         let performanceForm = recording.computed_performance_form || recording.performance_form;
@@ -289,6 +298,10 @@ function displayResults(results) {
                 if (p.ethnos) return `${p.name} (${p.ethnos})`;
                 return p.name;
             }).join(', ');
+            // Ограничиваем длину
+            if (performersDisplay.length > 50) {
+                performersDisplay = performersDisplay.substring(0, 47) + '...';
+            }
         } else if (recording.performer) {
             performersDisplay = recording.performer;
             if (recording.ethnos) performersDisplay += ` (${recording.ethnos})`;
@@ -297,7 +310,7 @@ function displayResults(results) {
         }
 
         html += `
-            <div class="result-card" onclick="window.location.href='${detailUrl}'">
+            <div class="result-card" onclick="window.location.href='${detailUrl}'" title="${tooltipText}" style="cursor: pointer;">
                 <div class="result-title">${escapeHtml(recording.title)}</div>
                 <div class="result-meta">
                     <span class="meta-item">📅 ${recording.date || 'Дата неизвестна'}</span>

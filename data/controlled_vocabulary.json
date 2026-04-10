@@ -57,6 +57,18 @@
       "name": "Китайцы",
       "alternative_names": [],
       "region": ""
+    },
+    {
+      "id": "ethno_казахи",
+      "name": "Казахи",
+      "alternative_names": [],
+      "region": ""
+    },
+    {
+      "id": "ethno_аварцы",
+      "name": "Аварцы",
+      "alternative_names": [],
+      "region": ""
     }
   ],
   "genres": [
@@ -118,6 +130,12 @@
       "name": "Эпопея",
       "local_terms": [],
       "ritual": false
+    },
+    {
+      "id": "genre_инструментальная_песня",
+      "name": "Инструментальная песня",
+      "local_terms": [],
+      "ritual": false
     }
   ],
   "locations": [
@@ -160,6 +178,21 @@
       "id": "location_швеция",
       "name": "Швеция",
       "type": "other"
+    },
+    {
+      "id": "location_алматы",
+      "name": "Алматы",
+      "type": "other"
+    },
+    {
+      "id": "location_краков",
+      "name": "Краков",
+      "type": "other"
+    },
+    {
+      "id": "location_дагестан",
+      "name": "Дагестан",
+      "type": "other"
     }
   ],
   "collections": [
@@ -186,6 +219,14 @@
     {
       "id": "collection_диск_129",
       "name": "Диск №12(9)"
+    },
+    {
+      "id": "collection_диск_16_n",
+      "name": "Диск №16-N"
+    },
+    {
+      "id": "collection_диск_772",
+      "name": "Диск №77(2)"
     }
   ],
   "ritual_status": [
@@ -232,6 +273,12 @@
     {
       "id": "instrument_эрху",
       "name": "Эрху",
+      "type": "other",
+      "local_names": []
+    },
+    {
+      "id": "instrument_шантых",
+      "name": "Шантых",
       "type": "other",
       "local_names": []
     }

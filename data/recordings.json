@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "last_updated": "2026-04-07T23:51:06.778451",
-  "total_recordings": 6,
+  "last_updated": "2026-04-10T14:20:56.246718",
+  "total_recordings": 9,
   "recordings": [
     {
       "id": "1",
@@ -116,7 +116,7 @@
       "title": "Эпическое сказание олонхо",
       "inventory_number": "YK-2023-091",
       "recording_date": "1995-08-30",
-      "duration": "120:00",
+      "duration": "02:00:00",
       "performers": [
         {
           "name": "В.О. Каратаев",
@@ -134,7 +134,7 @@
         "тойук"
       ],
       "description": "Фрагмент якутского героического эпоса",
-      "updated_at": "2026-04-07T23:51:06.778451",
+      "updated_at": "2026-04-10T14:06:35.546713",
       "created_at": "2026-04-03T14:12:59.189188"
     },
     {
@@ -171,6 +171,95 @@
       "description": "Якутская сказка на китайский лад",
       "updated_at": "2026-04-07T23:07:44.755603",
       "created_at": "2026-04-03T15:20:32.626279"
+    },
+    {
+      "id": "rec_e7f539e5",
+      "title": "Test Казах песня",
+      "inventory_number": "VB-569",
+      "recording_date": "2025-06-03",
+      "duration": "13:12",
+      "performers": [
+        {
+          "name": "Ахметов А.С.",
+          "ethnos": "Казахи",
+          "performance_form": "vocal",
+          "instruments": []
+        }
+      ],
+      "genre": "Личная песня",
+      "ethical_status": "требует_согласия_общины",
+      "location": "Алматы",
+      "collection": "Диск №16-N",
+      "local_terms": [
+        "Отбасы",
+        "әлем"
+      ],
+      "description": "Казахская личная песнь",
+      "updated_at": "2026-04-10T13:47:08.987147",
+      "created_at": "2026-04-10T13:04:11.730931"
+    },
+    {
+      "id": "rec_6d1e7546",
+      "title": "Test Поляки Опера",
+      "inventory_number": "POL-091",
+      "recording_date": "2021-01-10",
+      "duration": "56:12",
+      "performers": [
+        {
+          "name": "Ковальский Н.К.",
+          "ethnos": "Поляки",
+          "performance_form": "vocal",
+          "instruments": []
+        },
+        {
+          "name": "Возняк К.Е.",
+          "ethnos": "Поляки",
+          "performance_form": "instrumental",
+          "instruments": [
+            {
+              "name": "Кырымпа"
+            }
+          ]
+        }
+      ],
+      "genre": "Опера",
+      "ethical_status": "публичный_доступ",
+      "location": "Краков",
+      "collection": "Диск №77(2)",
+      "local_terms": [
+        "Na łonie natury",
+        "zachód słońca"
+      ],
+      "description": "Польская опера на основе олонхо",
+      "updated_at": "2026-04-10T13:25:03.164963",
+      "created_at": "2026-04-10T13:22:17.783966"
+    },
+    {
+      "id": "rec_2170ec9d",
+      "title": "Test Аварцы ",
+      "inventory_number": "56MN-IP",
+      "recording_date": "2000-09-17",
+      "duration": "45:21",
+      "performers": [
+        {
+          "name": "Алиев К.Е.",
+          "ethnos": "Аварцы",
+          "performance_form": "instrumental",
+          "instruments": [
+            {
+              "name": "Шантых"
+            }
+          ]
+        }
+      ],
+      "genre": "Инструментальная песня",
+      "ethical_status": "публичный_доступ",
+      "location": "Дагестан",
+      "collection": "Диск №396(2)",
+      "local_terms": [],
+      "description": "Инструментальная аварская песня о битве между небом и солнцем",
+      "updated_at": "2026-04-10T14:20:56.246718",
+      "created_at": "2026-04-10T14:14:35.038716"
     }
   ]
 }
