@@ -43,32 +43,45 @@
     {
       "id": "ethno_поляки",
       "name": "Поляки",
-      "alternative_names": [],
-      "region": ""
+      "alternative_names": [
+        "ляхи"
+      ],
+      "region": "Польша"
     },
     {
       "id": "ethno_шведы",
       "name": "Шведы",
-      "alternative_names": [],
-      "region": ""
+      "alternative_names": [
+        "свеи",
+        "руотси"
+      ],
+      "region": "Швеция"
     },
     {
       "id": "ethno_китайцы",
       "name": "Китайцы",
-      "alternative_names": [],
-      "region": ""
+      "alternative_names": [
+        "хуажэнь",
+        "хуацяо"
+      ],
+      "region": "Китай"
     },
     {
       "id": "ethno_казахи",
       "name": "Казахи",
-      "alternative_names": [],
-      "region": ""
+      "alternative_names": [
+        "алаш",
+        "киргиз-кайсаки"
+      ],
+      "region": "Казахстан"
     },
     {
       "id": "ethno_аварцы",
       "name": "Аварцы",
-      "alternative_names": [],
-      "region": ""
+      "alternative_names": [
+        "маарулал"
+      ],
+      "region": "Дагестан"
     }
   ],
   "genres": [
@@ -116,7 +129,9 @@
     {
       "id": "genre_опера",
       "name": "Опера",
-      "local_terms": [],
+      "local_terms": [
+        "opera"
+      ],
       "ritual": false
     },
     {
@@ -167,12 +182,12 @@
     {
       "id": "location_чукотка",
       "name": "Чукотка",
-      "type": "other"
+      "type": "region"
     },
     {
       "id": "location_москва",
       "name": "Москва",
-      "type": "other"
+      "type": "city"
     },
     {
       "id": "location_швеция",
@@ -182,17 +197,17 @@
     {
       "id": "location_алматы",
       "name": "Алматы",
-      "type": "other"
+      "type": "city"
     },
     {
       "id": "location_краков",
       "name": "Краков",
-      "type": "other"
+      "type": "city"
     },
     {
       "id": "location_дагестан",
       "name": "Дагестан",
-      "type": "other"
+      "type": "region"
     }
   ],
   "collections": [

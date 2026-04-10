@@ -150,6 +150,117 @@ def edit_recording_page(recording_id):
 def recording_detail(recording_id):
     return render_template('recording_detail.html', recording_id=recording_id)
 
+@app.route('/vocabulary')
+def vocabulary_page():
+    """Страница словаря терминов"""
+    return render_template('vocabulary.html')
+
+
+@app.route('/api/vocabulary/<category>/update', methods=['POST'])
+def api_vocabulary_update(category):
+    """Обновление элемента в словаре"""
+    try:
+        data = request.json
+        item_id = data.get('id')
+        updates = data.get('updates', {})
+
+        if not item_id:
+            return jsonify({'status': 'error', 'message': 'Не указан ID'}), 400
+
+        vocab = manager.get_vocabulary_by_category(category)
+
+        for item in vocab:
+            if item.get('id') == item_id:
+                for key, value in updates.items():
+                    item[key] = value
+
+                # Сохраняем обновленный словарь
+                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
+                full_vocab = manager.vocabulary
+                full_vocab[category] = vocab
+
+                with open(vocab_path, 'w', encoding='utf-8') as f:
+                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
+
+                return jsonify({'status': 'success'})
+
+        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/vocabulary/<category>/add_term', methods=['POST'])
+def api_vocabulary_add_term(category):
+    """Добавление термина (локального названия)"""
+    try:
+        data = request.json
+        item_id = data.get('id')
+        field = data.get('field')  # local_terms, alternative_names, local_names
+        term = data.get('term')
+
+        if not item_id or not field or not term:
+            return jsonify({'status': 'error', 'message': 'Не указаны ID, поле или термин'}), 400
+
+        vocab = manager.get_vocabulary_by_category(category)
+
+        for item in vocab:
+            if item.get('id') == item_id:
+                if field not in item:
+                    item[field] = []
+                if term not in item[field]:
+                    item[field].append(term)
+
+                # Сохраняем обновленный словарь
+                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
+                full_vocab = manager.vocabulary
+                full_vocab[category] = vocab
+
+                with open(vocab_path, 'w', encoding='utf-8') as f:
+                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
+
+                return jsonify({'status': 'success'})
+
+        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/vocabulary/<category>/remove_term', methods=['POST'])
+def api_vocabulary_remove_term(category):
+    """Удаление термина"""
+    try:
+        data = request.json
+        item_id = data.get('id')
+        field = data.get('field')
+        term = data.get('term')
+
+        if not item_id or not field or not term:
+            return jsonify({'status': 'error', 'message': 'Не указаны ID, поле или термин'}), 400
+
+        vocab = manager.get_vocabulary_by_category(category)
+
+        for item in vocab:
+            if item.get('id') == item_id:
+                if field in item and term in item[field]:
+                    item[field].remove(term)
+
+                # Сохраняем обновленный словарь
+                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
+                full_vocab = manager.vocabulary
+                full_vocab[category] = vocab
+
+                with open(vocab_path, 'w', encoding='utf-8') as f:
+                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
+
+                return jsonify({'status': 'success'})
+
+        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @app.route('/api/facet_search')
 def api_facet_search():

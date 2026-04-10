@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Словарь терминов - ФонограммАрхив</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .vocab-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .vocab-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .vocab-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .vocab-header p {
+            opacity: 0.9;
+        }
+
+        .vocab-tabs {
+            display: flex;
+            background: #ecf0f1;
+            border-bottom: 2px solid #bdc3c7;
+            flex-wrap: wrap;
+        }
+
+        .vocab-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .vocab-tab:hover {
+            background: #d5dbdb;
+            color: #2c3e50;
+        }
+
+        .vocab-tab.active {
+            background: white;
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .vocab-content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .vocab-pane {
+            display: none;
+        }
+
+        .vocab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .vocab-stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stats-count {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .stats-count span {
+            color: #3498db;
+            font-size: 24px;
+        }
+
+        .search-box-small {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box-small input {
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            width: 250px;
+        }
+
+        .vocab-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .vocab-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .vocab-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: top;
+        }
+
+        .vocab-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .vocab-table .id-cell {
+            font-family: monospace;
+            font-size: 12px;
+            color: #7f8c8d;
+            width: 120px;
+        }
+
+        .vocab-table .name-cell {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-ritual {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .badge-non-ritual {
+            background: #27ae60;
+            color: white;
+        }
+
+        .terms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .term-item {
+            background: #ecf0f1;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-family: monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .term-item .remove-term {
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+
+        .term-item .remove-term:hover {
+            color: #c0392b;
+        }
+
+        .add-term-form {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .add-term-form input {
+            padding: 5px 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .add-term-form button {
+            padding: 5px 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .add-term-form button:hover {
+            background: #219a52;
+        }
+
+        .edit-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .edit-btn:hover {
+            background: #e67e22;
+        }
+
+        .save-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .save-btn:hover {
+            background: #219a52;
+        }
+
+        .cancel-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .edit-input, .edit-select {
+            padding: 5px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .edit-select {
+            background: white;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: #3498db;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .vocab-table {
+                font-size: 12px;
+            }
+
+            .vocab-table th,
+            .vocab-table td {
+                padding: 8px 10px;
+            }
+
+            .vocab-tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vocab-container">
+        <div class="vocab-header">
+            <h1>Словарь терминов</h1>
+            <p>Управление контролируемым словарем фольклорных терминов и понятий</p>
+        </div>
+
+        <div class="vocab-tabs">
+            <button class="vocab-tab active" data-tab="ethnos">🌍 Этносы</button>
+            <button class="vocab-tab" data-tab="genres">🎵 Жанры</button>
+            <button class="vocab-tab" data-tab="locations">📍 Локации</button>
+            <button class="vocab-tab" data-tab="instruments">🎸 Инструменты</button>
+            <button class="vocab-tab" data-tab="local_terms">📝 Местные термины</button>
+        </div>
+
+        <div class="vocab-content">
+            <!-- Этносы -->
+            <div id="tab-ethnos" class="vocab-pane active">
+                <div class="vocab-stats">
+                    <div class="stats-count">Всего этносов: <span id="ethnos-count">0</span></div>
+                    <div class="search-box-small">
+                        <input type="text" id="search-ethnos" placeholder="Поиск по названию..." onkeyup="filterTable('ethnos', this.value)">
+                    </div>
+                </div>
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Альтернативные названия</th>
+                            <th>Регион</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ethnos-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Жанры -->
+            <div id="tab-genres" class="vocab-pane">
+                <div class="vocab-stats">
+                    <div class="stats-count">Всего жанров: <span id="genres-count">0</span></div>
+                    <div class="search-box-small">
+                        <input type="text" id="search-genres" placeholder="Поиск по названию..." onkeyup="filterTable('genres', this.value)">
+                    </div>
+                </div>
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Локальные термины</th>
+                            <th>Ритуальный</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="genres-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Местные термины (отдельная категория) -->
+            <div id="tab-local_terms" class="vocab-pane">
+                <div class="vocab-stats">
+                    <div class="stats-count">Всего местных терминов: <span id="local-terms-count">0</span></div>
+                    <div class="search-box-small">
+                        <input type="text" id="search-local-terms" placeholder="Поиск по термину..." onkeyup="filterLocalTerms(this.value)">
+                    </div>
+                </div>
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>Термин</th>
+                            <th>Принадлежит к</th>
+                            <th>Тип</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="local-terms-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Локации -->
+            <div id="tab-locations" class="vocab-pane">
+                <div class="vocab-stats">
+                    <div class="stats-count">Всего локаций: <span id="locations-count">0</span></div>
+                    <div class="search-box-small">
+                        <input type="text" id="search-locations" placeholder="Поиск по названию..." onkeyup="filterTable('locations', this.value)">
+                    </div>
+                </div>
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="locations-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Инструменты -->
+            <div id="tab-instruments" class="vocab-pane">
+                <div class="vocab-stats">
+                    <div class="stats-count">Всего инструментов: <span id="instruments-count">0</span></div>
+                    <div class="search-box-small">
+                        <input type="text" id="search-instruments" placeholder="Поиск по названию..." onkeyup="filterTable('instruments', this.value)">
+                    </div>
+                </div>
+                <table class="vocab-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Локальные названия</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="instruments-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let vocabularyData = {
+            ethnos: [],
+            genres: [],
+            locations: [],
+            instruments: []
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadVocabulary();
+            setupTabs();
+        });
+
+        async function loadVocabulary() {
+            try {
+                const [ethnos, genres, locations, instruments] = await Promise.all([
+                    fetch('/api/vocabulary/ethnos').then(r => r.json()),
+                    fetch('/api/vocabulary/genres').then(r => r.json()),
+                    fetch('/api/vocabulary/locations').then(r => r.json()),
+                    fetch('/api/vocabulary/instruments').then(r => r.json()).catch(() => [])
+                ]);
+
+                vocabularyData = {
+                    ethnos: ethnos || [],
+                    genres: genres || [],
+                    locations: locations || [],
+                    instruments: instruments || []
+                };
+
+                console.log('Словарь загружен:', vocabularyData);
+
+                renderAll();
+
+            } catch (error) {
+                console.error('Ошибка загрузки словаря:', error);
+            }
+        }
+
+        function renderAll() {
+            renderEthnos();
+            renderGenres();
+            renderLocalTerms();
+            renderLocations();
+            renderInstruments();
+
+            document.getElementById('ethnos-count').textContent = vocabularyData.ethnos.length;
+            document.getElementById('genres-count').textContent = vocabularyData.genres.length;
+            document.getElementById('locations-count').textContent = vocabularyData.locations.length;
+            document.getElementById('instruments-count').textContent = vocabularyData.instruments.length;
+        }
+
+        function renderEthnos() {
+            const tbody = document.getElementById('ethnos-tbody');
+            if (!vocabularyData.ethnos.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = vocabularyData.ethnos.map(item => `
+                <tr data-id="${item.id}" data-category="ethnos">
+                    <td class="id-cell">${escapeHtml(item.id || '-')}</td>
+                    <td class="name-cell">${escapeHtml(item.name)}</td>
+                    <td>
+                        <div class="terms-list" id="alt-names-${item.id}">
+                            ${item.alternative_names && item.alternative_names.length
+                                ? item.alternative_names.map(n => `<span class="term-item">${escapeHtml(n)} <span class="remove-term" onclick="removeTerm('ethnos', '${item.id}', '${escapeHtml(n)}', 'alternative_names')">✖</span></span>`).join('')
+                                : '<span style="color: #999;">—</span>'}
+                        </div>
+                        <div class="add-term-form">
+                            <input type="text" id="new-alt-${item.id}" placeholder="Новое альтернативное название">
+                            <button onclick="addTerm('ethnos', '${item.id}', 'alternative_names', 'new-alt-${item.id}')">+ Добавить</button>
+                        </div>
+                    </td>
+                    <td class="region-cell">${escapeHtml(item.region || '—')}</td>
+                    <td class="action-buttons">
+                        <button class="edit-btn" onclick="editItem('ethnos', '${item.id}')">✏️ Редактировать</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderGenres() {
+            const tbody = document.getElementById('genres-tbody');
+            if (!vocabularyData.genres.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = vocabularyData.genres.map(item => `
+                <tr data-id="${item.id}" data-category="genres">
+                    <td class="id-cell">${escapeHtml(item.id || '-')}</td>
+                    <td class="name-cell">${escapeHtml(item.name)}</td>
+                    <td>
+                        <div class="terms-list" id="local-terms-${item.id}">
+                            ${item.local_terms && item.local_terms.length
+                                ? item.local_terms.map(t => `<span class="term-item">${escapeHtml(t)} <span class="remove-term" onclick="removeTerm('genres', '${item.id}', '${escapeHtml(t)}', 'local_terms')">✖</span></span>`).join('')
+                                : '<span style="color: #999;">—</span>'}
+                        </div>
+                        <div class="add-term-form">
+                            <input type="text" id="new-term-${item.id}" placeholder="Новый локальный термин">
+                            <button onclick="addTerm('genres', '${item.id}', 'local_terms', 'new-term-${item.id}')">+ Добавить</button>
+                        </div>
+                    </td>
+                    <td class="ritual-cell">
+                        ${item.ritual !== undefined
+                            ? `<span class="badge ${item.ritual ? 'badge-ritual' : 'badge-non-ritual'}">${item.ritual ? 'Ритуальный' : 'Не ритуальный'}</span>`
+                            : '<span style="color: #999;">—</span>'}
+                    </td>
+                    <td class="action-buttons">
+                        <button class="edit-btn" onclick="editItem('genres', '${item.id}')">✏️ Редактировать</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderLocalTerms() {
+            const tbody = document.getElementById('local-terms-tbody');
+            const allTerms = [];
+
+            // Собираем все локальные термины из жанров
+            vocabularyData.genres.forEach(genre => {
+                if (genre.local_terms && genre.local_terms.length) {
+                    genre.local_terms.forEach(term => {
+                        allTerms.push({
+                            term: term,
+                            parent: genre.name,
+                            parentId: genre.id,
+                            type: 'Жанр',
+                            category: 'genres',
+                            field: 'local_terms'
+                        });
+                    });
+                }
+            });
+
+            // Собираем альтернативные названия этносов
+            vocabularyData.ethnos.forEach(ethnos => {
+                if (ethnos.alternative_names && ethnos.alternative_names.length) {
+                    ethnos.alternative_names.forEach(name => {
+                        allTerms.push({
+                            term: name,
+                            parent: ethnos.name,
+                            parentId: ethnos.id,
+                            type: 'Этнос (альт. название)',
+                            category: 'ethnos',
+                            field: 'alternative_names'
+                        });
+                    });
+                }
+            });
+
+            // Собираем локальные названия инструментов
+            vocabularyData.instruments.forEach(instrument => {
+                if (instrument.local_names && instrument.local_names.length) {
+                    instrument.local_names.forEach(name => {
+                        allTerms.push({
+                            term: name,
+                            parent: instrument.name,
+                            parentId: instrument.id,
+                            type: 'Инструмент (лок. название)',
+                            category: 'instruments',
+                            field: 'local_names'
+                        });
+                    });
+                }
+            });
+
+            document.getElementById('local-terms-count').textContent = allTerms.length;
+
+            if (!allTerms.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allTerms.map(item => `
+                <tr data-term="${escapeHtml(item.term)}">
+                    <td class="name-cell">${escapeHtml(item.term)}</td>
+                    <td>${escapeHtml(item.parent)}</td>
+                    <td><span class="type-badge">${escapeHtml(item.type)}</span></td>
+                    <td>
+                        <button class="edit-btn" onclick="editTerm('${item.category}', '${item.parentId}', '${escapeHtml(item.term)}', '${item.field}')">✏️ Редактировать</button>
+                        <button class="save-btn" onclick="removeTerm('${item.category}', '${item.parentId}', '${escapeHtml(item.term)}', '${item.field}')">🗑️ Удалить</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterLocalTerms(searchText) {
+            const tbody = document.getElementById('local-terms-tbody');
+            const rows = tbody.querySelectorAll('tr');
+            const searchLower = searchText.toLowerCase();
+
+            rows.forEach(row => {
+                if (row.classList.contains('empty-row')) return;
+
+                const termCell = row.querySelector('.name-cell');
+                const term = termCell ? termCell.textContent.toLowerCase() : '';
+
+                if (term.includes(searchLower)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function renderLocations() {
+            const tbody = document.getElementById('locations-tbody');
+            if (!vocabularyData.locations.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Нет данных</td></tr>';
+                return;
+            }
+
+            const typeNames = {
+                'region': 'Регион',
+                'city': 'Город',
+                'settlement': 'Населенный пункт',
+                'other': 'Другое'
+            };
+
+            tbody.innerHTML = vocabularyData.locations.map(item => `
+                <tr data-id="${item.id}" data-category="locations">
+                    <td class="id-cell">${escapeHtml(item.id || '-')}</td>
+                    <td class="name-cell">${escapeHtml(item.name)}</td>
+                    <td class="type-cell">${escapeHtml(typeNames[item.type] || item.type || '—')}</td>
+                    <td class="action-buttons">
+                        <button class="edit-btn" onclick="editItem('locations', '${item.id}')">✏️ Редактировать</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderInstruments() {
+            const tbody = document.getElementById('instruments-tbody');
+            if (!vocabularyData.instruments.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Нет данных</td></tr>';
+                return;
+            }
+
+            const typeNames = {
+                'idiophone': 'Идиофон',
+                'membranophone': 'Мембранофон',
+                'chordophone': 'Хордофон',
+                'aerophone': 'Аэрофон',
+                'electrophone': 'Электрофон',
+                'other': 'Другой'
+            };
+
+            tbody.innerHTML = vocabularyData.instruments.map(item => `
+                <tr data-id="${item.id}" data-category="instruments">
+                    <td class="id-cell">${escapeHtml(item.id || '-')}</td>
+                    <td class="name-cell">${escapeHtml(item.name)}</td>
+                    <td class="type-cell">${escapeHtml(typeNames[item.type] || item.type || '—')}</td>
+                    <td>
+                        <div class="terms-list" id="local-names-${item.id}">
+                            ${item.local_names && item.local_names.length
+                                ? item.local_names.map(n => `<span class="term-item">${escapeHtml(n)} <span class="remove-term" onclick="removeTerm('instruments', '${item.id}', '${escapeHtml(n)}', 'local_names')">✖</span></span>`).join('')
+                                : '<span style="color: #999;">—</span>'}
+                        </div>
+                        <div class="add-term-form">
+                            <input type="text" id="new-local-name-${item.id}" placeholder="Новое локальное название">
+                            <button onclick="addTerm('instruments', '${item.id}', 'local_names', 'new-local-name-${item.id}')">+ Добавить</button>
+                        </div>
+                    </td>
+                    <td class="action-buttons">
+                        <button class="edit-btn" onclick="editItem('instruments', '${item.id}')">✏️ Редактировать</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addTerm(category, id, field, inputId) {
+            const input = document.getElementById(inputId);
+            const term = input.value.trim();
+
+            if (!term) {
+                alert('Введите термин');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/vocabulary/${category}/add_term`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, field, term })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    input.value = '';
+                    await loadVocabulary();
+                    renderAll();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка');
+            }
+        }
+
+        async function removeTerm(category, id, term, field) {
+            if (!confirm(`Удалить "${term}"?`)) return;
+
+            try {
+                const response = await fetch(`/api/vocabulary/${category}/remove_term`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, term, field })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    await loadVocabulary();
+                    renderAll();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка');
+            }
+        }
+
+        function editTerm(category, id, oldTerm, field) {
+            const newTerm = prompt('Введите новое значение:', oldTerm);
+            if (!newTerm || newTerm === oldTerm) return;
+
+            // Сначала удаляем старый, потом добавляем новый
+            removeTerm(category, id, oldTerm, field);
+            setTimeout(() => {
+                addTermDirect(category, id, field, newTerm);
+            }, 300);
+        }
+
+        async function addTermDirect(category, id, field, term) {
+            try {
+                const response = await fetch(`/api/vocabulary/${category}/add_term`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, field, term })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    await loadVocabulary();
+                    renderAll();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        function editItem(category, id) {
+            const item = vocabularyData[category].find(i => i.id === id);
+            if (!item) return;
+
+            const row = document.querySelector(`tr[data-id="${id}"][data-category="${category}"]`);
+
+            if (category === 'ethnos') {
+                const nameCell = row.querySelector('.name-cell');
+                const regionCell = row.querySelector('.region-cell');
+
+                nameCell.innerHTML = `<input type="text" class="edit-input" id="edit-name-${id}" value="${escapeHtml(item.name)}">`;
+                regionCell.innerHTML = `<input type="text" class="edit-input" id="edit-region-${id}" value="${escapeHtml(item.region || '')}">`;
+
+            } else if (category === 'genres') {
+                const nameCell = row.querySelector('.name-cell');
+                const ritualCell = row.querySelector('.ritual-cell');
+                const currentRitual = item.ritual ? 'true' : 'false';
+
+                nameCell.innerHTML = `<input type="text" class="edit-input" id="edit-name-${id}" value="${escapeHtml(item.name)}">`;
+                ritualCell.innerHTML = `
+                    <select class="edit-select" id="edit-ritual-${id}">
+                        <option value="true" ${item.ritual ? 'selected' : ''}>Ритуальный</option>
+                        <option value="false" ${!item.ritual ? 'selected' : ''}>Не ритуальный</option>
+                    </select>
+                `;
+
+            } else if (category === 'locations') {
+                const nameCell = row.querySelector('.name-cell');
+                const typeCell = row.querySelector('.type-cell');
+
+                nameCell.innerHTML = `<input type="text" class="edit-input" id="edit-name-${id}" value="${escapeHtml(item.name)}">`;
+                typeCell.innerHTML = `
+                    <select class="edit-select" id="edit-type-${id}">
+                        <option value="region" ${item.type === 'region' ? 'selected' : ''}>Регион</option>
+                        <option value="city" ${item.type === 'city' ? 'selected' : ''}>Город</option>
+                        <option value="settlement" ${item.type === 'settlement' ? 'selected' : ''}>Населенный пункт</option>
+                        <option value="other" ${item.type === 'other' || !item.type ? 'selected' : ''}>Другое</option>
+                    </select>
+                `;
+
+            } else if (category === 'instruments') {
+                const nameCell = row.querySelector('.name-cell');
+                const typeCell = row.querySelector('.type-cell');
+
+                nameCell.innerHTML = `<input type="text" class="edit-input" id="edit-name-${id}" value="${escapeHtml(item.name)}">`;
+                typeCell.innerHTML = `
+                    <select class="edit-select" id="edit-type-${id}">
+                        <option value="idiophone" ${item.type === 'idiophone' ? 'selected' : ''}>Идиофон</option>
+                        <option value="membranophone" ${item.type === 'membranophone' ? 'selected' : ''}>Мембранофон</option>
+                        <option value="chordophone" ${item.type === 'chordophone' ? 'selected' : ''}>Хордофон</option>
+                        <option value="aerophone" ${item.type === 'aerophone' ? 'selected' : ''}>Аэрофон</option>
+                        <option value="electrophone" ${item.type === 'electrophone' ? 'selected' : ''}>Электрофон</option>
+                        <option value="other" ${item.type === 'other' || !item.type ? 'selected' : ''}>Другой</option>
+                    </select>
+                `;
+            }
+
+            const actionCell = row.querySelector('.action-buttons');
+            actionCell.innerHTML = `
+                <button class="save-btn" onclick="saveItem('${category}', '${id}')">💾 Сохранить</button>
+                <button class="cancel-btn" onclick="cancelEdit('${category}', '${id}')">✖ Отмена</button>
+            `;
+        }
+
+        async function saveItem(category, id) {
+            const updates = {};
+
+            const nameInput = document.getElementById(`edit-name-${id}`);
+            if (nameInput) updates.name = nameInput.value.trim();
+
+            if (!updates.name) {
+                alert('Название не может быть пустым');
+                return;
+            }
+
+            if (category === 'ethnos') {
+                const regionInput = document.getElementById(`edit-region-${id}`);
+                if (regionInput) updates.region = regionInput.value.trim();
+            }
+
+            if (category === 'genres') {
+                const ritualSelect = document.getElementById(`edit-ritual-${id}`);
+                if (ritualSelect) updates.ritual = ritualSelect.value === 'true';
+            }
+
+            if (category === 'locations' || category === 'instruments') {
+                const typeSelect = document.getElementById(`edit-type-${id}`);
+                if (typeSelect) updates.type = typeSelect.value;
+            }
+
+            try {
+                const response = await fetch(`/api/vocabulary/${category}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, updates })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    await loadVocabulary();
+                    renderAll();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка');
+            }
+        }
+
+        function cancelEdit(category, id) {
+            renderAll();
+        }
+
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.vocab-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    document.querySelectorAll('.vocab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(`tab-${tabName}`).classList.add('active');
+
+                    const searchInput = document.getElementById(`search-${tabName}`);
+                    if (searchInput) {
+                        searchInput.value = '';
+                    }
+                });
+            });
+        }
+
+        function filterTable(tabName, searchText) {
+            const tbody = document.getElementById(`${tabName}-tbody`);
+            const rows = tbody.querySelectorAll('tr');
+            const searchLower = searchText.toLowerCase();
+
+            rows.forEach(row => {
+                if (row.classList.contains('empty-row')) return;
+
+                const nameCell = row.querySelector('.name-cell');
+                const name = nameCell ? nameCell.textContent.toLowerCase() : '';
+
+                if (name.includes(searchLower)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            if (typeof text !== 'string') text = String(text);
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
