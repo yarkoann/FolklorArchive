@@ -1,536 +1,501 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from src.metadata_manager import FolklorMetadataManager
 from datetime import datetime
-import json
-import os
-import traceback
-import uuid
+import json, os, traceback, uuid, re
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 ONTOLOGY_PATH = os.path.join(BASE_DIR, "ontology", "folklor_ontology.owl")
-DATA_PATH = os.path.join(BASE_DIR, "data", "recordings.json")
-VOCAB_PATH = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
-EXPORTS_DIR = os.path.join(BASE_DIR, "exports")
+DATA_PATH     = os.path.join(BASE_DIR, "data", "recordings.json")
+VOCAB_PATH    = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
+EXPORTS_DIR   = os.path.join(BASE_DIR, "exports")
+UPLOADS_DIR   = os.path.join(BASE_DIR, "uploads")
 
 os.makedirs(EXPORTS_DIR, exist_ok=True)
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+ALLOWED_AUDIO = {'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac', 'wma'}
+ALLOWED_VIDEO = {'mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv'}
+ALLOWED_EXT   = ALLOWED_AUDIO | ALLOWED_VIDEO
+
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
 
 manager = FolklorMetadataManager(ontology_path=ONTOLOGY_PATH)
 
 
-def save_to_json(recording_data, recording_id=None):
-    """Сохранение записи в JSON"""
-    json_path = DATA_PATH
+# ── helpers ──────────────────────────────────────────────────────
 
-    if os.path.exists(json_path):
-        with open(json_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            recordings = data.get('recordings', [])
-    else:
-        data = {'version': '1.0', 'recordings': []}
-        recordings = []
+def ext_of(filename):
+    return filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
 
-    if not recording_id:
-        recording_id = f"rec_{uuid.uuid4().hex[:8]}"
+def file_type(filename):
+    e = ext_of(filename)
+    return 'audio' if e in ALLOWED_AUDIO else ('video' if e in ALLOWED_VIDEO else 'unknown')
 
-    # Проверяем, существует ли уже запись с таким ID
-    existing_index = None
-    for i, rec in enumerate(recordings):
-        if rec.get('id') == recording_id:
-            existing_index = i
-            break
-
-    # Подготавливаем данные
-    new_recording = {
-        'id': recording_id,
-        'title': recording_data.get('title', ''),
-        'inventory_number': recording_data.get('inventory_number', ''),
-        'recording_date': recording_data.get('recording_date', ''),
-        'duration': recording_data.get('duration', ''),
-        'performers': recording_data.get('performers', []),
-        'genre': recording_data.get('genre', ''),
-        'ethical_status': recording_data.get('ethical_status', 'публичный_доступ'),
-        'location': recording_data.get('location', ''),
-        'collection': recording_data.get('collection', ''),
-        'local_terms': recording_data.get('local_terms', []),
-        'description': recording_data.get('description', ''),
-        'updated_at': datetime.now().isoformat()
-    }
-
-    if existing_index is None:
-        # Новая запись
-        new_recording['created_at'] = datetime.now().isoformat()
-        recordings.append(new_recording)
-        print(f"✅ Добавлена новая запись в JSON: {recording_id}")
-    else:
-        # Обновление существующей
-        if 'created_at' in recordings[existing_index]:
-            new_recording['created_at'] = recordings[existing_index]['created_at']
-        recordings[existing_index] = new_recording
-        print(f"✅ Обновлена запись в JSON: {recording_id}")
-
-    # Сохраняем в файл
-    data = {
-        'version': '1.0',
-        'last_updated': datetime.now().isoformat(),
-        'total_recordings': len(recordings),
-        'recordings': recordings
-    }
-
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-    print(f"✅ JSON сохранен. Всего записей: {len(recordings)}")
-    return recording_id
-
-
-def delete_from_json(recording_id):
-    """Удаление записи из JSON"""
-    json_path = DATA_PATH
-
-    if not os.path.exists(json_path):
-        return False
-
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        recordings = data.get('recordings', [])
-
-    new_recordings = [rec for rec in recordings if rec.get('id') != recording_id]
-
-    if len(new_recordings) != len(recordings):
-        data['recordings'] = new_recordings
-        data['last_updated'] = datetime.now().isoformat()
-        data['total_recordings'] = len(new_recordings)
-
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"✅ Запись {recording_id} удалена из JSON")
-        return True
-
-    return False
-
-
-# Загружаем существующие данные при старте (только один раз!)
-def init_data():
-    """Инициализация данных - загружаем JSON в manager при старте"""
+def load_data():
     if os.path.exists(DATA_PATH):
         with open(DATA_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            recordings = data.get('recordings', [])
-            print(f"📂 Загружено {len(recordings)} записей из JSON")
-            # Сохраняем в manager через add_recording для каждой записи
-            for rec in recordings:
-                # Проверяем, есть ли уже такая запись в RDF
-                existing = manager.get_recording_by_id(rec.get('id'))
-                if not existing:
-                    manager.add_recording(rec)
+            d = json.load(f)
+        return d, d.get('recordings', [])
+    return {'version': '1.0', 'recordings': []}, []
 
+def save_data(recordings):
+    d = {'version': '1.0', 'last_updated': datetime.now().isoformat(),
+         'total_recordings': len(recordings), 'recordings': recordings}
+    with open(DATA_PATH, 'w', encoding='utf-8') as f:
+        json.dump(d, f, ensure_ascii=False, indent=2)
 
-# Вызываем инициализацию при старте
+def save_recording(data, rec_id=None):
+    _, recs = load_data()
+    if not rec_id:
+        rec_id = f"rec_{uuid.uuid4().hex[:8]}"
+    idx = next((i for i, r in enumerate(recs) if r.get('id') == rec_id), None)
+    now = datetime.now().isoformat()
+
+    performers = [
+        {'name': p['name'].strip(),
+         'ethnos': p.get('ethnos') or None,
+         'performance_form': p.get('performance_form', ''),
+         'instruments': [{'name': i['name'].strip()}
+                         for i in p.get('instruments', []) if i.get('name', '').strip()]}
+        for p in data.get('performers', []) if p.get('name', '').strip()
+    ]
+
+    rec = {
+        'id': rec_id,
+        'title':            data.get('title', '').strip(),
+        'inventory_number': data.get('inventory_number', '').strip(),
+        'recording_date':   data.get('recording_date', ''),
+        'duration':         data.get('duration', ''),
+        'performers':       performers,
+        'genre':            data.get('genre', ''),
+        'ethical_status':   data.get('ethical_status', 'публичный_доступ'),
+        'location':         data.get('location', ''),
+        'collection':       data.get('collection', ''),
+        'local_terms':      [t.strip() for t in data.get('local_terms', []) if str(t).strip()],
+        'description':      data.get('description', '').strip(),
+        'updated_at':       now,
+    }
+    if idx is not None:
+        old = recs[idx]
+        rec['created_at']   = old.get('created_at', now)
+        rec['media_files']  = data.get('media_files', old.get('media_files', []))
+        recs[idx] = rec
+    else:
+        rec['created_at']  = now
+        rec['media_files'] = data.get('media_files', [])
+        recs.append(rec)
+    save_data(recs)
+    return rec_id
+
+def delete_recording_data(rec_id):
+    _, recs = load_data()
+    new = [r for r in recs if r.get('id') != rec_id]
+    if len(new) < len(recs):
+        save_data(new); return True
+    return False
+
+def validate_duration(dur):
+    if not dur or not dur.strip(): return True, ""
+    if not re.match(r'^([0-9]{1,3}:)?[0-5]?[0-9]:[0-5][0-9]$', dur.strip()):
+        return False, "Формат: ММ:СС или ЧЧ:ММ:СС"
+    p = dur.strip().split(':')
+    if len(p) == 3 and int(p[0]) > 99:
+        return False, "Часы не могут быть больше 99"
+    return True, ""
+
+def save_vocab(fv):
+    manager.vocabulary = fv
+    with open(VOCAB_PATH, 'w', encoding='utf-8') as f:
+        json.dump(fv, f, ensure_ascii=False, indent=2)
+
+def init_data():
+    if os.path.exists(DATA_PATH):
+        with open(DATA_PATH, 'r', encoding='utf-8') as f:
+            d = json.load(f)
+        for r in d.get('recordings', []):
+            if not manager.get_recording_by_id(r.get('id')):
+                manager.add_recording(r)
+
 init_data()
+VOCAB_CATS = ['ethnos', 'genres', 'locations', 'collections', 'instruments']
 
+
+# ── pages ─────────────────────────────────────────────────────────
 
 @app.route('/')
-def index():
-    return render_template('index.html')
-
+def index(): return render_template('index.html')
 
 @app.route('/add_recording')
-def add_recording_page():
-    return render_template('add_recording.html')
+def add_recording_page(): return render_template('add_recording.html')
 
+@app.route('/edit_recording/<rid>')
+def edit_recording_page(rid): return render_template('edit_recording.html', recording_id=rid)
 
-@app.route('/edit_recording/<recording_id>')
-def edit_recording_page(recording_id):
-    return render_template('edit_recording.html', recording_id=recording_id)
-
-
-@app.route('/recording/<recording_id>')
-def recording_detail(recording_id):
-    return render_template('recording_detail.html', recording_id=recording_id)
+@app.route('/recording/<rid>')
+def recording_detail(rid): return render_template('recording_detail.html', recording_id=rid)
 
 @app.route('/vocabulary')
-def vocabulary_page():
-    """Страница словаря терминов"""
-    return render_template('vocabulary.html')
+def vocabulary_page(): return render_template('vocabulary.html')
 
 
-@app.route('/api/vocabulary/<category>/update', methods=['POST'])
-def api_vocabulary_update(category):
-    """Обновление элемента в словаре"""
-    try:
-        data = request.json
-        item_id = data.get('id')
-        updates = data.get('updates', {})
-
-        if not item_id:
-            return jsonify({'status': 'error', 'message': 'Не указан ID'}), 400
-
-        vocab = manager.get_vocabulary_by_category(category)
-
-        for item in vocab:
-            if item.get('id') == item_id:
-                for key, value in updates.items():
-                    item[key] = value
-
-                # Сохраняем обновленный словарь
-                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
-                full_vocab = manager.vocabulary
-                full_vocab[category] = vocab
-
-                with open(vocab_path, 'w', encoding='utf-8') as f:
-                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
-
-                return jsonify({'status': 'success'})
-
-        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-@app.route('/api/vocabulary/<category>/add_term', methods=['POST'])
-def api_vocabulary_add_term(category):
-    """Добавление термина (локального названия)"""
-    try:
-        data = request.json
-        item_id = data.get('id')
-        field = data.get('field')  # local_terms, alternative_names, local_names
-        term = data.get('term')
-
-        if not item_id or not field or not term:
-            return jsonify({'status': 'error', 'message': 'Не указаны ID, поле или термин'}), 400
-
-        vocab = manager.get_vocabulary_by_category(category)
-
-        for item in vocab:
-            if item.get('id') == item_id:
-                if field not in item:
-                    item[field] = []
-                if term not in item[field]:
-                    item[field].append(term)
-
-                # Сохраняем обновленный словарь
-                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
-                full_vocab = manager.vocabulary
-                full_vocab[category] = vocab
-
-                with open(vocab_path, 'w', encoding='utf-8') as f:
-                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
-
-                return jsonify({'status': 'success'})
-
-        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-@app.route('/api/vocabulary/<category>/remove_term', methods=['POST'])
-def api_vocabulary_remove_term(category):
-    """Удаление термина"""
-    try:
-        data = request.json
-        item_id = data.get('id')
-        field = data.get('field')
-        term = data.get('term')
-
-        if not item_id or not field or not term:
-            return jsonify({'status': 'error', 'message': 'Не указаны ID, поле или термин'}), 400
-
-        vocab = manager.get_vocabulary_by_category(category)
-
-        for item in vocab:
-            if item.get('id') == item_id:
-                if field in item and term in item[field]:
-                    item[field].remove(term)
-
-                # Сохраняем обновленный словарь
-                vocab_path = os.path.join(BASE_DIR, "data", "controlled_vocabulary.json")
-                full_vocab = manager.vocabulary
-                full_vocab[category] = vocab
-
-                with open(vocab_path, 'w', encoding='utf-8') as f:
-                    json.dump(full_vocab, f, ensure_ascii=False, indent=2)
-
-                return jsonify({'status': 'success'})
-
-        return jsonify({'status': 'error', 'message': 'Элемент не найден'}), 404
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
+# ── search ────────────────────────────────────────────────────────
 
 @app.route('/api/facet_search')
 def api_facet_search():
-    filters = {}
-
-    if request.args.get('ethnos'):
-        filters['ethnos'] = request.args.get('ethnos')
-    if request.args.get('genre'):
-        filters['genre'] = request.args.get('genre')
-    if request.args.get('status'):
-        filters['status'] = request.args.get('status')
-    if request.args.get('location'):
-        filters['location'] = request.args.get('location')
-    if request.args.get('collection'):
-        filters['collection'] = request.args.get('collection')
-    if request.args.get('decade'):
-        filters['decade'] = request.args.get('decade')
-    if request.args.get('performance_form'):
-        filters['performance_form'] = request.args.get('performance_form')
-    if request.args.get('q'):
-        filters['search'] = request.args.get('q')
-
-    page = int(request.args.get('page', 1))
-    sort = request.args.get('sort', 'title')
-
-    results = manager.facet_search(filters=filters, page=page, sort=sort)
-    return jsonify(results)
-
+    filters = {k: request.args[k] for k in
+               ('ethnos','genre','status','location','collection','decade','performance_form')
+               if request.args.get(k)}
+    if request.args.get('q'): filters['search'] = request.args['q']
+    return jsonify(manager.facet_search(
+        filters=filters,
+        page=int(request.args.get('page', 1)),
+        sort=request.args.get('sort', 'title')
+    ))
 
 @app.route('/api/facets')
-def api_facets():
-    facets = manager.get_facet_counts()
-    return jsonify(facets)
+def api_facets(): return jsonify(manager.get_facet_counts())
 
 
-def validate_duration(duration):
-    """Валидация формата длительности"""
-    if not duration or duration.strip() == '':
-        return True, ""
-
-    duration = duration.strip()
-
-    import re
-    # Паттерн для ММ:СС или ЧЧ:ММ:СС
-    pattern = r'^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$'
-
-    if not re.match(pattern, duration):
-        return False, "Неверный формат. Используйте ММ:СС (45:30) или ЧЧ:ММ:СС (01:15:30)"
-
-    parts = duration.split(':')
-    if len(parts) == 2:
-        minutes = int(parts[0])
-        seconds = int(parts[1])
-        if minutes > 599:
-            return False, "Минуты не могут быть больше 599"
-        if seconds > 59:
-            return False, "Секунды не могут быть больше 59"
-    elif len(parts) == 3:
-        hours = int(parts[0])
-        minutes = int(parts[1])
-        seconds = int(parts[2])
-        if hours > 99:
-            return False, "Часы не могут быть больше 99"
-        if minutes > 59 or seconds > 59:
-            return False, "Минуты и секунды не могут быть больше 59"
-
-    return True, ""
+# ── recordings CRUD ───────────────────────────────────────────────
 
 @app.route('/api/add_recording', methods=['POST'])
 def api_add_recording():
-    """API для добавления записи"""
     try:
         data = request.json
-
-        # Валидация длительности
-        duration = data.get('duration', '')
-        is_valid, error_msg = validate_duration(duration)
-        if not is_valid:
-            return jsonify({'status': 'error', 'message': error_msg}), 400
-
-
-        print("\n" + "=" * 60)
-        print("📥 ПОЛУЧЕНЫ ДАННЫЕ ДЛЯ ДОБАВЛЕНИЯ:")
-        print("=" * 60)
-        print(f"Title: {data.get('title')}")
-        print(f"Performers: {data.get('performers')}")
-
-        # Сохраняем в JSON и получаем ID
-        recording_id = save_to_json(data)
-        print(f"✅ Запись сохранена в JSON с ID: {recording_id}")
-
-        # Добавляем ID в данные
-        data_with_id = {**data, 'id': recording_id}
-
-        # Добавляем в RDF граф (только если еще нет)
-        existing = manager.get_recording_by_id(recording_id)
-        if not existing:
-            manager.add_recording(data_with_id)
-            print(f"✅ Запись добавлена в RDF граф")
-        else:
-            print(f"⚠️ Запись уже существует в RDF, пропускаем")
-
-        return jsonify({'status': 'success', 'id': recording_id})
-
+        ok, msg = validate_duration(data.get('duration', ''))
+        if not ok: return jsonify({'status':'error','message':msg}), 400
+        rid = save_recording(data)
+        if not manager.get_recording_by_id(rid):
+            manager.add_recording({**data, 'id': rid})
+        return jsonify({'status':'success','id':rid})
     except Exception as e:
-        print(f"❌ Ошибка при добавлении записи: {e}")
-        traceback.print_exc()
-        return jsonify({'status': 'error', 'message': str(e)}), 400
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 400
 
-
-@app.route('/api/recording/<recording_id>', methods=['GET'])
-def api_get_recording(recording_id):
-    """API для получения детальной информации о записи"""
-    print(f"🔍 Запрос детальной информации для ID: {recording_id}")
+@app.route('/api/recording/<rid>')
+def api_get_recording(rid):
     try:
-        # Пробуем получить из JSON
-        if os.path.exists(DATA_PATH):
-            with open(DATA_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                for rec in data.get('recordings', []):
-                    if rec.get('id') == recording_id:
-                        print(f"✅ Найдена запись в JSON: {rec.get('title')}")
-                        # Приводим к единому формату
-                        formatted_rec = {
-                            'id': rec.get('id'),
-                            'title': rec.get('title', ''),
-                            'inventory_number': rec.get('inventory_number', ''),
-                            'date': rec.get('recording_date', '') or rec.get('date', ''),
-                            'duration': rec.get('duration', ''),
-                            'status': rec.get('ethical_status', '') or rec.get('status', 'публичный_доступ'),
-                            'genre': rec.get('genre', ''),
-                            'location': rec.get('location', ''),
-                            'collection': rec.get('collection', ''),
-                            'description': rec.get('description', ''),
-                            'local_terms': rec.get('local_terms', []),
-                            'performers': rec.get('performers', []),
-                            'created_at': rec.get('created_at', ''),
-                            'updated_at': rec.get('updated_at', '')
-                        }
-
-                        # Если нет performers, но есть старые поля
-                        if not formatted_rec['performers'] and rec.get('performer'):
-                            formatted_rec['performers'] = [{
-                                'name': rec.get('performer', ''),
-                                'ethnos': rec.get('ethnos', ''),
-                                'performance_form': rec.get('performance_form', ''),
-                                'instruments': rec.get('instruments', [])
-                            }]
-
-                        return jsonify(formatted_rec)
-
-        # Если не нашли в JSON, пробуем из manager
-        recording = manager.get_recording_by_id(recording_id)
-        if recording:
-            print(f"✅ Найдена запись в manager: {recording.get('title')}")
-            return jsonify(recording)
-        else:
-            print(f"❌ Запись не найдена: {recording_id}")
-            return jsonify({'error': 'Запись не найдена'}), 404
+        _, recs = load_data()
+        for r in recs:
+            if r.get('id') == rid:
+                return jsonify({
+                    'id': r['id'], 'title': r.get('title',''),
+                    'inventory_number': r.get('inventory_number',''),
+                    'date':   r.get('recording_date','') or r.get('date',''),
+                    'duration': r.get('duration',''),
+                    'status': r.get('ethical_status','') or r.get('status','публичный_доступ'),
+                    'genre': r.get('genre',''), 'location': r.get('location',''),
+                    'collection': r.get('collection',''), 'description': r.get('description',''),
+                    'local_terms': r.get('local_terms',[]),
+                    'performers': r.get('performers',[]),
+                    'media_files': r.get('media_files',[]),
+                    'created_at': r.get('created_at',''), 'updated_at': r.get('updated_at',''),
+                })
+        r = manager.get_recording_by_id(rid)
+        if r: r.setdefault('media_files',[]); return jsonify(r)
+        return jsonify({'error':'Запись не найдена'}), 404
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        traceback.print_exc(); return jsonify({'error':str(e)}), 500
 
-
-@app.route('/api/update_recording/<recording_id>', methods=['POST'])
-def api_update_recording(recording_id):
-    """API для обновления записи"""
+@app.route('/api/update_recording/<rid>', methods=['POST'])
+def api_update_recording(rid):
     try:
         data = request.json
-
-        # Валидация длительности
-        duration = data.get('duration', '')
-        is_valid, error_msg = validate_duration(duration)
-        if not is_valid:
-            return jsonify({'status': 'error', 'message': error_msg}), 400
-
-
-
-
-        print(f"📝 Обновление записи {recording_id}")
-
-        # Обновляем в JSON
-        save_to_json(data, recording_id)
-        print(f"✅ Запись обновлена в JSON")
-
-        # Обновляем в manager
-        success, message = manager.update_recording(recording_id, data)
-
-        if success:
-            return jsonify({'status': 'success', 'message': message})
-        else:
-            return jsonify({'status': 'error', 'message': message}), 400
-
+        ok, msg = validate_duration(data.get('duration',''))
+        if not ok: return jsonify({'status':'error','message':msg}), 400
+        save_recording(data, rid)
+        ok2, msg2 = manager.update_recording(rid, data)
+        return jsonify({'status':'success' if ok2 else 'error','message':msg2})
     except Exception as e:
-        print(f"❌ Ошибка обновления: {e}")
-        traceback.print_exc()
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
 
-
-@app.route('/api/delete_recording/<recording_id>', methods=['DELETE'])
-def api_delete_recording(recording_id):
-    """API для удаления записи"""
+@app.route('/api/delete_recording/<rid>', methods=['DELETE'])
+def api_delete_recording(rid):
     try:
-        print(f"🗑️ Удаление записи {recording_id}")
-
-        # Удаляем из JSON
-        delete_from_json(recording_id)
-
-        # Удаляем из manager
-        success, message = manager.delete_recording(recording_id)
-
-        if success:
-            return jsonify({'status': 'success', 'message': message})
-        else:
-            return jsonify({'status': 'error', 'message': message}), 404
-
+        _, recs = load_data()
+        for r in recs:
+            if r.get('id') == rid:
+                for mf in r.get('media_files',[]):
+                    if mf.get('type') == 'file':
+                        fp = os.path.join(UPLOADS_DIR, mf.get('stored_name',''))
+                        if os.path.exists(fp): os.remove(fp)
+                break
+        delete_recording_data(rid)
+        ok, msg = manager.delete_recording(rid)
+        return jsonify({'status':'success' if ok else 'error','message':msg})
     except Exception as e:
-        print(f"❌ Ошибка удаления: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status':'error','message':str(e)}), 500
 
+
+# ── media upload ──────────────────────────────────────────────────
+
+@app.route('/api/recording/<rid>/upload_media', methods=['POST'])
+def api_upload_media(rid):
+    try:
+        if 'file' not in request.files:
+            return jsonify({'status':'error','message':'Файл не найден'}), 400
+        file = request.files['file']
+        if not file.filename:
+            return jsonify({'status':'error','message':'Пустое имя файла'}), 400
+        original = secure_filename(file.filename)
+        e = ext_of(original)
+        if e not in ALLOWED_EXT:
+            return jsonify({'status':'error',
+                'message':f'Недопустимый формат. Разрешены: {", ".join(sorted(ALLOWED_EXT))}'}), 400
+
+        _, recs = load_data()
+        idx = next((i for i,r in enumerate(recs) if r.get('id') == rid), None)
+        if idx is None:
+            return jsonify({'status':'error','message':'Запись не найдена'}), 404
+
+        stored = f"{rid}_{uuid.uuid4().hex[:8]}.{e}"
+        path   = os.path.join(UPLOADS_DIR, stored)
+        file.save(path)
+        size = os.path.getsize(path)
+
+        entry = {
+            'id': uuid.uuid4().hex[:8], 'type': 'file',
+            'original_name': original, 'stored_name': stored,
+            'file_type': file_type(original), 'size': size,
+            'uploaded_at': datetime.now().isoformat(),
+        }
+        recs[idx].setdefault('media_files', []).append(entry)
+        recs[idx]['updated_at'] = datetime.now().isoformat()
+        save_data(recs)
+        return jsonify({'status':'success','media':entry})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+
+# ── media link ────────────────────────────────────────────────────
+
+@app.route('/api/recording/<rid>/add_media_link', methods=['POST'])
+def api_add_media_link(rid):
+    """Добавление медиа по внешней ссылке"""
+    try:
+        data = request.json
+        url  = (data.get('url') or '').strip()
+        label = (data.get('label') or '').strip()
+        ft   = data.get('file_type', 'video')   # 'audio' | 'video'
+
+        if not url:
+            return jsonify({'status':'error','message':'URL не указан'}), 400
+        if not re.match(r'^https?://', url):
+            return jsonify({'status':'error','message':'URL должен начинаться с http:// или https://'}), 400
+
+        _, recs = load_data()
+        idx = next((i for i,r in enumerate(recs) if r.get('id') == rid), None)
+        if idx is None:
+            return jsonify({'status':'error','message':'Запись не найдена'}), 404
+
+        entry = {
+            'id': uuid.uuid4().hex[:8], 'type': 'link',
+            'url': url, 'label': label or url,
+            'file_type': ft,
+            'added_at': datetime.now().isoformat(),
+        }
+        recs[idx].setdefault('media_files', []).append(entry)
+        recs[idx]['updated_at'] = datetime.now().isoformat()
+        save_data(recs)
+        return jsonify({'status':'success','media':entry})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+
+# ── media delete / serve ──────────────────────────────────────────
+
+@app.route('/api/recording/<rid>/delete_media/<mid>', methods=['DELETE'])
+def api_delete_media(rid, mid):
+    try:
+        _, recs = load_data()
+        idx = next((i for i,r in enumerate(recs) if r.get('id') == rid), None)
+        if idx is None: return jsonify({'status':'error','message':'Запись не найдена'}), 404
+        ml  = recs[idx].get('media_files', [])
+        entry = next((m for m in ml if m.get('id') == mid), None)
+        if not entry: return jsonify({'status':'error','message':'Файл не найден'}), 404
+        if entry.get('type') == 'file':
+            fp = os.path.join(UPLOADS_DIR, entry['stored_name'])
+            if os.path.exists(fp): os.remove(fp)
+        recs[idx]['media_files'] = [m for m in ml if m.get('id') != mid]
+        recs[idx]['updated_at']  = datetime.now().isoformat()
+        save_data(recs)
+        return jsonify({'status':'success'})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+@app.route('/api/media/<stored_name>')
+def api_serve_media(stored_name):
+    fp = os.path.join(UPLOADS_DIR, secure_filename(stored_name))
+    if not os.path.exists(fp): return jsonify({'error':'Файл не найден'}), 404
+    return send_file(fp)
+
+@app.route('/api/media/<stored_name>/download')
+def api_download_media(stored_name):
+    safe = secure_filename(stored_name)
+    fp   = os.path.join(UPLOADS_DIR, safe)
+    if not os.path.exists(fp): return jsonify({'error':'Файл не найден'}), 404
+    # Ищем оригинальное имя
+    original = safe
+    _, recs = load_data()
+    for r in recs:
+        for mf in r.get('media_files', []):
+            if mf.get('stored_name') == safe:
+                original = mf.get('original_name', safe); break
+    return send_file(fp, as_attachment=True, download_name=original)
+
+
+# ── vocabulary ────────────────────────────────────────────────────
+
+@app.route('/api/vocabulary/<cat>')
+def api_get_vocab(cat): return jsonify(manager.get_vocabulary_by_category(cat))
+
+@app.route('/api/add_to_vocabulary', methods=['POST'])
+def api_add_to_vocab():
+    try:
+        d = request.json; cat = d.get('category'); name = d.get('name','').strip()
+        if not cat or not name: return jsonify({'error':'Не указаны параметры'}), 400
+        if cat not in VOCAB_CATS: return jsonify({'error':'Недопустимая категория'}), 400
+        return jsonify({'status':'success','item': manager.add_to_vocabulary(cat, name)})
+    except Exception as e: return jsonify({'error':str(e)}), 500
+
+@app.route('/api/vocabulary/<cat>/add_item', methods=['POST'])
+def api_vocab_add_item(cat):
+    try:
+        if cat not in VOCAB_CATS: return jsonify({'status':'error','message':'Недопустимая категория'}), 400
+        d = request.json; name = d.get('name','').strip()
+        if not name: return jsonify({'status':'error','message':'Название обязательно'}), 400
+        fv = manager.vocabulary; vocab = fv.get(cat, [])
+        if any(i.get('name','').lower() == name.lower() for i in vocab):
+            return jsonify({'status':'error','message':'Уже существует'}), 409
+        raw = re.sub(r'[^\w]', '_', name.lower())
+        prefix = cat.rstrip('s') if cat.endswith('s') else cat
+        new_item = {'id': f"{prefix}_{raw}", 'name': name}
+        if cat == 'ethnos':    new_item.update({'alternative_names': d.get('alternative_names',[]), 'region': d.get('region','')})
+        elif cat == 'genres':  new_item.update({'local_terms': d.get('local_terms',[]), 'ritual': d.get('ritual', False)})
+        elif cat == 'locations': new_item['type'] = d.get('type','other')
+        elif cat == 'instruments': new_item.update({'type': d.get('type','other'), 'local_names': d.get('local_names',[])})
+        vocab.append(new_item); fv[cat] = vocab; save_vocab(fv)
+        return jsonify({'status':'success','item':new_item})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+@app.route('/api/vocabulary/<cat>/update', methods=['POST'])
+def api_vocab_update(cat):
+    try:
+        d = request.json; iid = d.get('id'); updates = d.get('updates',{})
+        if not iid: return jsonify({'status':'error','message':'Не указан ID'}), 400
+        fv = manager.vocabulary
+        for item in fv.get(cat, []):
+            if item.get('id') == iid:
+                item.update(updates); save_vocab(fv); return jsonify({'status':'success'})
+        return jsonify({'status':'error','message':'Элемент не найден'}), 404
+    except Exception as e: return jsonify({'status':'error','message':str(e)}), 500
+
+@app.route('/api/vocabulary/<cat>/delete', methods=['DELETE'])
+def api_vocab_delete(cat):
+    try:
+        if cat not in VOCAB_CATS: return jsonify({'status':'error','message':'Недопустимая категория'}), 400
+        iid = request.json.get('id')
+        if not iid: return jsonify({'status':'error','message':'Не указан ID'}), 400
+        fv = manager.vocabulary; vocab = fv.get(cat, [])
+        new = [i for i in vocab if i.get('id') != iid]
+        if len(new) == len(vocab): return jsonify({'status':'error','message':'Не найден'}), 404
+        fv[cat] = new; save_vocab(fv); return jsonify({'status':'success'})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+@app.route('/api/vocabulary/<cat>/add_term', methods=['POST'])
+def api_vocab_add_term(cat):
+    try:
+        d = request.json; iid = d.get('id'); field = d.get('field'); term = d.get('term','').strip()
+        if not all([iid, field, term]): return jsonify({'status':'error','message':'Не указаны параметры'}), 400
+        fv = manager.vocabulary
+        for item in fv.get(cat, []):
+            if item.get('id') == iid:
+                item.setdefault(field, [])
+                if term not in item[field]: item[field].append(term)
+                save_vocab(fv); return jsonify({'status':'success'})
+        return jsonify({'status':'error','message':'Не найден'}), 404
+    except Exception as e: return jsonify({'status':'error','message':str(e)}), 500
+
+@app.route('/api/vocabulary/<cat>/remove_term', methods=['POST'])
+def api_vocab_remove_term(cat):
+    try:
+        d = request.json; iid = d.get('id'); field = d.get('field'); term = d.get('term')
+        if not all([iid, field, term]): return jsonify({'status':'error','message':'Не указаны параметры'}), 400
+        fv = manager.vocabulary
+        for item in fv.get(cat, []):
+            if item.get('id') == iid:
+                if field in item and term in item[field]: item[field].remove(term)
+                save_vocab(fv); return jsonify({'status':'success'})
+        return jsonify({'status':'error','message':'Не найден'}), 404
+    except Exception as e: return jsonify({'status':'error','message':str(e)}), 500
+
+# ── local terms in recordings ──────────────────────────────────────
+
+@app.route('/api/local_terms_all')
+def api_local_terms_all():
+    """Все местные термины из всех записей с контекстом"""
+    try:
+        _, recs = load_data()
+        result = []
+        seen = {}
+        for r in recs:
+            for term in r.get('local_terms', []):
+                if not term.strip(): continue
+                key = term.lower()
+                if key not in seen:
+                    seen[key] = {'term': term, 'alt_names': [], 'recordings': []}
+                seen[key]['recordings'].append({'id': r['id'], 'title': r.get('title','')})
+        # Загружаем сохранённые alt_names для терминов
+        lt_vocab = manager.vocabulary.get('local_terms_meta', {})
+        for key, item in seen.items():
+            item['alt_names'] = lt_vocab.get(key, {}).get('alt_names', [])
+            result.append(item)
+        result.sort(key=lambda x: x['term'].lower())
+        return jsonify(result)
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'error':str(e)}), 500
+
+@app.route('/api/local_terms_meta/update', methods=['POST'])
+def api_lt_meta_update():
+    """Сохранение/обновление альтернативных названий для термина"""
+    try:
+        d    = request.json
+        term = d.get('term','').strip()
+        alts = d.get('alt_names', [])
+        if not term: return jsonify({'status':'error','message':'Термин не указан'}), 400
+        fv = manager.vocabulary
+        fv.setdefault('local_terms_meta', {})
+        key = term.lower()
+        fv['local_terms_meta'][key] = {'term': term, 'alt_names': alts}
+        save_vocab(fv)
+        return jsonify({'status':'success'})
+    except Exception as e:
+        traceback.print_exc(); return jsonify({'status':'error','message':str(e)}), 500
+
+
+# ── export ────────────────────────────────────────────────────────
 
 @app.route('/api/export_mets')
 def api_export_mets():
     try:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = os.path.join(EXPORTS_DIR, f"mets_{timestamp}.xml")
-        manager.export_to_mets(output_file)
-        if os.path.exists(output_file):
-            return send_file(output_file, as_attachment=True, download_name=f"mets_{timestamp}.xml")
-        else:
-            return jsonify({'status': 'error', 'message': 'Файл не создан'}), 500
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-@app.route('/api/vocabulary/<category>')
-def api_get_vocabulary(category):
-    items = manager.get_vocabulary_by_category(category)
-    return jsonify(items)
-
-
-@app.route('/api/add_to_vocabulary', methods=['POST'])
-def api_add_to_vocabulary():
-    try:
-        data = request.json
-        category = data.get('category')
-        name = data.get('name')
-
-        if not category or not name:
-            return jsonify({'error': 'Не указана категория или название'}), 400
-
-        valid_categories = ['ethnos', 'genres', 'locations', 'collections', 'instruments']
-        if category not in valid_categories:
-            return jsonify({'error': 'Недопустимая категория'}), 400
-
-        item = manager.add_to_vocabulary(category, name)
-        return jsonify({'status': 'success', 'item': item})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
+        ts  = datetime.now().strftime('%Y%m%d_%H%M%S')
+        out = os.path.join(EXPORTS_DIR, f"mets_{ts}.xml")
+        manager.export_to_mets(out)
+        if os.path.exists(out):
+            return send_file(out, as_attachment=True, download_name=f"mets_{ts}.xml")
+        return jsonify({'status':'error','message':'Файл не создан'}), 500
+    except Exception as e: return jsonify({'status':'error','message':str(e)}), 500
 
 @app.route('/debug/recordings')
 def debug_recordings():
-    """Отладка - показать все записи"""
-    recordings = manager.get_all_recordings()
-    return jsonify({'count': len(recordings), 'recordings': recordings})
+    recs = manager.get_all_recordings()
+    return jsonify({'count': len(recs), 'recordings': recs})
 
 
 if __name__ == '__main__':
-    print(f"🚀 Запуск сервера...")
-    print(f"🌐 http://localhost:5000")
+    print("🚀 http://localhost:5000")
     app.run(debug=True, port=5000)

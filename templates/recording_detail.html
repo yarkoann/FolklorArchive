@@ -1,243 +1,416 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Детальная информация - Фольклорный архив</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Детальная информация — ФонограммАрхив</title>
+<link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-<div class="detail-container">
-    <div class="detail-header">
-        <a href="/" class="back-link">← На главную</a>
-        <h1>Детальная информация</h1>
-        <p>ID записи: <span id="recording-id-display"></span></p>
+
+<div class="topbar">
+  <div class="topbar-logo">Фоно<em>граф</em></div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-page">Детальная информация</div>
+  <div class="topbar-right">
+    <a href="/" class="btn btn-ghost btn-sm">← Архив</a>
+    <a href="/vocabulary" class="btn btn-ghost btn-sm">📚 Словарь</a>
+  </div>
+</div>
+
+<div class="detail-page" id="page-content">
+  <div class="loading"><div class="loading-spinner"></div><p>Загрузка записи…</p></div>
+</div>
+
+<div class="toast-area" id="toast-area"></div>
+
+<div class="modal-backdrop" id="confirm" style="display:none">
+  <div class="confirm-box">
+    <span class="ci">🗑</span>
+    <h3>Удалить запись?</h3>
+    <p>Это действие нельзя отменить. Все медиафайлы будут удалены с сервера.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="document.getElementById('confirm').style.display='none'">Отмена</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
     </div>
+  </div>
+</div>
 
-    <div class="detail-content" id="recording-detail">
-        <div class="loading">
-            <div class="loading-spinner"></div>
-            <p>Загрузка данных...</p>
-        </div>
+<!-- Modal for adding media link -->
+<div class="modal-backdrop" id="link-modal" style="display:none" onclick="if(event.target===this)closeLinkModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Добавить медиа по ссылке</div>
+      <button class="modal-close" onclick="closeLinkModal()">✕</button>
     </div>
-
-    <div id="detail-actions-container"></div>
-
-    <a href="/" class="back-button">← Вернуться к поиску</a>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>URL ссылки *</label>
+        <input type="url" id="link-url" placeholder="https://www.youtube.com/watch?v=... или любой другой URL" style="width:100%">
+      </div>
+      <div class="modal-field">
+        <label>Название (опционально)</label>
+        <input type="text" id="link-label" placeholder="Например: Интервью с носителем">
+      </div>
+      <div class="modal-field">
+        <label>Тип контента</label>
+        <select id="link-type">
+          <option value="video">🎬 Видео</option>
+          <option value="audio">🎵 Аудио</option>
+        </select>
+      </div>
+      <small class="form-hint">Поддерживаются любые внешние ссылки. Для YouTube/Vimeo будет встроен плеер.</small>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeLinkModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="addMediaLink()">➕ Добавить ссылку</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    const pathParts = window.location.pathname.split('/');
-    const recordingId = pathParts[pathParts.length - 1];
+const recId = window.location.pathname.split('/').pop();
+let recData = null;
 
-    document.getElementById('recording-id-display').textContent = recordingId;
+function toast(msg, type = 'success') {
+  const area = document.getElementById('toast-area');
+  const el = document.createElement('div');
+  el.className = `toast-item t-${type}`;
+  el.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  area.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 2800);
+}
 
-    async function loadRecordingDetails() {
-        try {
-            const response = await fetch(`/api/recording/${recordingId}`);
-            if (!response.ok) throw new Error(`HTTP ошибка! статус: ${response.status}`);
-            const data = await response.json();
-            if (data.error) {
-                showError(data.error);
-                return;
-            }
-            displayRecordingDetails(data);
-        } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            showError(error.message);
-        }
+async function load() {
+  try {
+    const r = await fetch(`/api/recording/${recId}`);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    recData = await r.json();
+    if(recData.error) { showError(recData.error); return; }
+    render(recData);
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+function render(d) {
+  const statusInfo = statusBadge(d.status);
+  const performersHtml = renderPerformers(d.performers||[]);
+  const localTerms = Array.isArray(d.local_terms) ? d.local_terms : [];
+  const mediaHtml = renderMedia(d.media_files||[]);
+
+  document.getElementById('page-content').innerHTML = `
+    <div class="detail-hero">
+      <div class="detail-hero-title">${esc(d.title||'Без названия')}</div>
+      <div class="detail-hero-inv">ID: ${esc(recId)} &nbsp;·&nbsp; Инв. №: ${esc(d.inventory_number||'—')}</div>
+      <div class="detail-hero-tags">
+        <span class="chip ${statusInfo.cls}">${statusInfo.label}</span>
+        ${d.genre?`<span class="chip chip-neutral">🎵 ${esc(d.genre)}</span>`:''}
+        ${d.location?`<span class="chip chip-neutral">📍 ${esc(d.location)}</span>`:''}
+        ${d.collection?`<span class="chip chip-neutral">📀 ${esc(d.collection)}</span>`:''}
+        ${d.duration?`<span class="chip chip-blue">⏱ ${esc(d.duration)}</span>`:''}
+      </div>
+      <div class="detail-hero-actions">
+        <button class="btn btn-warning btn-sm" onclick="location.href='/edit_recording/${recId}'">✏️ Редактировать</button>
+        <button class="btn btn-danger btn-sm" onclick="document.getElementById('confirm').style.display='flex'">🗑 Удалить</button>
+        <button class="btn btn-info btn-sm" onclick="openLinkModal()">🔗 Добавить ссылку</button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="detail-card-title">Основная информация</div>
+        <div class="info-row"><div class="info-label">Дата записи</div><div class="info-val">${esc(formatDate(d.date||''))}</div></div>
+        <div class="info-row"><div class="info-label">Длительность</div><div class="info-val mono">${esc(d.duration||'—')}</div></div>
+        <div class="info-row"><div class="info-label">Жанр</div><div class="info-val">${esc(d.genre||'—')}</div></div>
+        <div class="info-row"><div class="info-label">Локация</div><div class="info-val">${esc(d.location||'—')}</div></div>
+        <div class="info-row"><div class="info-label">Коллекция</div><div class="info-val">${esc(d.collection||'—')}</div></div>
+        <div class="info-row"><div class="info-label">Инв. номер</div><div class="info-val mono">${esc(d.inventory_number||'—')}</div></div>
+        <div class="info-row"><div class="info-label">Добавлена</div><div class="info-val">${esc(formatDate(d.created_at||''))}</div></div>
+        <div class="info-row"><div class="info-label">Обновлена</div><div class="info-val">${esc(formatDate(d.updated_at||''))}</div></div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-title">Исполнители</div>
+        ${performersHtml}
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-title">Местные термины</div>
+        ${localTerms.length
+          ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${localTerms.map(t=>`<span class="chip chip-neutral">${esc(t)}</span>`).join('')}</div>`
+          : `<span style="color:var(--muted);font-size:13px">Не указаны</span>`}
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-title">Описание</div>
+        <div class="info-val desc">${esc(d.description||'Описание отсутствует')}</div>
+      </div>
+
+      <div class="detail-card full">
+        <div class="detail-card-title">Медиафайлы</div>
+
+        <!-- Upload zone for files -->
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="file-input" accept="audio/*,video/*" onchange="onFileChosen(event)" style="display:none">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>Перетащите аудио или видео файл, или нажмите для выбора</p>
+          <small>MP3, WAV, OGG, FLAC, M4A, MP4, AVI, MOV, MKV, WebM · до 500 МБ</small>
+        </div>
+
+        <div class="upload-progress" id="upload-progress" style="display:none">
+          <div class="progress-text" id="progress-text">Загрузка…</div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+
+        <div class="media-list" id="media-list">${mediaHtml}</div>
+      </div>
+    </div>`;
+}
+
+function renderPerformers(performers) {
+  if(!performers.length) return '<span style="color:var(--muted);font-size:13px">Не указаны</span>';
+  return performers.map((p,i) => {
+    const instruments = (p.instruments||[]).map(ins => `<span class="chip chip-amber">🎸 ${esc(ins.name)}</span>`).join('');
+    const formName = {vocal:'🎤 Вокальная',instrumental:'🎸 Инструментальная',vocal_instrumental:'🎤🎸 Вок.-инструм.'}[p.performance_form]||'';
+    return `<div class="performer-card">
+      <div class="perf-name">${performers.length>1?`${i+1}. `:''}${esc(p.name||'—')}</div>
+      <div class="perf-meta">
+        ${p.ethnos?`<span class="chip chip-blue">🌍 ${esc(p.ethnos)}</span>`:''}
+        ${formName?`<span class="chip chip-neutral">${formName}</span>`:''}
+        ${instruments}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMedia(mediaFiles) {
+  if(!mediaFiles.length) return '<div style="color:var(--muted);font-size:13px;padding:8px 0">Медиафайлы не прикреплены</div>';
+  return mediaFiles.map(m => mediaItemHtml(m)).join('');
+}
+
+function mediaItemHtml(m) {
+  const isAudio = m.file_type === 'audio';
+  const isVideo = m.file_type === 'video';
+  const isLink = m.type === 'link';
+  const iconClass = isLink ? 'link' : (isAudio ? 'audio' : 'video');
+  const icon = isLink ? '🔗' : (isAudio ? '🎵' : '🎬');
+
+  let playerHtml = '';
+  if (!isLink && (isAudio || isVideo)) {
+    playerHtml = `<div class="media-player">
+      ${isAudio
+        ? `<audio controls preload="none" src="/api/media/${esc(m.stored_name)}"></audio>`
+        : `<video controls preload="none" src="/api/media/${esc(m.stored_name)}"></video>`}
+    </div>`;
+  } else if (isLink && m.url) {
+    // For YouTube, Vimeo and other links - embed if possible
+    const embedUrl = getEmbedUrl(m.url);
+    if (embedUrl) {
+      playerHtml = `<div class="media-player">
+        <iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; border-radius:6px; min-height:200px"></iframe>
+      </div>`;
+    } else {
+      playerHtml = `<div class="media-url">🔗 <a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.label || m.url)}</a></div>`;
     }
+  }
 
-    function displayRecordingDetails(recording) {
-        const statusClass = getStatusClass(recording.status);
-        const statusName = getStatusName(recording.status);
-        const durationDisplay = recording.duration || 'Не указана';
-        const localTermsDisplay = recording.local_terms ?
-            (Array.isArray(recording.local_terms) ? recording.local_terms.join(', ') : recording.local_terms) : 'Не указаны';
+  return `<div class="media-item" id="mi-${m.id}">
+    <div class="media-item-header">
+      <div class="media-icon ${iconClass}">${icon}</div>
+      <div class="media-name" title="${esc(m.original_name || m.label || m.url)}">${esc(m.original_name || m.label || (isLink ? m.url : m.original_name) || 'Медиа')}</div>
+      ${!isLink && m.size ? `<div class="media-size">${formatSize(m.size)}</div>` : ''}
+    </div>
+    ${playerHtml}
+    <div class="media-actions">
+      ${!isLink ? `<a href="/api/media/${esc(m.stored_name)}/download" class="btn btn-ghost btn-sm">⬇ Скачать</a>` : ''}
+      <button class="btn btn-danger btn-sm" onclick="deleteMedia('${m.id}', '${esc(m.original_name || m.label || 'файл')}')">🗑 Удалить</button>
+    </div>
+  </div>`;
+}
 
-        // Форма исполнения для отображения
-        const performanceFormMap = {
-            'vocal': 'Вокальная',
-            'instrumental': 'Инструментальная',
-            'vocal_instrumental': 'Вокально-инструментальная'
-        };
+function getEmbedUrl(url) {
+  // YouTube
+  const ytRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const ytMatch = url.match(ytRegex);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  // Vimeo
+  const vimeoRegex = /vimeo\.com\/(\d+)/;
+  const vimeoMatch = url.match(vimeoRegex);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  return null;
+}
 
-        // Построение таблицы исполнителей с инструментами
-        let performersRowsHtml = '';
-        if (recording.performers && recording.performers.length > 0) {
-            for (let i = 0; i < recording.performers.length; i++) {
-                const performer = recording.performers[i];
-                const performanceForm = performanceFormMap[performer.performance_form] || performer.performance_form || 'Не указана';
+function openLinkModal() {
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-label').value = '';
+  document.getElementById('link-type').value = 'video';
+  document.getElementById('link-modal').style.display = 'flex';
+}
 
-                // Формируем строку с инструментами
-                let instrumentsText = '';
-                if (performer.instruments && performer.instruments.length > 0) {
-                    instrumentsText = performer.instruments.map(inst => inst.name).join(', ');
-                } else {
-                    instrumentsText = 'Не указаны';
-                }
+function closeLinkModal() {
+  document.getElementById('link-modal').style.display = 'none';
+}
 
-                performersRowsHtml += `
-                        <tr>
-                            <th>${recording.performers.length > 1 ? `Исполнитель ${i + 1}:` : 'Исполнитель:'}</th>
-                            <td>
-                                <strong>${escapeHtml(performer.name || 'Не указан')}</strong>
-                                ${performer.ethnos ? `<span style="color: #666;"> (${escapeHtml(performer.ethnos)})</span>` : ''}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Форма исполнения:</th>
-                            <td>${escapeHtml(performanceForm)}</td>
-                        </tr>
-                        ${performer.instruments && performer.instruments.length > 0 ? `
-                        <tr>
-                            <th>Инструменты:</th>
-                            <td>${escapeHtml(instrumentsText)}</td>
-                        </tr>
-                        ` : ''}
-                        ${i < recording.performers.length - 1 ? '<tr><td colspan="2" style="padding: 5px;"></td></tr>' : ''}
-                    `;
-            }
-        } else if (recording.performer) {
-            // Старый формат
-            performersRowsHtml = `
-                    <tr>
-                        <th>Исполнитель:</th>
-                        <td>
-                            <strong>${escapeHtml(recording.performer)}</strong>
-                            ${recording.ethnos ? `<span style="color: #666;"> (${escapeHtml(recording.ethnos)})</span>` : ''}
-                        </td>
-                    </tr>
-                `;
-        } else {
-            performersRowsHtml = `
-                    <tr>
-                        <th>Исполнитель:</th>
-                        <td>Не указан</td>
-                    </tr>
-                `;
-        }
+async function addMediaLink() {
+  const url = document.getElementById('link-url').value.trim();
+  const label = document.getElementById('link-label').value.trim();
+  const fileType = document.getElementById('link-type').value;
 
+  if (!url) {
+    toast('Введите URL ссылки', 'error');
+    return;
+  }
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    toast('URL должен начинаться с http:// или https://', 'error');
+    return;
+  }
 
-        const mainHtml = `
-                <!-- ОСНОВНАЯ ИНФОРМАЦИЯ -->
-                <div class="detail-section">
-                    <h3>Основная информация</h3>
-                    <table class="detail-table">
-                        <tr><th>Название:</th><td>${escapeHtml(recording.title || 'Не указано')}</td></tr>
-                        <tr><th>Инвентарный номер:</th><td>${escapeHtml(recording.inventory_number || 'Не указан')}</td></tr>
-                        <tr><th>Дата записи:</th><td>${escapeHtml(recording.date || 'Не указана')}</td></tr>
-                        <tr><th>Длительность:</th><td>${durationDisplay}</td></tr>
-
-                    </table>
-                </div>
-
-                <!-- ИСПОЛНИТЕЛИ -->
-                <div class="detail-section">
-                    <h3>Исполнители</h3>
-                    <table class="detail-table">
-                        ${performersRowsHtml}
-                    </table>
-                </div>
-
-
-
-                <!-- КЛАССИФИКАЦИЯ -->
-                <div class="detail-section">
-                    <h3>Классификация</h3>
-                    <table class="detail-table">
-                        <tr><th>Жанр:</th><td>${escapeHtml(recording.genre || 'Не указан')}</td></tr>
-                        <tr><th>Локация:</th><td>${escapeHtml(recording.location || 'Не указана')}</td></tr>
-                        <tr><th>Коллекция:</th><td>${escapeHtml(recording.collection || 'Не указана')}</td></tr>
-                        <tr><th>Этический статус:</th><td><span class="status-badge ${statusClass}">${statusName}</span></td></tr>
-                    </table>
-                </div>
-
-                <div class="detail-section">
-                    <h3>Местные термины</h3>
-                    <table class="detail-table"><tr><th>Термины:</th><td>${escapeHtml(localTermsDisplay)}</td></tr></table>
-                </div>
-
-                <div class="detail-section">
-                    <h3>Описание</h3>
-                    <table class="detail-table"><tr><th>Описание:</th><td>${escapeHtml(recording.description || 'Нет описания')}</td></tr></table>
-                </div>
-
-
-
-
-            `;
-
-        document.getElementById('recording-detail').innerHTML = mainHtml;
-
-        const actionsContainer = document.getElementById('detail-actions-container');
-        actionsContainer.innerHTML = `
-                <div class="detail-actions">
-                    <button onclick="location.href='/edit_recording/${recordingId}'" class="btn-warning">✏️ Редактировать</button>
-                    <button onclick="deleteRecording()" class="btn-danger">🗑️ Удалить</button>
-                </div>
-            `;
+  try {
+    const r = await fetch(`/api/recording/${recId}/add_media_link`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url, label, file_type: fileType})
+    });
+    const j = await r.json();
+    if (j.status === 'success') {
+      recData.media_files = recData.media_files || [];
+      recData.media_files.push(j.media);
+      document.getElementById('media-list').innerHTML = renderMedia(recData.media_files);
+      closeLinkModal();
+      toast('Ссылка добавлена', 'success');
+    } else {
+      toast(j.message || 'Ошибка при добавлении ссылки', 'error');
     }
+  } catch(e) {
+    toast('Ошибка сервера', 'error');
+  }
+}
 
-    function showError(message) {
-        const html = `
-                <div class="error">
-                    <h3>❌ Ошибка при загрузке данных</h3>
-                    <p>${escapeHtml(message)}</p>
-                    <p>Пожалуйста, попробуйте вернуться на главную страницу и выбрать другую запись.</p>
-                </div>
-            `;
-        document.getElementById('recording-detail').innerHTML = html;
-        document.getElementById('detail-actions-container').innerHTML = '';
+function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag-over'); }
+function onDragLeave(e) { document.getElementById('upload-zone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) uploadFile(file);
+}
+function onFileChosen(e) {
+  const file = e.target.files[0];
+  if(file) uploadFile(file);
+  e.target.value = '';
+}
+
+async function uploadFile(file) {
+  const allowedTypes = /\.(mp3|wav|ogg|flac|m4a|aac|wma|mp4|avi|mov|mkv|webm|wmv|flv)$/i;
+  if(!allowedTypes.test(file.name)) { toast('Недопустимый формат файла','error'); return; }
+  if(file.size > 500*1024*1024) { toast('Файл слишком большой (макс. 500 МБ)','error'); return; }
+
+  const prog = document.getElementById('upload-progress');
+  const progFill = document.getElementById('progress-fill');
+  const progText = document.getElementById('progress-text');
+  prog.style.display = 'block';
+  progText.textContent = `Загрузка «${file.name}»…`;
+  progFill.style.width = '0%';
+
+  let fakeProgress = 0;
+  const ticker = setInterval(() => {
+    fakeProgress = Math.min(fakeProgress + Math.random()*15, 85);
+    progFill.style.width = fakeProgress + '%';
+  }, 200);
+
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch(`/api/recording/${recId}/upload_media`, {method:'POST', body:fd});
+    clearInterval(ticker);
+    const j = await r.json();
+    if(j.status === 'success') {
+      progFill.style.width = '100%';
+      progText.textContent = '✓ Загружено';
+      setTimeout(() => { prog.style.display='none'; progFill.style.width='0%'; }, 1200);
+      recData.media_files = recData.media_files || [];
+      recData.media_files.push(j.media);
+      const list = document.getElementById('media-list');
+      if(list) list.innerHTML = renderMedia(recData.media_files);
+      toast('Файл загружен','success');
+    } else {
+      clearInterval(ticker);
+      prog.style.display='none';
+      toast(j.message||'Ошибка загрузки','error');
     }
+  } catch(e) {
+    clearInterval(ticker);
+    prog.style.display='none';
+    toast('Ошибка при загрузке','error');
+  }
+}
 
-    function deleteRecording() {
-        if (confirm('Вы уверены, что хотите удалить эту запись? Это действие нельзя отменить.')) {
-            fetch(`/api/delete_recording/${recordingId}`, {method: 'DELETE'})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert('Запись успешно удалена');
-                        window.location.href = '/';
-                    } else {
-                        alert('Ошибка при удалении: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Произошла ошибка при удалении');
-                });
-        }
-    }
+async function deleteMedia(mediaId, name) {
+  if(!confirm(`Удалить файл «${name}»?`)) return;
+  try {
+    const r = await fetch(`/api/recording/${recId}/delete_media/${mediaId}`, {method:'DELETE'});
+    const j = await r.json();
+    if(j.status==='success') {
+      recData.media_files = (recData.media_files||[]).filter(m => m.id !== mediaId);
+      const list = document.getElementById('media-list');
+      if(list) list.innerHTML = renderMedia(recData.media_files);
+      toast('Файл удалён','success');
+    } else toast(j.message||'Ошибка','error');
+  } catch(e) { toast('Ошибка','error'); }
+}
 
-    function getStatusClass(status) {
-        if (!status) return 'status-public';
-        if (status.includes('публичный')) return 'status-public';
-        if (status.includes('ограниченный')) return 'status-restricted';
-        if (status.includes('согласия')) return 'status-community';
-        return 'status-public';
-    }
+async function confirmDelete() {
+  document.getElementById('confirm').style.display = 'none';
+  try {
+    const r = await fetch(`/api/delete_recording/${recId}`, {method:'DELETE'});
+    const j = await r.json();
+    if(j.status==='success') { toast('Запись удалена','success'); setTimeout(()=>location.href='/',900); }
+    else toast(j.message||'Ошибка','error');
+  } catch(e) { toast('Ошибка','error'); }
+}
 
-    function getStatusName(status) {
-        if (!status) return 'Публичный доступ';
-        if (status.includes('публичный')) return 'Публичный доступ';
-        if (status.includes('ограниченный')) return 'Ограниченный доступ';
-        if (status.includes('согласия')) return 'Требует согласия общины';
-        return status;
-    }
+function statusBadge(s) {
+  if(!s||s.includes('публичный')) return {cls:'chip-green',label:'✓ Публичный доступ'};
+  if(s.includes('ограниченный'))  return {cls:'chip-amber',label:'⚠ Ограниченный доступ'};
+  if(s.includes('согласия'))      return {cls:'chip-red',label:'🔒 Требует согласия общины'};
+  return {cls:'chip-neutral',label:s};
+}
 
-    function escapeHtml(text) {
-        if (!text) return '';
-        if (typeof text !== 'string') text = String(text);
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
+function formatDate(s) {
+  if(!s) return '—';
+  try {
+    const d = new Date(s);
+    if(isNaN(d)) return s;
+    if(s.length <= 10) return d.toLocaleDateString('ru-RU');
+    return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) { return s; }
+}
 
-    loadRecordingDetails();
+function formatSize(bytes) {
+  if(!bytes) return '';
+  if(bytes < 1024) return bytes + ' Б';
+  if(bytes < 1048576) return (bytes/1024).toFixed(1) + ' КБ';
+  return (bytes/1048576).toFixed(1) + ' МБ';
+}
+
+function showError(msg) {
+  document.getElementById('page-content').innerHTML = `
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <h3 style="color:var(--tx);margin-bottom:8px">Ошибка загрузки</h3>
+      <p>${esc(msg)}</p>
+      <a href="/" class="btn btn-ghost" style="margin-top:20px;display:inline-flex">← На главную</a>
+    </div>`;
+}
+
+function esc(t) {
+  return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+load();
 </script>
 </body>
 </html>

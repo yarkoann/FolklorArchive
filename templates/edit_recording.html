@@ -7,16 +7,29 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-<div class="edit-container">
-    <div class="edit-header">
+
+<div class="topbar">
+    <div class="topbar-logo">Фоно<em>граф</em></div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-page">Редактирование записи</div>
+    <div class="topbar-right">
+        <a href="/" class="btn btn-ghost btn-sm">← Архив</a>
+        <a href="/vocabulary" class="btn btn-ghost btn-sm">📚 Словарь</a>
+    </div>
+</div>
+
+<div class="page-container">
+    <div class="page-hero">
         <a href="/" class="back-link">← На главную</a>
         <h1>Редактирование записи</h1>
     </div>
 
-    <div class="edit-form" id="edit-form">
-        <div class="loading">Загрузка данных...</div>
+    <div id="edit-form">
+        <div class="loading"><div class="loading-spinner"></div><p>Загрузка данных...</p></div>
     </div>
 </div>
+
+<div class="toast-area" id="toast-area"></div>
 
 <script>
     const recordingId = window.location.pathname.split('/').pop();
@@ -28,6 +41,20 @@
         instruments: []
     };
     let recordingData = null;
+    let performerCounter = 0;
+
+    function toast(msg, type = 'ok') {
+        const area = document.getElementById('toast-area');
+        const el = document.createElement('div');
+        el.className = `toast-item t-${type}`;
+        el.textContent = (type === 'ok' ? '✓ ' : '✕ ') + msg;
+        area.appendChild(el);
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 400);
+        }, 2800);
+    }
 
     async function loadAllData() {
         try {
@@ -51,22 +78,88 @@
             recordingData = await response.json();
 
             if (recordingData.error) {
-                alert('Ошибка загрузки записи');
+                toast('Ошибка загрузки записи', 'err');
                 window.location.href = '/';
                 return;
             }
 
-            console.log('Данные записи:', recordingData);
             displayEditForm();
 
         } catch (error) {
             console.error('Ошибка загрузки:', error);
-            alert('Ошибка при загрузке данных');
+            toast('Ошибка при загрузке данных', 'err');
         }
     }
 
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function updateSelect(selectId, items, selectedValue) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        const currentValue = select.value;
+        while (select.options.length > 1) select.remove(1);
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+        if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
+    }
+
+    function updateEthnosSelect(select, selectedValue) {
+        const currentValue = select.value;
+        while (select.options.length > 1) select.remove(1);
+        vocabularyData.ethnos.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+        if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
+    }
+
+    function updateInstrumentSelect(select, selectedValue) {
+        const currentValue = select.value;
+        while (select.options.length > 1) select.remove(1);
+        vocabularyData.instruments.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+        const newOption = document.createElement('option');
+        newOption.value = 'new';
+        newOption.textContent = '➕ Создать новый...';
+        select.appendChild(newOption);
+        if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
+    }
+
+    function refreshAllInstrumentSelects() {
+        document.querySelectorAll('.instrument-select').forEach(select => {
+            const currentVal = select.value;
+            updateInstrumentSelect(select, currentVal);
+        });
+    }
+
     function displayEditForm() {
-        // Обработка исполнителей
         let performers = [];
         let durationHours = 0;
         let durationMinutes = 0;
@@ -75,7 +168,6 @@
         if (recordingData.performers && recordingData.performers.length > 0) {
             performers = recordingData.performers;
         } else if (recordingData.performer) {
-            // Старый формат
             performers = [{
                 name: recordingData.performer || '',
                 ethnos: recordingData.ethnos || '',
@@ -100,11 +192,9 @@
         if (durationStr) {
             const parts = durationStr.split(':');
             if (parts.length === 2) {
-                // Формат ММ:СС
                 durationMinutes = parseInt(parts[0]) || 0;
                 durationSeconds = parseInt(parts[1]) || 0;
             } else if (parts.length === 3) {
-                // Формат ЧЧ:ММ:СС
                 durationHours = parseInt(parts[0]) || 0;
                 durationMinutes = parseInt(parts[1]) || 0;
                 durationSeconds = parseInt(parts[2]) || 0;
@@ -112,7 +202,7 @@
         }
 
         const html = `
-            <form id="edit-recording-form">
+            <form id="edit-recording-form" class="recording-form">
                 <div class="form-section">
                     <h3>Основная информация</h3>
                     <div class="form-group">
@@ -132,14 +222,11 @@
                     <div class="form-group">
                         <label>Длительность</label>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="${durationHours}"
-                                   style="width: 80px; padding: 10px;">
+                            <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="${durationHours}" style="width: 80px; padding: 10px;">
                             <span>:</span>
-                            <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="${durationMinutes}"
-                                   style="width: 80px; padding: 10px;">
+                            <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="${durationMinutes}" style="width: 80px; padding: 10px;">
                             <span>:</span>
-                            <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="${durationSeconds}"
-                                   style="width: 80px; padding: 10px;">
+                            <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="${durationSeconds}" style="width: 80px; padding: 10px;">
                         </div>
                         <input type="hidden" id="duration" name="duration">
                         <small class="form-hint">Введите часы, минуты и секунды</small>
@@ -161,7 +248,7 @@
                             <label for="genre">Жанр</label>
                             <select id="genre" name="genre">
                                 <option value="">Выберите жанр</option>
-                                ${vocabularyData.genres.map(g => `<option value="${g.name}" ${recordingData.genre === g.name ? 'selected' : ''}>${g.name}</option>`).join('')}
+                                ${vocabularyData.genres.map(g => `<option value="${g.name}" ${recordingData.genre === g.name ? 'selected' : ''}>${escapeHtml(g.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
                             <div id="new-genre-container" style="display: none;" class="new-item-input">
@@ -184,7 +271,7 @@
                             <label for="location">Локация</label>
                             <select id="location" name="location">
                                 <option value="">Выберите локацию</option>
-                                ${vocabularyData.locations.map(l => `<option value="${l.name}" ${recordingData.location === l.name ? 'selected' : ''}>${l.name}</option>`).join('')}
+                                ${vocabularyData.locations.map(l => `<option value="${l.name}" ${recordingData.location === l.name ? 'selected' : ''}>${escapeHtml(l.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
                             <div id="new-location-container" style="display: none;" class="new-item-input">
@@ -196,7 +283,7 @@
                             <label for="collection">Коллекция</label>
                             <select id="collection" name="collection">
                                 <option value="">Выберите коллекцию</option>
-                                ${vocabularyData.collections.map(c => `<option value="${c.name}" ${recordingData.collection === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}
+                                ${vocabularyData.collections.map(c => `<option value="${c.name}" ${recordingData.collection === c.name ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
                             <div id="new-collection-container" style="display: none;" class="new-item-input">
@@ -224,15 +311,14 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-save">💾 Сохранить изменения</button>
-                    <button type="button" onclick="window.location.href='/recording/${recordingId}'" class="btn-cancel">Отмена</button>
+                    <button type="submit" class="btn-primary">💾 Сохранить изменения</button>
+                    <button type="button" onclick="window.location.href='/recording/${recordingId}'" class="btn-secondary">Отмена</button>
                 </div>
             </form>
         `;
 
         document.getElementById('edit-form').innerHTML = html;
 
-        // Настраиваем обновление скрытого поля длительности
         function updateDuration() {
             const hours = document.getElementById('duration_hours').value || 0;
             const minutes = document.getElementById('duration_minutes').value || 0;
@@ -244,57 +330,20 @@
             } else {
                 durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
             }
-
             const durationField = document.getElementById('duration');
-            if (durationField) {
-                durationField.value = durationStr;
-            }
+            if (durationField) durationField.value = durationStr;
         }
 
         const hoursField = document.getElementById('duration_hours');
         const minutesField = document.getElementById('duration_minutes');
         const secondsField = document.getElementById('duration_seconds');
-
         if (hoursField) hoursField.addEventListener('input', updateDuration);
         if (minutesField) minutesField.addEventListener('input', updateDuration);
         if (secondsField) secondsField.addEventListener('input', updateDuration);
-
-        // Инициализируем скрытое поле
         updateDuration();
 
         setupEventListeners();
-        setupPerformanceFormListeners();
     }
-
-    function updateDuration() {
-        const hours = document.getElementById('duration_hours')?.value || 0;
-        const minutes = document.getElementById('duration_minutes')?.value || 0;
-        const seconds = document.getElementById('duration_seconds')?.value || 0;
-
-        let durationStr = '';
-        if (parseInt(hours) > 0) {
-            durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
-        } else {
-            durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
-        }
-
-        const durationField = document.getElementById('duration');
-        if (durationField) {
-            durationField.value = durationStr;
-        }
-    }
-
-    function setupPerformanceFormListeners() {
-        document.querySelectorAll('.performance-form-select').forEach(select => {
-            const performerId = select.getAttribute('data-performer-id');
-            if (performerId) {
-                select.addEventListener('change', function() {
-                    handlePerformanceFormChange(this, performerId);
-                });
-            }
-        });
-    }
-
 
     function renderPerformers(performers) {
         let html = '';
@@ -303,8 +352,8 @@
             const showInstruments = (performanceForm === 'instrumental' || performanceForm === 'vocal_instrumental');
 
             html += `
-                <div class="performer-entry" data-performer-index="${index}" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <h4 style="margin: 0 0 15px 0; color: #2c3e50;">Исполнитель ${index + 1}</h4>
+                <div class="performer-entry" data-performer-index="${index}" style="margin-bottom: 20px;">
+                    <h4>Исполнитель ${index + 1}</h4>
                     <div class="form-row">
                         <div class="form-group" style="flex: 2;">
                             <label>Имя исполнителя</label>
@@ -314,7 +363,7 @@
                             <label>Этнос</label>
                             <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${index})">
                                 <option value="">Выберите этнос</option>
-                                ${vocabularyData.ethnos.map(e => `<option value="${e.name}" ${performer.ethnos === e.name ? 'selected' : ''}>${e.name}</option>`).join('')}
+                                ${vocabularyData.ethnos.map(e => `<option value="${e.name}" ${performer.ethnos === e.name ? 'selected' : ''}>${escapeHtml(e.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
                             <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
@@ -357,18 +406,18 @@
 
     function renderInstruments(instruments, performerIndex) {
         if (!instruments || instruments.length === 0) {
-            return '<div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>';
+            return '<div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>';
         }
 
         let html = '';
         instruments.forEach((instrument, idx) => {
             html += `
-                <div class="instrument-entry" data-instrument-idx="${idx}" style="margin-bottom: 10px;">
+                <div class="instrument-entry">
                     <div style="display: flex; gap: 10px; align-items: flex-end;">
                         <div style="flex: 1;">
                             <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
                                 <option value="">Выберите инструмент</option>
-                                ${vocabularyData.instruments.map(i => `<option value="${i.name}" ${instrument.name === i.name ? 'selected' : ''}>${i.name}</option>`).join('')}
+                                ${vocabularyData.instruments.map(i => `<option value="${i.name}" ${instrument.name === i.name ? 'selected' : ''}>${escapeHtml(i.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
                             <div class="new-instrument-container" style="display: none; margin-top: 5px;">
@@ -387,53 +436,57 @@
     }
 
     function setupEventListeners() {
-        document.getElementById('genre').addEventListener('change', function (e) {
-            document.getElementById('new-genre-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
-        document.getElementById('location').addEventListener('change', function (e) {
-            document.getElementById('new-location-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
-        document.getElementById('collection').addEventListener('change', function (e) {
-            document.getElementById('new-collection-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
+        const genreSelect = document.getElementById('genre');
+        if (genreSelect) {
+            genreSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-genre-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
+        const locationSelect = document.getElementById('location');
+        if (locationSelect) {
+            locationSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-location-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
+        const collectionSelect = document.getElementById('collection');
+        if (collectionSelect) {
+            collectionSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-collection-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
     }
 
     function handleEthnosChange(select, performerIndex) {
         const container = select.closest('.form-group').querySelector('.new-ethnos-container');
-        if (container) {
-            container.style.display = select.value === 'new' ? 'block' : 'none';
-        }
+        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
     function handlePerformanceFormChange(select, performerIndex) {
         const instrumentsSection = document.getElementById(`instruments-section-${performerIndex}`);
         const value = select.value;
-
         if (value === 'instrumental' || value === 'vocal_instrumental') {
-            instrumentsSection.style.display = 'block';
+            if (instrumentsSection) instrumentsSection.style.display = 'block';
             const container = document.getElementById(`instruments-container-${performerIndex}`);
             if (container && container.querySelectorAll('.instrument-entry').length === 0 && !container.querySelector('.empty-instruments-msg')) {
                 addInstrument(performerIndex);
             }
         } else {
-            instrumentsSection.style.display = 'none';
+            if (instrumentsSection) instrumentsSection.style.display = 'none';
         }
     }
 
     function addPerformer() {
         const container = document.getElementById('performers-container');
         const performerCount = document.querySelectorAll('.performer-entry').length;
-
         const entry = document.createElement('div');
         entry.className = 'performer-entry';
         entry.setAttribute('data-performer-index', performerCount);
         entry.style.marginBottom = '20px';
-        entry.style.padding = '15px';
-        entry.style.background = '#f8f9fa';
-        entry.style.borderRadius = '8px';
-
         entry.innerHTML = `
-            <h4 style="margin: 0 0 15px 0; color: #2c3e50;">Исполнитель ${performerCount + 1}</h4>
+            <h4>Исполнитель ${performerCount + 1}</h4>
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">
                     <label>Имя исполнителя</label>
@@ -443,7 +496,7 @@
                     <label>Этнос</label>
                     <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${performerCount})">
                         <option value="">Выберите этнос</option>
-                        ${vocabularyData.ethnos.map(e => `<option value="${e.name}">${e.name}</option>`).join('')}
+                        ${vocabularyData.ethnos.map(e => `<option value="${e.name}">${escapeHtml(e.name)}</option>`).join('')}
                         <option value="new">➕ Создать новый...</option>
                     </select>
                     <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
@@ -454,7 +507,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group" style="flex: 1;">
                     <label>Форма исполнения</label>
@@ -466,92 +518,43 @@
                     </select>
                 </div>
             </div>
-
             <div id="instruments-section-${performerCount}" style="display: none;">
                 <div class="form-group">
                     <label>Музыкальные инструменты</label>
                     <div id="instruments-container-${performerCount}" class="instruments-container">
-                        <div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>
+                        <div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>
                     </div>
                     <button type="button" onclick="addInstrument(${performerCount})" class="btn-add" style="margin-top: 10px;">+ Добавить инструмент</button>
                 </div>
             </div>
-
             <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top: 10px;">✖</button>
         `;
-
         container.appendChild(entry);
-        updatePerformerNumbers();
     }
 
     function removePerformer(btn) {
         if (document.querySelectorAll('.performer-entry').length > 1) {
             btn.closest('.performer-entry').remove();
-            updatePerformerNumbers();
         } else {
-            alert('Должен быть хотя бы один исполнитель');
+            toast('Должен быть хотя бы один исполнитель', 'err');
         }
-    }
-
-    function updatePerformerNumbers() {
-        const performers = document.querySelectorAll('.performer-entry');
-        performers.forEach((performer, index) => {
-            const title = performer.querySelector('h4');
-            if (title) {
-                title.textContent = `Исполнитель ${index + 1}`;
-            }
-            // Обновляем индексы в атрибутах
-            performer.setAttribute('data-performer-index', index);
-
-            // Обновляем ID секций инструментов
-            const instrumentsSection = performer.querySelector('[id^="instruments-section-"]');
-            if (instrumentsSection) {
-                const oldId = instrumentsSection.id;
-                const newId = `instruments-section-${index}`;
-                instrumentsSection.id = newId;
-            }
-
-            const instrumentsContainer = performer.querySelector('[id^="instruments-container-"]');
-            if (instrumentsContainer) {
-                const oldId = instrumentsContainer.id;
-                const newId = `instruments-container-${index}`;
-                instrumentsContainer.id = newId;
-            }
-
-            // Обновляем обработчики
-            const perfFormSelect = performer.querySelector('.performance-form-select');
-            if (perfFormSelect) {
-                const oldOnchange = perfFormSelect.getAttribute('onchange');
-                perfFormSelect.setAttribute('onchange', `handlePerformanceFormChange(this, ${index})`);
-            }
-
-            const ethnosSelect = performer.querySelector('.ethnos-select');
-            if (ethnosSelect) {
-                const oldOnchange = ethnosSelect.getAttribute('onchange');
-                ethnosSelect.setAttribute('onchange', `handleEthnosChange(this, ${index})`);
-            }
-        });
     }
 
     function addInstrument(performerIndex) {
         const container = document.getElementById(`instruments-container-${performerIndex}`);
         if (!container) return;
-
         const emptyMsg = container.querySelector('.empty-instruments-msg');
         if (emptyMsg) emptyMsg.remove();
 
-        const instrumentId = Date.now() + Math.random();
-
         const entry = document.createElement('div');
         entry.className = 'instrument-entry';
-        entry.setAttribute('data-instrument-id', instrumentId);
         entry.style.marginBottom = '10px';
         entry.innerHTML = `
             <div style="display: flex; gap: 10px; align-items: flex-end;">
                 <div style="flex: 1;">
                     <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
                         <option value="">Выберите инструмент</option>
-                        ${vocabularyData.instruments.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                        ${vocabularyData.instruments.map(i => `<option value="${i.name}">${escapeHtml(i.name)}</option>`).join('')}
                         <option value="new">➕ Создать новый...</option>
                     </select>
                     <div class="new-instrument-container" style="display: none; margin-top: 5px;">
@@ -569,21 +572,16 @@
 
     function removeInstrument(btn, performerIndex) {
         const entry = btn.closest('.instrument-entry');
-        if (entry) {
-            entry.remove();
-        }
-
+        if (entry) entry.remove();
         const container = document.getElementById(`instruments-container-${performerIndex}`);
         if (container && container.children.length === 0) {
-            container.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding: 10px; background: #fff; border-radius: 5px; text-align: center; border: 1px dashed #ccc;">🎵 Инструменты не добавлены</div>';
+            container.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>';
         }
     }
 
     function handleInstrumentChange(select, performerIndex) {
         const container = select.closest('.instrument-entry').querySelector('.new-instrument-container');
-        if (container) {
-            container.style.display = select.value === 'new' ? 'block' : 'none';
-        }
+        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
     async function addNewInstrument(button, performerIndex) {
@@ -592,7 +590,7 @@
         const name = input.value.trim();
 
         if (!name) {
-            alert('Введите название инструмента');
+            toast('Введите название инструмента', 'err');
             return;
         }
 
@@ -602,57 +600,53 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category: 'instruments', name: name})
             });
-
             const result = await response.json();
 
             if (result.status === 'success') {
                 vocabularyData.instruments.push({name: name});
-
-                // Обновляем все селекты инструментов для этого исполнителя
-                const container = document.getElementById(`instruments-container-${performerIndex}`);
-                if (container) {
-                    const selects = container.querySelectorAll('.instrument-select');
-                    selects.forEach(select => {
-                        updateInstrumentSelect(select);
-                    });
-                }
-
+                // Обновляем все селекты инструментов
+                refreshAllInstrumentSelects();
+                // Находим текущий селект и устанавливаем значение
                 const select = button.closest('.instrument-entry').querySelector('.instrument-select');
                 if (select) select.value = name;
-
                 container.style.display = 'none';
                 input.value = '';
-                console.log(`✅ Добавлен новый инструмент: ${name}`);
+                toast(`✅ Добавлен новый инструмент: ${name}`, 'ok');
             } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
-    function updateInstrumentSelect(select) {
-        const currentValue = select.value;
-
-        while (select.options.length > 1) {
-            select.remove(1);
+    async function addNewItem(category, inputId, selectId) {
+        const input = document.getElementById(inputId);
+        const name = input.value.trim();
+        if (!name) {
+            toast('Введите название', 'err');
+            return;
         }
-
-        vocabularyData.instruments.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
-        });
-
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
-
-        if (currentValue && currentValue !== 'new') {
-            select.value = currentValue;
+        try {
+            const response = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category, name})
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                vocabularyData[category].push({name});
+                updateSelect(selectId, vocabularyData[category], name);
+                document.getElementById(inputId + '-container').style.display = 'none';
+                input.value = '';
+                toast(`✅ Добавлен новый ${category}: ${name}`, 'ok');
+            } else {
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
@@ -660,116 +654,63 @@
         const container = button.closest('.new-ethnos-container');
         const input = container.querySelector('.new-ethnos-input');
         const name = input.value.trim();
-
         if (!name) {
-            alert('Введите название этноса');
+            toast('Введите название этноса', 'err');
             return;
         }
-
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category: 'ethnos', name})
             });
-
             const result = await response.json();
-
             if (result.status === 'success') {
                 vocabularyData.ethnos.push({name});
                 const select = button.closest('.performer-entry').querySelector('.ethnos-select');
-                updateEthnosSelect(select);
-                select.value = name;
+                updateEthnosSelect(select, name);
                 container.style.display = 'none';
                 input.value = '';
-                console.log(`✅ Добавлен новый этнос: ${name}`);
+                toast(`✅ Добавлен новый этнос: ${name}`, 'ok');
             } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
-    function updateEthnosSelect(select) {
-        const currentValue = select.value;
-
-        while (select.options.length > 1) {
-            select.remove(1);
+    function validateDuration(duration) {
+        if (!duration || duration.trim() === '') return true;
+        const pattern = /^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$/;
+        if (!pattern.test(duration)) return false;
+        const parts = duration.split(':');
+        if (parts.length === 2) {
+            const minutes = parseInt(parts[0], 10);
+            const seconds = parseInt(parts[1], 10);
+            if (minutes > 599) return false;
+            if (seconds > 59) return false;
+        } else if (parts.length === 3) {
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            const seconds = parseInt(parts[2], 10);
+            if (hours > 99) return false;
+            if (minutes > 59 || seconds > 59) return false;
         }
-
-        vocabularyData.ethnos.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
-        });
-
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
-
-        if (currentValue && currentValue !== 'new') {
-            select.value = currentValue;
-        }
+        return true;
     }
 
-    async function addNewItem(category, inputId, selectId) {
-        const input = document.getElementById(inputId);
-        const name = input.value.trim();
-
-        if (!name) {
-            alert('Введите название');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/add_to_vocabulary', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({category, name})
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                vocabularyData[category].push({name});
-                const select = document.getElementById(selectId);
-                updateSelect(select, vocabularyData[category]);
-                select.value = name;
-                document.getElementById(inputId + '-container').style.display = 'none';
-                input.value = '';
-            } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
-        }
-    }
-
-    function updateSelect(select, items) {
-        const currentValue = select.value;
-        while (select.options.length > 1) select.remove(1);
-        items.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
-        });
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
-        if (currentValue && currentValue !== 'new') select.value = currentValue;
-    }
-
-    // Сохранение изменений
-    document.addEventListener('submit', async function (e) {
+    document.addEventListener('submit', async function(e) {
         if (e.target && e.target.id === 'edit-recording-form') {
             e.preventDefault();
+
+            const durationInput = document.getElementById('duration');
+            const duration = durationInput.value;
+            if (!validateDuration(duration)) {
+                toast('Неверный формат длительности!\nИспользуйте ММ:СС или ЧЧ:ММ:СС', 'err');
+                return;
+            }
 
             const formData = new FormData(e.target);
             const performers = [];
@@ -782,8 +723,6 @@
                 if (performerNames[i] && performerNames[i].trim()) {
                     let ethnos = performerEthnos[i];
                     if (ethnos === 'new') ethnos = '';
-
-                    // Собираем инструменты для этого исполнителя
                     const instruments = [];
                     const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
                     for (let j = 0; j < instrumentNames.length; j++) {
@@ -791,7 +730,6 @@
                             instruments.push({name: instrumentNames[j].trim()});
                         }
                     }
-
                     performers.push({
                         name: performerNames[i].trim(),
                         ethnos: ethnos || null,
@@ -806,10 +744,8 @@
 
             let genre = formData.get('genre');
             if (genre === 'new') genre = '';
-
             let location = formData.get('location');
             if (location === 'new') location = '';
-
             let collection = formData.get('collection');
             if (collection === 'new') collection = '';
 
@@ -817,7 +753,7 @@
                 title: formData.get('title'),
                 inventory_number: formData.get('inventory_number'),
                 recording_date: formData.get('recording_date'),
-                duration: formData.get('duration'),
+                duration: duration,
                 performers: performers,
                 genre: genre,
                 ethical_status: formData.get('ethical_status'),
@@ -827,39 +763,25 @@
                 description: formData.get('description')
             };
 
-            console.log('Отправляемые данные:', JSON.stringify(updatedData, null, 2));
-
             try {
                 const response = await fetch(`/api/update_recording/${recordingId}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(updatedData)
                 });
-
                 const result = await response.json();
-
                 if (result.status === 'success') {
-                    alert('Запись успешно обновлена!');
-                    window.location.href = `/recording/${recordingId}`;
+                    toast('Запись успешно обновлена!', 'ok');
+                    setTimeout(() => window.location.href = `/recording/${recordingId}`, 1000);
                 } else {
-                    alert('Ошибка при обновлении: ' + result.message);
+                    toast('Ошибка при обновлении: ' + result.message, 'err');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Произошла ошибка при сохранении');
+                toast('Произошла ошибка при сохранении', 'err');
             }
         }
     });
-
-    function escapeHtml(text) {
-        if (!text) return '';
-        return String(text)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
 
     loadAllData();
 </script>

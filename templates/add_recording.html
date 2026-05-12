@@ -7,45 +7,48 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-<div class="container">
-    <header class="header">
+
+<div class="topbar">
+    <div class="topbar-logo">Фоно<em>граф</em></div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-page">Новая запись</div>
+    <div class="topbar-right">
+        <a href="/" class="btn btn-ghost btn-sm">← Архив</a>
+        <a href="/vocabulary" class="btn btn-ghost btn-sm">📚 Словарь</a>
+    </div>
+</div>
+
+<div class="page-container">
+    <div class="page-hero">
         <a href="/" class="back-link">← На главную</a>
         <h1>Новая запись</h1>
-    </header>
+    </div>
 
     <form id="add-recording-form" class="recording-form">
         <div class="form-section">
             <h3>Основная информация</h3>
-
             <div class="form-group">
                 <label for="title">Название записи *</label>
                 <input type="text" id="title" name="title" required>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="inventory_number">Инвентарный номер</label>
-                    <input type="text" id="inventory_number" name="inventory_number"
-                           placeholder="Например: NG-2023-001">
+                    <input type="text" id="inventory_number" name="inventory_number" placeholder="Например: NG-2023-001">
                 </div>
-
                 <div class="form-group">
                     <label for="recording_date">Дата записи</label>
                     <input type="date" id="recording_date" name="recording_date">
                 </div>
             </div>
-
             <div class="form-group">
                 <label>Длительность</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="0"
-                           style="width: 80px; padding: 10px;">
+                    <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="0" style="width: 80px; padding: 10px;">
                     <span>:</span>
-                    <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="0"
-                           style="width: 80px; padding: 10px;">
+                    <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="0" style="width: 80px; padding: 10px;">
                     <span>:</span>
-                    <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="0"
-                           style="width: 80px; padding: 10px;">
+                    <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="0" style="width: 80px; padding: 10px;">
                 </div>
                 <input type="hidden" id="duration" name="duration">
                 <small class="form-hint">Введите часы, минуты и секунды</small>
@@ -60,7 +63,6 @@
 
         <div class="form-section">
             <h3>Классификация</h3>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="genre">Жанр</label>
@@ -69,12 +71,9 @@
                     </select>
                     <div id="new-genre-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-genre" placeholder="Введите название нового жанра">
-                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">
-                            Добавить жанр
-                        </button>
+                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="ethical_status">Этический статус *</label>
                     <select id="ethical_status" name="ethical_status" required>
@@ -85,7 +84,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="location">Локация</label>
@@ -94,12 +92,9 @@
                     </select>
                     <div id="new-location-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-location" placeholder="Введите название новой локации">
-                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')"
-                                class="btn-add-new">Добавить локацию
-                        </button>
+                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="collection">Коллекция</label>
                     <select id="collection" name="collection">
@@ -107,9 +102,7 @@
                     </select>
                     <div id="new-collection-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
-                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')"
-                                class="btn-add-new">Добавить коллекцию
-                        </button>
+                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
                     </div>
                 </div>
             </div>
@@ -119,11 +112,8 @@
             <h3>Местные термины</h3>
             <div class="form-group">
                 <label for="local_terms">Местные термины</label>
-
-                <input type="text" id="local_terms" name="local_terms"
-                       placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
+                <input type="text" id="local_terms" name="local_terms" placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
                 <small class="form-hint">Введите термины через запятую</small>
-
             </div>
         </div>
 
@@ -136,10 +126,12 @@
 
         <div class="form-actions">
             <button type="submit" class="btn-primary">💾 Сохранить запись</button>
-            <a href="/" class="btn-secondary" style="text-decoration: none; display: inline-block; padding: 12px 20px;">Отмена</a>
+            <a href="/" class="btn-secondary" style="text-decoration: none; display: inline-flex; padding: 9px 18px;">Отмена</a>
         </div>
     </form>
 </div>
+
+<div class="toast-area" id="toast-area"></div>
 
 <script>
     let vocabularyData = {
@@ -151,12 +143,24 @@
     };
     let performerCounter = 0;
 
-    document.addEventListener('DOMContentLoaded', async function () {
+    function toast(msg, type = 'ok') {
+        const area = document.getElementById('toast-area');
+        const el = document.createElement('div');
+        el.className = `toast-item t-${type}`;
+        el.textContent = (type === 'ok' ? '✓ ' : '✕ ') + msg;
+        area.appendChild(el);
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 400);
+        }, 2800);
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
         await loadAllVocabulary();
         addPerformer();
-
-        // Настраиваем обновление скрытого поля длительности
         setupDurationListener();
+        setupEventListeners();
     });
 
     function setupDurationListener() {
@@ -164,29 +168,21 @@
             const hours = document.getElementById('duration_hours').value || 0;
             const minutes = document.getElementById('duration_minutes').value || 0;
             const seconds = document.getElementById('duration_seconds').value || 0;
-
             let durationStr = '';
             if (parseInt(hours) > 0) {
                 durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
             } else {
                 durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
             }
-
             const durationField = document.getElementById('duration');
-            if (durationField) {
-                durationField.value = durationStr;
-            }
+            if (durationField) durationField.value = durationStr;
         }
-
         const hoursField = document.getElementById('duration_hours');
         const minutesField = document.getElementById('duration_minutes');
         const secondsField = document.getElementById('duration_seconds');
-
         if (hoursField) hoursField.addEventListener('input', updateDuration);
         if (minutesField) minutesField.addEventListener('input', updateDuration);
         if (secondsField) secondsField.addEventListener('input', updateDuration);
-
-        // Инициализируем скрытое поле
         updateDuration();
     }
 
@@ -199,7 +195,6 @@
                 fetch('/api/vocabulary/ethnos').then(r => r.json()),
                 fetch('/api/vocabulary/instruments').then(r => r.json()).catch(() => [])
             ]);
-
             vocabularyData = {
                 genres: genres || [],
                 locations: locations || [],
@@ -207,12 +202,10 @@
                 ethnos: ethnos || [],
                 instruments: instruments || []
             };
-
-            console.log('Словари загружены:', vocabularyData);
             updateSelects();
-
         } catch (error) {
             console.error('Ошибка загрузки словарей:', error);
+            toast('Ошибка загрузки словарей', 'err');
         }
     }
 
@@ -225,147 +218,122 @@
     function updateSelect(selectId, items) {
         const select = document.getElementById(selectId);
         if (!select) return;
-
         const currentValue = select.value;
-
-        while (select.options.length > 1) {
-            select.remove(1);
-        }
-
+        while (select.options.length > 1) select.remove(1);
         items.forEach(item => {
             const option = document.createElement('option');
             option.value = item.name;
             option.textContent = item.name;
             select.appendChild(option);
         });
-
         const newOption = document.createElement('option');
         newOption.value = 'new';
         newOption.textContent = '➕ Создать новый...';
         select.appendChild(newOption);
-
-        if (currentValue && currentValue !== 'new') {
-            select.value = currentValue;
-        }
+        if (currentValue && currentValue !== 'new') select.value = currentValue;
     }
 
     function updateEthnosSelect(select) {
         const currentValue = select.value;
-
-        while (select.options.length > 1) {
-            select.remove(1);
-        }
-
+        while (select.options.length > 1) select.remove(1);
         vocabularyData.ethnos.forEach(item => {
             const option = document.createElement('option');
             option.value = item.name;
             option.textContent = item.name;
             select.appendChild(option);
         });
-
         const newOption = document.createElement('option');
         newOption.value = 'new';
         newOption.textContent = '➕ Создать новый...';
         select.appendChild(newOption);
-
-        if (currentValue && currentValue !== 'new') {
-            select.value = currentValue;
-        }
+        if (currentValue && currentValue !== 'new') select.value = currentValue;
     }
 
     function updateInstrumentSelect(select) {
         const currentValue = select.value;
-
-        while (select.options.length > 1) {
-            select.remove(1);
-        }
-
+        while (select.options.length > 1) select.remove(1);
         vocabularyData.instruments.forEach(item => {
             const option = document.createElement('option');
             option.value = item.name;
             option.textContent = item.name;
             select.appendChild(option);
         });
-
         const newOption = document.createElement('option');
         newOption.value = 'new';
         newOption.textContent = '➕ Создать новый...';
         select.appendChild(newOption);
-
-        if (currentValue && currentValue !== 'new') {
-            select.value = currentValue;
-        }
+        if (currentValue && currentValue !== 'new') select.value = currentValue;
     }
 
     function refreshAllInstrumentSelects() {
-        // Обновляем все селекты инструментов на странице
         document.querySelectorAll('.instrument-select').forEach(select => {
+            const currentVal = select.value;
             updateInstrumentSelect(select);
+            if (currentVal && currentVal !== 'new') select.value = currentVal;
         });
     }
 
     function setupEventListeners() {
-        document.getElementById('genre').addEventListener('change', function (e) {
-            document.getElementById('new-genre-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
-
-        document.getElementById('location').addEventListener('change', function (e) {
-            document.getElementById('new-location-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
-
-        document.getElementById('collection').addEventListener('change', function (e) {
-            document.getElementById('new-collection-container').style.display = e.target.value === 'new' ? 'flex' : 'none';
-        });
+        const genreSelect = document.getElementById('genre');
+        if (genreSelect) {
+            genreSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-genre-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
+        const locationSelect = document.getElementById('location');
+        if (locationSelect) {
+            locationSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-location-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
+        const collectionSelect = document.getElementById('collection');
+        if (collectionSelect) {
+            collectionSelect.addEventListener('change', function(e) {
+                const container = document.getElementById('new-collection-container');
+                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
+        }
     }
 
     async function addNewItem(category, inputId, selectId) {
         const input = document.getElementById(inputId);
         const name = input.value.trim();
-
         if (!name) {
-            alert('Введите название');
+            toast('Введите название', 'err');
             return;
         }
-
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category, name})
             });
-
             const result = await response.json();
-
             if (result.status === 'success') {
                 vocabularyData[category].push({name});
-                const select = document.getElementById(selectId);
                 updateSelect(selectId, vocabularyData[category]);
-                select.value = name;
+                document.getElementById(selectId).value = name;
                 document.getElementById(inputId + '-container').style.display = 'none';
                 input.value = '';
-                console.log(`✅ Добавлен новый ${category}: ${name}`);
+                toast(`✅ Добавлен новый ${category}: ${name}`, 'ok');
             } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
     function addPerformer() {
         const container = document.getElementById('performers-container');
         const performerId = performerCounter++;
-
         const entry = document.createElement('div');
         entry.className = 'performer-entry';
         entry.setAttribute('data-performer-id', performerId);
         entry.style.marginBottom = '15px';
-        entry.style.padding = '10px';
-        entry.style.background = '#f8f9fa';
-        entry.style.borderRadius = '8px';
-        entry.style.border = '1px solid #e9ecef';
-
         entry.innerHTML = `
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">
@@ -397,7 +365,6 @@
                 </div>
                 <button type="button" onclick="removePerformer(this)" class="btn-remove" style="width: 36px; height: 36px; margin-top: 24px;">✖</button>
             </div>
-
             <div id="instruments-section-${performerId}" style="display: none; margin-top: 10px;">
                 <div class="form-group">
                     <label>Музыкальные инструменты</label>
@@ -406,7 +373,6 @@
                 </div>
             </div>
         `;
-
         container.appendChild(entry);
     }
 
@@ -414,29 +380,26 @@
         if (document.querySelectorAll('.performer-entry').length > 1) {
             btn.closest('.performer-entry').remove();
         } else {
-            alert('Должен быть хотя бы один исполнитель');
+            toast('Должен быть хотя бы один исполнитель', 'err');
         }
     }
 
     function handleEthnosChange(select, performerId) {
         const container = select.closest('.form-group').querySelector('.new-ethnos-container');
-        if (container) {
-            container.style.display = select.value === 'new' ? 'block' : 'none';
-        }
+        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
     function handlePerformanceFormChange(select, performerId) {
         const instrumentsSection = document.getElementById(`instruments-section-${performerId}`);
         const value = select.value;
-
         if (value === 'instrumental' || value === 'vocal_instrumental') {
-            instrumentsSection.style.display = 'block';
+            if (instrumentsSection) instrumentsSection.style.display = 'block';
             const container = document.getElementById(`instruments-container-${performerId}`);
             if (container && container.children.length === 0) {
                 addInstrument(performerId);
             }
         } else {
-            instrumentsSection.style.display = 'none';
+            if (instrumentsSection) instrumentsSection.style.display = 'none';
         }
     }
 
@@ -444,21 +407,17 @@
         const container = button.closest('.new-ethnos-container');
         const input = container.querySelector('.new-ethnos-input');
         const name = input.value.trim();
-
         if (!name) {
-            alert('Введите название этноса');
+            toast('Введите название этноса', 'err');
             return;
         }
-
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category: 'ethnos', name})
             });
-
             const result = await response.json();
-
             if (result.status === 'success') {
                 vocabularyData.ethnos.push({name});
                 const select = button.closest('.performer-entry').querySelector('.ethnos-select');
@@ -466,23 +425,21 @@
                 select.value = name;
                 container.style.display = 'none';
                 input.value = '';
-                console.log(`✅ Добавлен новый этнос: ${name}`);
+                toast(`✅ Добавлен новый этнос: ${name}`, 'ok');
             } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
     function addInstrument(performerId) {
         const container = document.getElementById(`instruments-container-${performerId}`);
         if (!container) return;
-
         const emptyMsg = container.querySelector('.empty-instruments-msg');
         if (emptyMsg) emptyMsg.remove();
-
         const entry = document.createElement('div');
         entry.className = 'instrument-entry';
         entry.style.marginBottom = '5px';
@@ -509,10 +466,7 @@
 
     function removeInstrument(btn, performerId) {
         const entry = btn.closest('.instrument-entry');
-        if (entry) {
-            entry.remove();
-        }
-
+        if (entry) entry.remove();
         const container = document.getElementById(`instruments-container-${performerId}`);
         if (container && container.children.length === 0) {
             container.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding: 5px; color: #999; font-size: 12px;">Инструменты не добавлены</div>';
@@ -521,127 +475,78 @@
 
     function handleInstrumentChange(select, performerId) {
         const container = select.closest('.instrument-entry').querySelector('.new-instrument-container');
-        if (container) {
-            container.style.display = select.value === 'new' ? 'block' : 'none';
-        }
+        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
-    // ИСПРАВЛЕННАЯ ФУНКЦИЯ добавления нового инструмента
     async function addNewInstrument(button, performerId) {
         const container = button.closest('.new-instrument-container');
         const input = container.querySelector('.new-instrument-input');
         const name = input.value.trim();
-
         if (!name) {
-            alert('Введите название инструмента');
+            toast('Введите название инструмента', 'err');
             return;
         }
-
         try {
             const response = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category: 'instruments', name: name})
             });
-
             const result = await response.json();
-
             if (result.status === 'success') {
-                // Добавляем в локальный словарь
                 vocabularyData.instruments.push({name: name});
-
-                // ВАЖНО: Обновляем ВСЕ селекты инструментов на странице
                 refreshAllInstrumentSelects();
-
-                // Находим текущий селект и устанавливаем новое значение
                 const select = button.closest('.instrument-entry').querySelector('.instrument-select');
-                if (select) {
-                    select.value = name;
-                }
-
-                // Скрываем контейнер ввода и очищаем поле
+                if (select) select.value = name;
                 container.style.display = 'none';
                 input.value = '';
-
-                console.log(`✅ Добавлен новый инструмент: ${name}`);
+                toast(`✅ Добавлен новый инструмент: ${name}`, 'ok');
             } else {
-                alert('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'));
+                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
             }
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении');
+            toast('Произошла ошибка при добавлении', 'err');
         }
     }
 
     function validateDuration(duration) {
-        if (!duration || duration.trim() === '') {
-            return true; // Пустое значение допустимо
-        }
-
-        // Регулярное выражение для форматов:
-        // ММ:СС - 45:30
-        // ЧЧ:ММ:СС - 01:15:30
+        if (!duration || duration.trim() === '') return true;
         const pattern = /^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$/;
-
-        if (!pattern.test(duration)) {
-            return false;
-        }
-
-        // Дополнительная проверка: значения не должны быть слишком большими
+        if (!pattern.test(duration)) return false;
         const parts = duration.split(':');
         if (parts.length === 2) {
-            // ММ:СС
             const minutes = parseInt(parts[0], 10);
             const seconds = parseInt(parts[1], 10);
-            if (minutes > 599) { // Максимум 599 минут (почти 10 часов)
-                return false;
-            }
-            if (seconds > 59) {
-                return false;
-            }
+            if (minutes > 599) return false;
+            if (seconds > 59) return false;
         } else if (parts.length === 3) {
-            // ЧЧ:ММ:СС
             const hours = parseInt(parts[0], 10);
             const minutes = parseInt(parts[1], 10);
             const seconds = parseInt(parts[2], 10);
-            if (hours > 99) { // Максимум 99 часов
-                return false;
-            }
-            if (minutes > 59 || seconds > 59) {
-                return false;
-            }
+            if (hours > 99) return false;
+            if (minutes > 59 || seconds > 59) return false;
         }
-
         return true;
     }
 
-
-    // Сохранение записи
     document.getElementById('add-recording-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        // Валидация длительности
         const durationInput = document.getElementById('duration');
         const duration = durationInput.value;
-
         if (!validateDuration(duration)) {
-            alert('Неверный формат длительности!\n\nИспользуйте формат:\n- ММ:СС (например 45:30)\n- ЧЧ:ММ:СС (например 01:15:30)\n\nМинуты не более 599, секунды не более 59');
-            durationInput.focus();
+            toast('Неверный формат длительности!\nИспользуйте ММ:СС или ЧЧ:ММ:СС', 'err');
             return;
         }
-
         const formData = new FormData(e.target);
         const performers = [];
-
         const performerNames = formData.getAll('performer_name[]');
         const performerEthnos = formData.getAll('performer_ethnos[]');
         const performerPerformanceForms = formData.getAll('performer_performance_form[]');
-
         for (let i = 0; i < performerNames.length; i++) {
             if (performerNames[i] && performerNames[i].trim()) {
                 let ethnos = performerEthnos[i];
                 if (ethnos === 'new') ethnos = '';
-
                 const instruments = [];
                 const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
                 for (let j = 0; j < instrumentNames.length; j++) {
@@ -649,7 +554,6 @@
                         instruments.push({name: instrumentNames[j].trim()});
                     }
                 }
-
                 performers.push({
                     name: performerNames[i].trim(),
                     ethnos: ethnos || null,
@@ -658,24 +562,19 @@
                 });
             }
         }
-
         const localTermsStr = formData.get('local_terms') || '';
         const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
-
         let genre = formData.get('genre');
         if (genre === 'new') genre = '';
-
         let location = formData.get('location');
         if (location === 'new') location = '';
-
         let collection = formData.get('collection');
         if (collection === 'new') collection = '';
-
         const data = {
             title: formData.get('title'),
             inventory_number: formData.get('inventory_number'),
             recording_date: formData.get('recording_date'),
-            duration: formData.get('duration'),
+            duration: duration,
             performers: performers,
             genre: genre,
             ethical_status: formData.get('ethical_status'),
@@ -684,31 +583,24 @@
             local_terms: localTerms,
             description: formData.get('description')
         };
-
-        console.log('Отправка данных:', data);
-
         try {
             const response = await fetch('/api/add_recording', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-
             const result = await response.json();
-
             if (result.status === 'success') {
-                alert('Запись успешно добавлена!');
-                window.location.href = '/';
+                toast('Запись успешно добавлена!', 'ok');
+                setTimeout(() => window.location.href = '/', 1000);
             } else {
-                alert('Ошибка при добавлении: ' + result.message);
+                toast('Ошибка при добавлении: ' + result.message, 'err');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Произошла ошибка при сохранении');
+            toast('Произошла ошибка при сохранении', 'err');
         }
     });
-
-    setupEventListeners();
 </script>
 </body>
 </html>

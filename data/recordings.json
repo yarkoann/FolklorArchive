@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "last_updated": "2026-04-10T14:20:56.246718",
-  "total_recordings": 9,
+  "last_updated": "2026-05-12T23:36:35.946766",
+  "total_recordings": 11,
   "recordings": [
     {
       "id": "1",
@@ -55,8 +55,8 @@
         "пилгэйнгэн",
         "э'йвын"
       ],
-      "description": "Исполнение пилгэйнгэн, горловое пение",
-      "updated_at": "2026-04-07T23:49:56.815448",
+      "description": "Исполнение пилгэйнгэн, горлохрипение на вдох и выдох",
+      "updated_at": "2026-04-10T18:40:13.981103",
       "created_at": "2026-04-03T14:12:59.189188"
     },
     {
@@ -174,29 +174,50 @@
     },
     {
       "id": "rec_e7f539e5",
-      "title": "Test Казах песня",
+      "title": "Test Народная казахская песня «Бопем»",
       "inventory_number": "VB-569",
-      "recording_date": "2025-06-03",
-      "duration": "13:12",
+      "recording_date": "2011-06-03",
+      "duration": "03:30",
       "performers": [
         {
-          "name": "Ахметов А.С.",
+          "name": "Ракишев Данеш",
           "ethnos": "Казахи",
-          "performance_form": "vocal",
-          "instruments": []
+          "performance_form": "vocal_instrumental",
+          "instruments": [
+            {
+              "name": "Домбра"
+            }
+          ]
         }
       ],
-      "genre": "Личная песня",
-      "ethical_status": "требует_согласия_общины",
+      "genre": "Инструментальная песня",
+      "ethical_status": "публичный_доступ",
       "location": "Алматы",
       "collection": "Диск №16-N",
       "local_terms": [
-        "Отбасы",
-        "әлем"
+        "Бопем"
       ],
-      "description": "Казахская личная песнь",
-      "updated_at": "2026-04-10T13:47:08.987147",
-      "created_at": "2026-04-10T13:04:11.730931"
+      "description": "Казахская народная музыка",
+      "updated_at": "2026-05-12T23:36:35.946766",
+      "created_at": "2026-04-10T13:04:11.730931",
+      "media_files": [
+        {
+          "id": "018b8208",
+          "original_name": "-_.mp3",
+          "stored_name": "rec_e7f539e5_e09dfcdf.mp3",
+          "file_type": "audio",
+          "size": 8417614,
+          "uploaded_at": "2026-05-11T20:26:37.373357"
+        },
+        {
+          "id": "f8d67b0b",
+          "type": "link",
+          "url": "https://youtu.be/0HqD6Chz_z4?si=K3-f41d-YgPqtqUS",
+          "label": "Данеш Ракишев-  Бопем (Дитя)",
+          "file_type": "video",
+          "added_at": "2026-05-12T23:36:35.946766"
+        }
+      ]
     },
     {
       "id": "rec_6d1e7546",
@@ -260,6 +281,80 @@
       "description": "Инструментальная аварская песня о битве между небом и солнцем",
       "updated_at": "2026-04-10T14:20:56.246718",
       "created_at": "2026-04-10T14:14:35.038716"
+    },
+    {
+      "id": "rec_6a4a3070",
+      "title": "Эвенкийская колыбельная «Нококо»",
+      "inventory_number": "SS-982",
+      "recording_date": "2026-04-01",
+      "duration": "02:09",
+      "performers": [
+        {
+          "name": "Ларкина К.У.",
+          "ethnos": "Эвенки",
+          "performance_form": "vocal",
+          "instruments": []
+        },
+        {
+          "name": "Петров К.Е.",
+          "ethnos": "Якуты",
+          "performance_form": "instrumental",
+          "instruments": [
+            {
+              "name": "Хомус"
+            }
+          ]
+        }
+      ],
+      "genre": "Колыбельная",
+      "ethical_status": "публичный_доступ",
+      "location": "Алдан",
+      "collection": "Архив Нац Библиотеки",
+      "local_terms": [
+        "нококо",
+        "бэ̄бэми",
+        "ороко̄рин"
+      ],
+      "description": "Новое звучание эвенкийской колыбельной Евгении Алексеевны Курейской\n",
+      "updated_at": "2026-04-10T18:46:17.435344",
+      "created_at": "2026-04-10T18:43:58.267976"
+    },
+    {
+      "id": "rec_d3f5cb98",
+      "title": "Test 1",
+      "inventory_number": "PO-2020-01",
+      "recording_date": "2009-02-10",
+      "duration": "03:20",
+      "performers": [
+        {
+          "name": "Мокорин Е.К.",
+          "ethnos": "Русские",
+          "performance_form": "vocal",
+          "instruments": []
+        },
+        {
+          "name": "Душино К.У.",
+          "ethnos": "Русские",
+          "performance_form": "instrumental",
+          "instruments": [
+            {
+              "name": "Бас-гитара"
+            }
+          ]
+        }
+      ],
+      "genre": "Личная песня",
+      "ethical_status": "публичный_доступ",
+      "location": "Москва",
+      "collection": "Программа Elem6",
+      "local_terms": [
+        "ирек",
+        "көҥүл"
+      ],
+      "description": "Поп-песня о общей культуре и свободе",
+      "updated_at": "2026-05-12T23:19:33.322621",
+      "created_at": "2026-05-12T23:19:33.322621",
+      "media_files": []
     }
   ]
 }

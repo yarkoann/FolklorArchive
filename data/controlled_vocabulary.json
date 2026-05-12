@@ -82,6 +82,12 @@
         "маарулал"
       ],
       "region": "Дагестан"
+    },
+    {
+      "id": "ethno_русские",
+      "name": "Русские",
+      "alternative_names": [],
+      "region": ""
     }
   ],
   "genres": [
@@ -208,6 +214,11 @@
       "id": "location_дагестан",
       "name": "Дагестан",
       "type": "region"
+    },
+    {
+      "id": "location_алдан",
+      "name": "Алдан",
+      "type": "city"
     }
   ],
   "collections": [
@@ -242,6 +253,14 @@
     {
       "id": "collection_диск_772",
       "name": "Диск №77(2)"
+    },
+    {
+      "id": "collection_архив_нац_библиотеки",
+      "name": "Архив Нац Библиотеки"
+    },
+    {
+      "id": "collection_программа_elem6",
+      "name": "Программа Elem6"
     }
   ],
   "ritual_status": [
@@ -282,20 +301,90 @@
     },
     {
       "id": "kyrympa",
-      "name": "Кырымпа",
-      "type": "chordophone"
+      "name": "Кырыымпа",
+      "type": "chordophone",
+      "local_names": [
+        "Кылысах",
+        "Кыл"
+      ]
     },
     {
       "id": "instrument_эрху",
       "name": "Эрху",
-      "type": "other",
-      "local_names": []
+      "type": "chordophone",
+      "local_names": [
+        "китайская скрипка"
+      ]
     },
     {
       "id": "instrument_шантых",
       "name": "Шантых",
+      "type": "aerophone",
+      "local_names": []
+    },
+    {
+      "id": "instrument_домбра",
+      "name": "Домбра",
+      "type": "chordophone",
+      "local_names": [
+        "Домбыра"
+      ]
+    },
+    {
+      "id": "instrument_бас_гитара",
+      "name": "Бас-гитара",
       "type": "other",
       "local_names": []
     }
-  ]
+  ],
+  "local_terms_meta": {
+    "пилгэйнгэн": {
+      "term": "пилгэйнгэн",
+      "alt_names": [
+        "горлозвучащее"
+      ]
+    },
+    "na łonie natury": {
+      "term": "Na łonie natury",
+      "alt_names": [
+        "на лоне природы"
+      ]
+    },
+    "tónghuà": {
+      "term": "Tónghuà",
+      "alt_names": [
+        "сказка"
+      ]
+    },
+    "zachód słońca": {
+      "term": "zachód słońca",
+      "alt_names": [
+        "закат солнца"
+      ]
+    },
+    "камлание": {
+      "term": "камлание",
+      "alt_names": [
+        "шаманский обряд"
+      ]
+    },
+    "бопем": {
+      "term": "Бопем",
+      "alt_names": [
+        "дитя"
+      ]
+    },
+    "ирек": {
+      "term": "ирек",
+      "alt_names": [
+        "свобода"
+      ]
+    },
+    "көҥүл": {
+      "term": "көҥүл",
+      "alt_names": [
+        "свобода"
+      ]
+    }
+  }
 }
