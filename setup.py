@@ -33,7 +33,7 @@ def setup_project():
     print("\nДля запуска приложения выполните:")
     print("  python app.py")
     print("\nИ откройте в браузере:")
-    print("  http://localhost:5000")
+    print("  http://localhost:8000")
 
     return True
 

@@ -29,12 +29,13 @@
             <h3>Основная информация</h3>
             <div class="form-group">
                 <label for="title">Название записи *</label>
-                <input type="text" id="title" name="title" required>
+                <input type="text" id="title" name="title" required placeholder="Например: Шаманский обряд нганасан">
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="inventory_number">Инвентарный номер</label>
-                    <input type="text" id="inventory_number" name="inventory_number" placeholder="Например: NG-2023-001">
+                    <input type="text" id="inventory_number" name="inventory_number"
+                           placeholder="Например: NG-2023-001">
                 </div>
                 <div class="form-group">
                     <label for="recording_date">Дата записи</label>
@@ -44,14 +45,17 @@
             <div class="form-group">
                 <label>Длительность</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="0" style="width: 80px; padding: 10px;">
+                    <input type="text" id="duration_hours" placeholder="00" maxlength="2"
+                           style="width: 60px; padding: 10px; text-align: center;" value="">
                     <span>:</span>
-                    <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="0" style="width: 80px; padding: 10px;">
+                    <input type="text" id="duration_minutes" placeholder="00" maxlength="2"
+                           style="width: 60px; padding: 10px; text-align: center;" value="">
                     <span>:</span>
-                    <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="0" style="width: 80px; padding: 10px;">
+                    <input type="text" id="duration_seconds" placeholder="00" maxlength="2"
+                           style="width: 60px; padding: 10px; text-align: center;" value="">
                 </div>
                 <input type="hidden" id="duration" name="duration">
-                <small class="form-hint">Введите часы, минуты и секунды</small>
+                <small class="form-hint">Введите часы, минуты и секунды (например: 00:45:30)</small>
             </div>
         </div>
 
@@ -71,7 +75,9 @@
                     </select>
                     <div id="new-genre-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-genre" placeholder="Введите название нового жанра">
-                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
+                        <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">
+                            Добавить жанр
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -92,7 +98,9 @@
                     </select>
                     <div id="new-location-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-location" placeholder="Введите название новой локации">
-                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
+                        <button type="button" onclick="addNewItem('locations', 'new-location', 'location')"
+                                class="btn-add-new">Добавить локацию
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">
@@ -102,7 +110,9 @@
                     </select>
                     <div id="new-collection-container" style="display: none;" class="new-item-input">
                         <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
-                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
+                        <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')"
+                                class="btn-add-new">Добавить коллекцию
+                        </button>
                     </div>
                 </div>
             </div>
@@ -112,7 +122,8 @@
             <h3>Местные термины</h3>
             <div class="form-group">
                 <label for="local_terms">Местные термины</label>
-                <input type="text" id="local_terms" name="local_terms" placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
+                <input type="text" id="local_terms" name="local_terms"
+                       placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
                 <small class="form-hint">Введите термины через запятую</small>
             </div>
         </div>
@@ -120,7 +131,45 @@
         <div class="form-section">
             <h3>Описание</h3>
             <div class="form-group">
-                <textarea id="description" name="description" rows="4"></textarea>
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Подробное описание записи..."></textarea>
+            </div>
+        </div>
+
+        <!-- Медиафайлы -->
+        <div class="form-section">
+            <h3>Медиафайлы (можно добавить после создания записи или сейчас)</h3>
+
+            <!-- Upload zone для файлов -->
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+                 ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                <input type="file" id="file-input" accept="audio/*,video/*" onchange="onFileChosen(event)"
+                       style="display:none">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>Перетащите аудио или видео файл, или нажмите для выбора</p>
+                <small>MP3, WAV, OGG, FLAC, M4A, MP4, AVI, MOV, MKV, WebM · до 500 МБ</small>
+            </div>
+
+            <div class="upload-progress" id="upload-progress" style="display:none">
+                <div class="progress-text" id="progress-text">Загрузка…</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:12px">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="openLinkModal()">🔗 Добавить по ссылке
+                </button>
+            </div>
+
+            <div class="media-list" id="media-list">
+                <div style="color:var(--muted);font-size:13px;padding:8px 0">Медиафайлы будут добавлены после создания
+                    записи
+                </div>
             </div>
         </div>
 
@@ -133,6 +182,39 @@
 
 <div class="toast-area" id="toast-area"></div>
 
+<!-- Modal для добавления ссылки -->
+<div class="modal-backdrop" id="link-modal" style="display:none" onclick="if(event.target===this)closeLinkModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Добавить медиа по ссылке</div>
+            <button class="modal-close" onclick="closeLinkModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>URL ссылки *</label>
+                <input type="url" id="link-url" placeholder="https://www.youtube.com/watch?v=... или любой другой URL"
+                       style="width:100%">
+            </div>
+            <div class="modal-field">
+                <label>Название (опционально)</label>
+                <input type="text" id="link-label" placeholder="Например: Интервью с носителем">
+            </div>
+            <div class="modal-field">
+                <label>Тип контента</label>
+                <select id="link-type">
+                    <option value="video">🎬 Видео</option>
+                    <option value="audio">🎵 Аудио</option>
+                </select>
+            </div>
+            <small class="form-hint">Поддерживаются любые внешние ссылки. Для YouTube/Vimeo будет встроен плеер.</small>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeLinkModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="addMediaLink()">➕ Добавить ссылку</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let vocabularyData = {
         genres: [],
@@ -142,6 +224,8 @@
         instruments: []
     };
     let performerCounter = 0;
+    let pendingMediaFiles = []; // Для временного хранения медиа до сохранения записи
+    let currentRecordingId = null;
 
     function toast(msg, type = 'ok') {
         const area = document.getElementById('toast-area');
@@ -156,7 +240,7 @@
         }, 2800);
     }
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    document.addEventListener('DOMContentLoaded', async function () {
         await loadAllVocabulary();
         addPerformer();
         setupDurationListener();
@@ -165,21 +249,28 @@
 
     function setupDurationListener() {
         function updateDuration() {
-            const hours = document.getElementById('duration_hours').value || 0;
-            const minutes = document.getElementById('duration_minutes').value || 0;
-            const seconds = document.getElementById('duration_seconds').value || 0;
+            let hours = document.getElementById('duration_hours').value;
+            let minutes = document.getElementById('duration_minutes').value;
+            let seconds = document.getElementById('duration_seconds').value;
+
+            hours = hours ? String(parseInt(hours) || 0).padStart(2, '0') : '00';
+            minutes = minutes ? String(parseInt(minutes) || 0).padStart(2, '0') : '00';
+            seconds = seconds ? String(parseInt(seconds) || 0).padStart(2, '0') : '00';
+
             let durationStr = '';
             if (parseInt(hours) > 0) {
-                durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+                durationStr = `${hours}:${minutes}:${seconds}`;
             } else {
-                durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
+                durationStr = `${minutes}:${seconds}`;
             }
             const durationField = document.getElementById('duration');
             if (durationField) durationField.value = durationStr;
         }
+
         const hoursField = document.getElementById('duration_hours');
         const minutesField = document.getElementById('duration_minutes');
         const secondsField = document.getElementById('duration_seconds');
+
         if (hoursField) hoursField.addEventListener('input', updateDuration);
         if (minutesField) minutesField.addEventListener('input', updateDuration);
         if (secondsField) secondsField.addEventListener('input', updateDuration);
@@ -276,21 +367,21 @@
     function setupEventListeners() {
         const genreSelect = document.getElementById('genre');
         if (genreSelect) {
-            genreSelect.addEventListener('change', function(e) {
+            genreSelect.addEventListener('change', function (e) {
                 const container = document.getElementById('new-genre-container');
                 if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
             });
         }
         const locationSelect = document.getElementById('location');
         if (locationSelect) {
-            locationSelect.addEventListener('change', function(e) {
+            locationSelect.addEventListener('change', function (e) {
                 const container = document.getElementById('new-location-container');
                 if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
             });
         }
         const collectionSelect = document.getElementById('collection');
         if (collectionSelect) {
-            collectionSelect.addEventListener('change', function(e) {
+            collectionSelect.addEventListener('change', function (e) {
                 const container = document.getElementById('new-collection-container');
                 if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
             });
@@ -530,6 +621,251 @@
         return true;
     }
 
+    // ========== МЕДИА ФУНКЦИИ ==========
+    function getEmbedUrl(url) {
+        if (!url) return null;
+
+        // YouTube
+        let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (match) return `https://www.youtube.com/embed/${match[1]}`;
+
+        // YouTube Shorts
+        match = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+        if (match) return `https://www.youtube.com/embed/${match[1]}`;
+
+        // YouTube embed уже готовый
+        if (url.includes('youtube.com/embed/')) return url;
+
+        // Vimeo
+        match = url.match(/vimeo\.com\/(\d+)/);
+        if (match) return `https://player.vimeo.com/video/${match[1]}`;
+
+        // Rutube - несколько форматов
+        match = url.match(/rutube\.ru\/video\/([a-f0-9]+)/i);
+        if (match) return `https://rutube.ru/play/embed/${match[1]}`;
+
+        match = url.match(/rutube\.ru\/play\/embed\/([a-f0-9]+)/i);
+        if (match) return url;
+
+        match = url.match(/rutube\.ru\/video\/embed\/([a-f0-9]+)/i);
+        if (match) return `https://rutube.ru/play/embed/${match[1]}`;
+
+        // VK Video - несколько вариантов
+        // Формат: https://vk.com/video-123456_789012
+        match = url.match(/vk\.com\/video(-?\d+)_(\d+)/);
+        if (match) {
+            const oid = match[1];
+            const id = match[2];
+            return `https://vk.com/video_ext.php?oid=${oid}&id=${id}&hd=2&autoplay=0`;
+        }
+
+        // Формат: https://vk.com/video_ext.php?oid=-123456&id=789012
+        match = url.match(/vk\.com\/video_ext\.php\?oid=(-?\d+)&id=(\d+)/);
+        if (match) return url;
+
+        // Формат: https://vkvideo.ru/video-123456_789012
+        match = url.match(/vkvideo\.ru\/video(-?\d+)_(\d+)/);
+        if (match) {
+            const oid = match[1];
+            const id = match[2];
+            return `https://vk.com/video_ext.php?oid=${oid}&id=${id}&hd=2&autoplay=0`;
+        }
+
+        // OK.ru (Одноклассники)
+        match = url.match(/ok\.ru\/video\/(\d+)/);
+        if (match) return `https://ok.ru/videoembed/${match[1]}`;
+
+        match = url.match(/ok\.ru\/videoembed\/(\d+)/);
+        if (match) return url;
+
+        // Dzen.ru (Яндекс.Дзен)
+        match = url.match(/dzen\.ru\/video\/watch\/([a-zA-Z0-9_-]+)/);
+        if (match) return `https://dzen.ru/embed/${match[1]}`;
+
+        match = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
+        if (match) return url;
+
+
+        return null;
+    }
+
+    function formatSize(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024) return bytes + ' Б';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' КБ';
+        return (bytes / 1048576).toFixed(1) + ' МБ';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function renderMediaItem(m) {
+        const isAudio = m.file_type === 'audio';
+        const isLink = m.type === 'link';
+        const iconCls = isLink ? 'link' : (isAudio ? 'audio' : 'video');
+        const icon = isLink ? '🔗' : (isAudio ? '🎵' : '🎬');
+        const label = m.original_name || m.label || (isLink ? m.url : 'Медиа') || 'Медиа';
+
+        let playerHtml = '';
+        if (!isLink && m.stored_name) {
+            playerHtml = `<div style="margin:8px 0">
+                ${isAudio
+                ? `<audio controls preload="none" src="/api/media/${escapeHtml(m.stored_name)}"></audio>`
+                : `<video controls preload="none" src="/api/media/${escapeHtml(m.stored_name)}"></video>`}
+            </div>`;
+        } else if (isLink && m.url) {
+            const embed = getEmbedUrl(m.url);
+            playerHtml = embed
+                ? `<div style="margin:8px 0"><iframe src="${embed}" frameborder="0" allowfullscreen style="width:100%;border-radius:6px;min-height:200px"></iframe></div>`
+                : `<div class="media-url">🔗 <a href="${escapeHtml(m.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(m.label || m.url)}</a></div>`;
+        }
+
+        return `<div class="media-item" id="mi-${m.id || Date.now()}">
+            <div class="media-item-header">
+                <div class="media-icon ${iconCls}">${icon}</div>
+                <div class="media-name" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+                ${!isLink && m.size ? `<div class="media-size">${formatSize(m.size)}</div>` : ''}
+                ${!isLink && !m.id ? '<span class="media-size" style="color:var(--green)">⏳ Будет загружено после сохранения</span>' : ''}
+            </div>
+            ${playerHtml}
+        </div>`;
+    }
+
+    function updateMediaList() {
+        const container = document.getElementById('media-list');
+        if (pendingMediaFiles.length === 0) {
+            container.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">Медиафайлы не добавлены</div>';
+            return;
+        }
+        container.innerHTML = pendingMediaFiles.map(m => renderMediaItem(m)).join('');
+    }
+
+    function onDragOver(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.add('drag-over');
+    }
+
+    function onDragLeave(e) {
+        document.getElementById('upload-zone').classList.remove('drag-over');
+    }
+
+    function onDrop(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) addPendingFile(file);
+    }
+
+    function onFileChosen(e) {
+        const file = e.target.files[0];
+        if (file) addPendingFile(file);
+        e.target.value = '';
+    }
+
+    function addPendingFile(file) {
+        const allowed = /\.(mp3|wav|ogg|flac|m4a|aac|wma|mp4|avi|mov|mkv|webm|wmv|flv)$/i;
+        if (!allowed.test(file.name)) {
+            toast('Недопустимый формат файла', 'err');
+            return;
+        }
+        if (file.size > 500 * 1024 * 1024) {
+            toast('Файл слишком большой (макс. 500 МБ)', 'err');
+            return;
+        }
+
+        const fileType = file.type.startsWith('audio/') ? 'audio' : 'video';
+        pendingMediaFiles.push({
+            id: `temp_${Date.now()}_${Math.random()}`,
+            type: 'file',
+            original_name: file.name,
+            file: file,
+            file_type: fileType,
+            size: file.size
+        });
+        updateMediaList();
+        toast(`Файл «${file.name}» добавлен к записи`, 'ok');
+    }
+
+    function openLinkModal() {
+        document.getElementById('link-url').value = '';
+        document.getElementById('link-label').value = '';
+        document.getElementById('link-type').value = 'video';
+        document.getElementById('link-modal').style.display = 'flex';
+    }
+
+    function closeLinkModal() {
+        document.getElementById('link-modal').style.display = 'none';
+    }
+
+    function addMediaLink() {
+        const url = document.getElementById('link-url').value.trim();
+        const label = document.getElementById('link-label').value.trim();
+        const fileType = document.getElementById('link-type').value;
+
+        if (!url) {
+            toast('Введите URL ссылки', 'err');
+            return;
+        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            toast('URL должен начинаться с http:// или https://', 'err');
+            return;
+        }
+
+        pendingMediaFiles.push({
+            id: `link_${Date.now()}_${Math.random()}`,
+            type: 'link',
+            url: url,
+            label: label || url,
+            file_type: fileType
+        });
+        updateMediaList();
+        closeLinkModal();
+        toast('Ссылка добавлена к записи', 'ok');
+    }
+
+    async function uploadPendingMedia(recordingId) {
+        for (let i = 0; i < pendingMediaFiles.length; i++) {
+            const m = pendingMediaFiles[i];
+            if (m.type === 'file' && m.file) {
+                const fd = new FormData();
+                fd.append('file', m.file);
+                try {
+                    const response = await fetch(`/api/recording/${recordingId}/upload_media`, {
+                        method: 'POST',
+                        body: fd
+                    });
+                    const result = await response.json();
+                    if (result.status !== 'success') {
+                        console.error(`Ошибка загрузки файла ${m.original_name}:`, result.message);
+                    }
+                } catch (error) {
+                    console.error(`Ошибка загрузки файла ${m.original_name}:`, error);
+                }
+            } else if (m.type === 'link' && m.url) {
+                try {
+                    const response = await fetch(`/api/recording/${recordingId}/add_media_link`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            url: m.url,
+                            label: m.label,
+                            file_type: m.file_type
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.status !== 'success') {
+                        console.error(`Ошибка добавления ссылки ${m.url}:`, result.message);
+                    }
+                } catch (error) {
+                    console.error(`Ошибка добавления ссылки ${m.url}:`, error);
+                }
+            }
+        }
+    }
+
+    // Сохранение записи
     document.getElementById('add-recording-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const durationInput = document.getElementById('duration');
@@ -538,11 +874,13 @@
             toast('Неверный формат длительности!\nИспользуйте ММ:СС или ЧЧ:ММ:СС', 'err');
             return;
         }
+
         const formData = new FormData(e.target);
         const performers = [];
         const performerNames = formData.getAll('performer_name[]');
         const performerEthnos = formData.getAll('performer_ethnos[]');
         const performerPerformanceForms = formData.getAll('performer_performance_form[]');
+
         for (let i = 0; i < performerNames.length; i++) {
             if (performerNames[i] && performerNames[i].trim()) {
                 let ethnos = performerEthnos[i];
@@ -562,6 +900,7 @@
                 });
             }
         }
+
         const localTermsStr = formData.get('local_terms') || '';
         const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
         let genre = formData.get('genre');
@@ -570,6 +909,7 @@
         if (location === 'new') location = '';
         let collection = formData.get('collection');
         if (collection === 'new') collection = '';
+
         const data = {
             title: formData.get('title'),
             inventory_number: formData.get('inventory_number'),
@@ -583,6 +923,7 @@
             local_terms: localTerms,
             description: formData.get('description')
         };
+
         try {
             const response = await fetch('/api/add_recording', {
                 method: 'POST',
@@ -591,8 +932,14 @@
             });
             const result = await response.json();
             if (result.status === 'success') {
+                const newId = result.id;
+                // Загружаем медиафайлы
+                if (pendingMediaFiles.length > 0) {
+                    toast('Запись создана, загрузка медиафайлов...', 'ok');
+                    await uploadPendingMedia(newId);
+                }
                 toast('Запись успешно добавлена!', 'ok');
-                setTimeout(() => window.location.href = '/', 1000);
+                setTimeout(() => window.location.href = `/recording/${newId}`, 1500);
             } else {
                 toast('Ошибка при добавлении: ' + result.message, 'err');
             }

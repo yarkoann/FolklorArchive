@@ -88,6 +88,18 @@
       "name": "Русские",
       "alternative_names": [],
       "region": ""
+    },
+    {
+      "id": "ethno_татары",
+      "name": "Татары",
+      "alternative_names": [],
+      "region": ""
+    },
+    {
+      "id": "ethno_башкиры",
+      "name": "Башкиры",
+      "alternative_names": [],
+      "region": ""
     }
   ],
   "genres": [
@@ -157,6 +169,18 @@
       "name": "Инструментальная песня",
       "local_terms": [],
       "ritual": false
+    },
+    {
+      "id": "genre_эстрада",
+      "name": "Эстрада",
+      "local_terms": [],
+      "ritual": false
+    },
+    {
+      "id": "genre_духовная_песня",
+      "name": "Духовная песня",
+      "local_terms": [],
+      "ritual": false
     }
   ],
   "locations": [
@@ -219,6 +243,11 @@
       "id": "location_алдан",
       "name": "Алдан",
       "type": "city"
+    },
+    {
+      "id": "location_башкортостан",
+      "name": "Республика Башкортостан",
+      "type": "region"
     }
   ],
   "collections": [
@@ -291,7 +320,8 @@
       "name": "Бубен",
       "type": "membranophone",
       "local_names": [
-        "дундур"
+        "дундур",
+        "тамбурин"
       ]
     },
     {
@@ -333,8 +363,11 @@
     {
       "id": "instrument_бас_гитара",
       "name": "Бас-гитара",
-      "type": "other",
-      "local_names": []
+      "type": "electrophone",
+      "local_names": [
+        "электробас",
+        "бас"
+      ]
     }
   ],
   "local_terms_meta": {
@@ -385,6 +418,36 @@
       "alt_names": [
         "свобода"
       ]
+    },
+    "доға": {
+      "term": "Доға",
+      "alt_names": [
+        "молитва"
+      ]
+    },
+    "өмөт": {
+      "term": "өмөт",
+      "alt_names": [
+        "надежда"
+      ]
+    },
+    "яҙмыш": {
+      "term": "яҙмыш",
+      "alt_names": [
+        "судьба"
+      ]
+    }
+  },
+  "performers_meta": {
+    "ракишев данеш": {
+      "name": "Ракишев Данеш",
+      "description": "(1926—1992) — казахский певец и композитор. Народный артист Казахской ССР (1986).",
+      "photo_url": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxISEhUTEBIVFRUSFxcVFRYPFRAVFRUSFRUWFhUVFRUYHSggGBolGxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OFhAQFysdHR0rKysrLS0tLS0tLSstLS0tKy0tLS0tKy0tLS0tLS03LS0tMzctKy0tLS0tKy0rLSsrLf/AABEIAOEA4QMBIgACEQEDEQH/xAAbAAABBQEBAAAAAAAAAAAAAAAEAAIDBQYBB//EADsQAAEDAwIDBwIDBwQCAwAAAAEAAgMEESESMQVBUQYTIjJhcYGRsUKhwRQzUmJy0fEHI+HwgqIVFmP/xAAZAQADAQEBAAAAAAAAAAAAAAAAAQIDBAX/xAAgEQEBAAICAgMBAQAAAAAAAAAAAQIRITEDEhNBUTIi/9oADAMBAAIRAxEAPwDPQN8I9lM1qZGMBStXO92HaAoyFJdLUkaaEYUjG3cExjku9scIA/ubkn0UEaMo3Xab9EA54bqc42ARDlSWUFRXMj8x+AqSt42XXEeB15qsJJ3z7p6Rc/xoDx9vJqUHHIyfECFnw1ItT0n3r0EcTgMeoOGBnqq7hE7JH3aRa/PCx4TmE8iR7JaP5HpUsaIp48Lzyh41LER4i9o/C43x6L0DhVYyaIPjNxzHMHmCs7/St7jsjMo0x4CEflwVg7ZaSs8oralnjaEFxHzqwfmT2QFcfGVlk28cQTjw/Cr3DKsKg4CAdus3TI7KPChoG7ouc4Q8SnatJGtT3bLgTal2EisCNapQxNiClK0Y2cmaUk6ySY0r6d1wEQEJReUFEly3ZTo8FNeOidEMJEoB4K7G+xuV1guuOASGx0EtmuJNhZZXi1cZDZvkH5nqiuM11gIhzy79AhIw0i5NrBVIi0CApooiSGtBJOAB1RTwxmW5J/JbXsRwQNb38o8TvKDyHVG06+1RQdkHubeQ6T05/KMPZuJoyCeq2c4G9soZ7SeSztp45Rh5+zzLnSfhRP7PY/stbVC27cKMDVsMWRtpNV55V0hjPUdVZ9lK8wzhh8k35O6qw4vSaSQRhyzLrxvH8jg5vtdOclZrp6fbxhWBCraaUPLXDIcAfyR7imi9g2+clVFU67irVpy4qpcLuKxydHjRVJwgtyjqsfZCxtypreG1BTYwnzhdaopu6b2Udap4hlDVhyiC02EYT37JkRwnyHCtkjuuLi6hO1ZRnwBEtah6Q+EWRIXSxx6OYpGs5psYCIQK4AuBtypCE1m6CZStfeV59bfTCaCmv87/AOopBUy3ytuE0er/AHHeXVpHr1XqtJhjeQsMLAdloe8AbyDl6FGM25NAUWnl0F4txIRi4b7DmfZUknFJ3eWMt9Xf2VzUxtDjJJ7C/wDZZ/jPGLeRhsb56qKrCQXw6WYmz7ODj8hFVjxCQAPMCPlA9lakud4sDf6KbtWbgOby3SXrnTP8WqJnC4ZqbfcKgr3lwuWkFu/stc3ijnMsxgOkZws5NMXuOtun3TitNR2In1wN/kJatBI7dZrsBERA89ZDb4WhmVXpn9hAcOVZEclWEh8JQEAWVb4o6s5UEYU1XuomDCitoY8XK6E3mnBTVJI0DUnxI1pwUBJujFOSRiUm6dGm7laMzF1EaElJKGgPhCOjI5oPhzfCEYI11MMbw7qU0ZTAxPY1B7SOcuMdlce1cDEDTJv8zv6j911gWkpuzRmH+1bW4lxLji1zgBV0nCZon6ZGEZT3GXry13YaCzXE78lrGussr2WfYE+oC00DrnPNZH5IhliL/MLjp0QktO040j6LRBgPlKrq2GxJPLPwnYWFA0NO1pNhZN4jA+RpaBhCUdWXSOdYlgwLdRuiWcXkye7DGDa5u4/Clpztl49ULiEqoNkz/lc4lWF8t9Nh6qNovtuk6Jyu+xeI5G/wvv8AUK5ndgrP9lXeOUdWg/RXc5wtPpz2f6Czu8CBhKMq/IgC6wWVb4Bqh+U/konZKklNhZRWsRRlPC5CF1TTPecKvO6MqHYsggqxiMqnaV2n3UaIphhOoTJKLvEkBScP8gRjSq+g8oR4aulz49Ha1IxyhspYUGkSIXHLrSgbXHY+bU57B5oz9WnIKIpaQzskkkdd2stAvsG42WWjrzS1Uc7dtnjq3n8r0GnqYZWd5Da0mbi253v6qbC9qC4bQtY0gdb/ACrKnjuhaXGFYQPspkRnT9JbsgOMvc5thu7CuWi4QVYwWJ6ZV1GN5CUtM1sYDNmjJPXmVT1dZE4lrHFxG5aCQEB2n4pIIdEQNnHLhyHQrIU/FKht2xvc3Vghqn1223ppOK1DHHoR1FlHS1IaCCN+Y3VJondKxspdc5u/or2OkadVnX0i6nTfG7gvsx+9f/R+qu53Kl7M/vHnoz7lW0xVxll/Qes2CrpirCuOyqp3LPJv4+jWDKdOdkqdqbN5lnWsPjGF1oSYV1qkw1YVAwKSoNymhXj0yy7dRdrN+ENELkIupwEqkBrSXdCSNBW0bfCEawIKhPhCMjcupzY3g9guVOI7IaykY5BnlJNTigwnFaUvZdu7M+45o/sdVARlh3Djj0PNcjKsOzfZ5ksr36i3SNm83FGtlbJN1f0zrlEyFDPpXwuyCW9R+qIZICLKLLEbl6E0tRiy7K7UCOoQexTtSNj1DU1I0AtIBF+digK7hsTLujZYnoFetIPPdDVsVvYp08cueWVqdTjm59/RVguw4O+601VB0OVQcTwQLZUR0y8LXs9HZj39SAPhHPOQmU8XdxMZztc+5ync1pOIw3uhq52VUVByrOrdlVFS65WWTow6F07sKMHKQw1RsWbaCAU7ldQLshs0pChy65ScVGxOcVbKiaIZupKo5XaYWChfkqQ5ZJSWCSDUVLhoRbAoKVvhCIC63HOhUThbK65RtIVhScLmk8rCB1dgI0LlIAc6yJo6OWUgRscb87WH1Wg4f2ZY0h07tZ5NHl+eq0NrCzbAdG4V+jHLzz6YGsoJInNa6xc86QGm+Vt+zvDO4YQ7LnZd6eiq+L0Y1CVg8bMj2/ujuD8a7yzX4J2PX/lET5MrljwvHMB3VVV8LO8Zt6FWyjcU7ixwzuLLDvruBjJ072397c1FJXcjg+uFe1sZ1BzTZzdiPsVZUfc1LT3kbdYw4ED6hZ/G6Pn13GJdxAjY/ZNk4xjJWh412LjeLwOMbhy3afQjksNV8LmjcY5GODhsWi4cOoKi42Ojx54Z9JJOLtuTuu8LpnVEgkeLRtN/6j0VSaF7bamuGo2GNyeQWkoq8RDupAQW4Ht6pSNM+JwPqDdyYAo2zNebtIKlIwrZSKuqdkqrOSjqw2ug4d1je3Tj0IkGLJjAnPckVFax1RVTrC3VSNKEnNyjRWk1daMpqlgGVTPYtzrBQAp0juSZdTTOukmakktDYNkekNA+LLW8G7J3AfUHfIYMY9SguyXDu9lD3C7YgDnYuOy3d13yPI8vms4gaDhkLPJG0fCI7tSBdYr05fag5oDyygBV6XaXYPR2x9lekKv4pQCVpB3Gx5goaYVEW3VPNRi+kHSQdTHdCeRPJcoat7SWPOR15ouezjfqs66MZo3hvaJzX9zUNs7YOGx6f5V8JQdliOMuMNnvb3kTc488duYPMei0FHxJj4myRklsjS5pIsdI52TlLPGfQ+V9zdQGQxuErN27jq3mFHFLdt+qTZeRTTpqaedsjA5pwR/0LG/6mcRMUUcbDZ8rjnmGt3+4Vhwir7qTuyfBJt6OWG/1JqnOrsg6ImhoPIkm7v0Wea/Dj/uAnVNQ2IEvGnlfLgTzHqumrMsTHu/eReB5/ib+F6ELsb46J9PIe9AI8MjSw++7T9QspXpXEb3dxqac+lwlHxGVu5v7plPIRg7gkH4UkrL7K2SOap1DZNp3DKjcLfCjc3mP8qLi0xyFsOU97lDBICnPcs61lOvhCOdlEOdhClEhWpAUVEMIVgRTjYIqTU1xSCjeUjd1LqiukjQbbsWy1MHc3m/xsFoGuVP2dZppYQP4AVFxfjoiIjiGuZ5s1vIE83FehHhWXK1f94OeEhKOqBoqUtF5Ha3ncnYHo0dEXcJp0f3h6prnqKR1tvlQmfPhzbdp3t1ClUiq4/TbSN3G6igluAVaVzA5htsRcKionWJHRZ11YcwXUQiUd0fx+HPrv+SArH6HuY3AYBG0dGCyOkAO/wDg9VzidNrAOO8aLn/9GDn7hCpeRNJINIHonPGVWUlTmxUfF+JSsGmNgP8AMbmwRsett0tpBqFvp7qnliDie8F73ab87oCi4lIxxMjw7UMDGD6AI2qd3kYda17X+Dgqby1xlxU3FaOOAhrXEl1yAeQVdMQR6A3x6I3tNJ/vRerD9woxHGYnX8529lnp143eJjZyJnNPMNcPUEYKMcVUVf7uKYbsPdP9h5SrOB+oAq4yvbkyijfmxRNlG+O+UCE0hvsfukU98OBfYhRnCzyjTGk8qB6kumEKToinbspZimR4C5IUgbqUbl0lRkph2ySV0kFttoa0R0kRGfALAdbKPs7wshxqJvMb6R0vzQ/ZhveUzA7OnGfRaFoXbI8a3U1E5euF6jAUgamzgeaQqrrJ72LDZ7dv7FW80XMKmrIQ8FzMObvZTk3wkFcKrRIC3+NpcB0e3D2qtpm5eehsqplfJC8Ob+A6gOurDgVY0fEWWeCLFztXoPRRtvMdCqh3h+VY1lM6SnvHiSPxRn1HL2KqKmUFmOoWl4efAPZOIy45ZFs4maKiMW/DKzmyQeb4RMjWysIcSAR4rb2GVTVbn0ldqYLxzO0yN5HVzt19Veyw908c2O29jyKVjSVlqLi1MJS0xkNBIDjY39StazSRi1j0WP412ck1l0A1McbgA5bfkr7hMbo2Br9wkrdZztUCydl9mtx6i6knnabaRYWyrvtRw/vobgeOLxN9RzCyvDp/CQfhRlHR4shHDma++gO0rdTfR4UPC5jbSd2mxXXExPZIQQAc+rTuu8UZ3cwe3yy5+eaUPLtYNkTyo5Y9NvUAj5SY/kVSRjmXZH7H8kBMVaNsGxHkXFp/8hhVdbg26EpU8aiDk+NRBTQhZ1e0xKjc5dLkx6Q2aSmpErl0xt26SbdJBvQeGU7Yo2sbyA+Si+8CFgDiB7J4hPMrteGldU2UZrfVQTlrfM5C/tMXJwUtJhB7p781E2PNxzQ4qRyVc/jDoZbON2u5Hp6JbaTH8Q8Tpg1zr9D9EBTPuFccWq2SgaRY/cKjpMAj1Kh1Y9C2ykc9lqOHVYkZcYIwQsoSp+F1ndvudnbpypzw3FrxGnHfNeRcXyjeIVDNIDvKf/X1VbXcSaBuPRVjZjICDsbiyKn1XUh07/lz9VERm6B4NK90Za/zRGw9Wf8AGVaAYSDsb/8AvosNX0Toqoxt8rss9ituBZU/aijL4xI3zxZ928wlYrDLlRcTnc8aHgXbjCEil7yB0R88XiaerRuF0SavETuhu80SBw5b+oO4UyunOcNHTuE1JHIN4/A74Q4ypux726pqc7P8bPYqOaIse5h3abJspeU0biYi3+E6h7hRTua83xcjl1UkDrfKFdGGXxsd+dihUQtNjZEF6jnb4geqY4LOxcPL1wuTExIJCVwOUd05A2dqXUyySeht6RG/A9kDPxIuf3UA1P8AxH8LPcqurqx8looNzYF3T1VnRUzKaINZlxy483O5krr28n105UQxsYRKdb3bk/YBAU9E9xtG0NvuTyCs6ekudb8n15KxisNkle+mU4g+TvxTRtsDu/n6uCfLwls57kyHU38VgtJWsGku5gb8/qqjs/TkvL0tNJnxtSPo307jHI7VbY9Qh2tI3BFzfIK2PG6HvHNcN2EX9W80TUPY5zWloIOMgJWLnljDl6Hml6LXV/AI923F+Q2QTeGiPZgcepUXhrj5MaoIInOOxP1K0dIxoAuLeh3SZKdvLb0TvVZ+9/FduzzMaQW78/VRisAGxsNv7JOzyTHNU/LRMJUgr2/wu+ib+3RnDr5xt1URBTQwI+WnPFIyktE5r36QSy92n0KFqIHbhpWxqKYFpsM2VQAlM23cVPDKp0M8TyDg6T/SVse0NHdzZW7PGfdUrYtWLX91094MHVYcs2V+7O+Png7TZNrmYDuo+yYXOOOa7JK7Tp+4R7xXrTRYhRPTSw9ULPTSlr3g3ay17HI1bH2T3sruJ01B0sjm+bIRPeJUR1d1BROKUNtTdV9N826JQ0nfBJHd3S9X/kkq0TX8PgEbRbc7nqURFHc6nKNr9lIJLrp08nacP6KaMIeNTtdZApV7dTC0c0ynAjbYJ75EMQSUHL9C6TxXuh52WeEbTYFlHOMoOUpnCyDc26c51ypWtwlZtcqvqo/CbbnAVnT0Ia0Aj3uh6VmuZreTPEf0V25qWhlnYrXUjT+ELPdonmCRlm3bID8OG61zmLO9t4L07X82SD6EWUZ4Sxfhzty0pv23+VcFaeUa7TNDm3+ye6Hpdc2nchNeRuw/CFqHsJu3F9wUc6M81FLTgjIRo5QY9PyRID3hoDtj4utuSqalxa6wOyQrXI0pZAgHxbtOHBSVUrQW6LEOy7HrlVsdYOaJgZr229UaGzZGtLjp25eyjpnAOLT5JQWO9jsfrZXHBOFGaTu4xreRs3ZreZceQ2UnaTsrUUze8cxpjJtqidqDTe1nYBGcdLqsZe0ZZ479beWNDdJcw7tJGfRTUE4a8FzQ4WIsdshT8ViJLJLZfg/1DH5qubUhpcNJOjffBvax+VprYuUg+mpHvJDGk/p8q8oezPOZ3/i39SoaLj47prhpbjIFt0JN2pPI3+iqRhlnlWj/APgaf+E/UpLKf/Zn/wDbJKuEbybBsiIjeFWCZSMnWjjWrZFIJFWsmRDXoMUXLusN8xA91CxyrOO0skmnRcgbgJnJtpKd98g/RMnKy4nlporXsXbeiIpeNkNvMDflYb3Qfp+LxrU1zvyUVDVtlbqbfG6h4lIWsP0CRztLwOa8zj1H6rQ3WL4dKWPB+q00FXc2P1U4l5ZzsYVSdr3D9lf7t+6unOWY7fT6aX+p7Qnn0PFf9RR8DmFi31H0VvNFY42WQ4TVWfnYrXwzXAXNp3Z3kPrzZwUFXIA24U8/VU1XOdWnkl61WN2glZrueaEdAeaJD9D87FFVsV23CNK9lcwgNAtc+qUdU8YBwVGkjS9xuP8ATisY188Tpe6fO2Pu5DpwWOcXMudtQd+XVX1fF+xUc7amYOdN3oZFe9y95Ikzn+Y+/VeYwyjYqv4nWfgZ8kLTHKya05fJ4Mcs/fbS0PGaYhjHs2e27ixth/uXfIJAdYPdktAAwQCgKTjdIdUboQwTSBsl426e5/aC4vdKDrLxFYAaba26tyVQwOwg5h4iniMsZ+tJFxyktpNIzTfYRxatJkmJs4m9+7dCL9WE4WaCcGrgTE04kupJGtympJLdwHMRCSSAkYpmpJIECcU2HwoK3yt9h9kkkNoK4P5Xe4+yfXbfK6klekfaAbhGM5fCSSUHlHuVH2o/dD+pdSRl0nxf1Gcp/MFo6fZdSWTtzKo2VXPuPdJJI8Cn2Un4UkkHewzF0pJIVOjVXy7rqSIjIo1HJukkrZZEUxJJCK6kkkml/9k="
+    },
+    "лилия динисламова": {
+      "name": "Лилия Динисламова",
+      "description": "башкирская исполнительница и участница концертов, выступающая на мероприятиях Республики Башкортостан",
+      "photo_url": "https://avatars.mds.yandex.net/get-vthumb/2111150/95d9827dd1e257fe09e316651908ac2c/564x318_1"
     }
   }
 }

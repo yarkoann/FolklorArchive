@@ -195,7 +195,7 @@ class FolklorMetadataManager:
         print(f"📊 Фасеты: {facets}")
         return facets
 
-    def facet_search(self, filters=None, page=1, per_page=10, sort="title"):
+    def facet_search(self, filters=None, page=1, per_page=9, sort="title"):
         """Фасетный поиск с фильтрацией и пагинацией"""
         if filters is None:
             filters = {}

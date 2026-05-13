@@ -25,21 +25,48 @@
     </div>
 
     <div id="edit-form">
-        <div class="loading"><div class="loading-spinner"></div><p>Загрузка данных...</p></div>
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Загрузка данных...</p></div>
     </div>
 </div>
 
 <div class="toast-area" id="toast-area"></div>
 
+<!-- Modal add link -->
+<div class="modal-backdrop" id="link-modal" style="display:none" onclick="if(event.target===this)closeLinkModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Добавить медиа по ссылке</div>
+            <button class="modal-close" onclick="closeLinkModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label>URL ссылки *</label>
+                <input type="url" id="link-url" placeholder="https://www.youtube.com/watch?v=..." style="width:100%">
+            </div>
+            <div class="modal-field">
+                <label>Название (опционально)</label>
+                <input type="text" id="link-label" placeholder="Например: Интервью с носителем">
+            </div>
+            <div class="modal-field">
+                <label>Тип контента</label>
+                <select id="link-type">
+                    <option value="video">🎬 Видео</option>
+                    <option value="audio">🎵 Аудио</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeLinkModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="addMediaLink()">➕ Добавить ссылку</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const recordingId = window.location.pathname.split('/').pop();
-    let vocabularyData = {
-        genres: [],
-        locations: [],
-        collections: [],
-        ethnos: [],
-        instruments: []
-    };
+    let vocabularyData = {genres: [], locations: [], collections: [], ethnos: [], instruments: []};
     let recordingData = null;
     let performerCounter = 0;
 
@@ -56,6 +83,11 @@
         }, 2800);
     }
 
+    function esc(t) {
+        if (!t) return '';
+        return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
     async function loadAllData() {
         try {
             const [genres, locations, collections, ethnos, instruments] = await Promise.all([
@@ -65,7 +97,6 @@
                 fetch('/api/vocabulary/ethnos').then(r => r.json()),
                 fetch('/api/vocabulary/instruments').then(r => r.json()).catch(() => [])
             ]);
-
             vocabularyData = {
                 genres: genres || [],
                 locations: locations || [],
@@ -76,94 +107,330 @@
 
             const response = await fetch(`/api/recording/${recordingId}`);
             recordingData = await response.json();
-
             if (recordingData.error) {
                 toast('Ошибка загрузки записи', 'err');
                 window.location.href = '/';
                 return;
             }
-
             displayEditForm();
-
         } catch (error) {
             console.error('Ошибка загрузки:', error);
             toast('Ошибка при загрузке данных', 'err');
         }
     }
 
-    function escapeHtml(text) {
-        if (!text) return '';
-        return String(text)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
     function updateSelect(selectId, items, selectedValue) {
         const select = document.getElementById(selectId);
         if (!select) return;
-
-        const currentValue = select.value;
         while (select.options.length > 1) select.remove(1);
         items.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
+            const o = document.createElement('option');
+            o.value = item.name;
+            o.textContent = item.name;
+            select.appendChild(o);
         });
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
+        const no = document.createElement('option');
+        no.value = 'new';
+        no.textContent = '➕ Создать новый...';
+        select.appendChild(no);
         if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
     }
 
     function updateEthnosSelect(select, selectedValue) {
-        const currentValue = select.value;
         while (select.options.length > 1) select.remove(1);
         vocabularyData.ethnos.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
+            const o = document.createElement('option');
+            o.value = item.name;
+            o.textContent = item.name;
+            select.appendChild(o);
         });
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
+        const no = document.createElement('option');
+        no.value = 'new';
+        no.textContent = '➕ Создать новый...';
+        select.appendChild(no);
         if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
     }
 
     function updateInstrumentSelect(select, selectedValue) {
-        const currentValue = select.value;
         while (select.options.length > 1) select.remove(1);
         vocabularyData.instruments.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            select.appendChild(option);
+            const o = document.createElement('option');
+            o.value = item.name;
+            o.textContent = item.name;
+            select.appendChild(o);
         });
-        const newOption = document.createElement('option');
-        newOption.value = 'new';
-        newOption.textContent = '➕ Создать новый...';
-        select.appendChild(newOption);
+        const no = document.createElement('option');
+        no.value = 'new';
+        no.textContent = '➕ Создать новый...';
+        select.appendChild(no);
         if (selectedValue && selectedValue !== 'new') select.value = selectedValue;
     }
 
     function refreshAllInstrumentSelects() {
         document.querySelectorAll('.instrument-select').forEach(select => {
-            const currentVal = select.value;
-            updateInstrumentSelect(select, currentVal);
+            const v = select.value;
+            updateInstrumentSelect(select, v);
         });
     }
 
+    /* ── MEDIA HELPERS ─────────────────────────────────────────── */
+    function getEmbedUrl(url) {
+        if (!url) return null;
+
+        // YouTube
+        let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (match) return `https://www.youtube.com/embed/${match[1]}`;
+
+        // YouTube Shorts
+        match = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+        if (match) return `https://www.youtube.com/embed/${match[1]}`;
+
+        // YouTube embed уже готовый
+        if (url.includes('youtube.com/embed/')) return url;
+
+        // Vimeo
+        match = url.match(/vimeo\.com\/(\d+)/);
+        if (match) return `https://player.vimeo.com/video/${match[1]}`;
+
+        // Rutube - несколько форматов
+        match = url.match(/rutube\.ru\/video\/([a-f0-9]+)/i);
+        if (match) return `https://rutube.ru/play/embed/${match[1]}`;
+
+        match = url.match(/rutube\.ru\/play\/embed\/([a-f0-9]+)/i);
+        if (match) return url;
+
+        match = url.match(/rutube\.ru\/video\/embed\/([a-f0-9]+)/i);
+        if (match) return `https://rutube.ru/play/embed/${match[1]}`;
+
+        // VK Video - несколько вариантов
+        // Формат: https://vk.com/video-123456_789012
+        match = url.match(/vk\.com\/video(-?\d+)_(\d+)/);
+        if (match) {
+            const oid = match[1];
+            const id = match[2];
+            return `https://vk.com/video_ext.php?oid=${oid}&id=${id}&hd=2&autoplay=0`;
+        }
+
+        // Формат: https://vk.com/video_ext.php?oid=-123456&id=789012
+        match = url.match(/vk\.com\/video_ext\.php\?oid=(-?\d+)&id=(\d+)/);
+        if (match) return url;
+
+        // Формат: https://vkvideo.ru/video-123456_789012
+        match = url.match(/vkvideo\.ru\/video(-?\d+)_(\d+)/);
+        if (match) {
+            const oid = match[1];
+            const id = match[2];
+            return `https://vk.com/video_ext.php?oid=${oid}&id=${id}&hd=2&autoplay=0`;
+        }
+
+        // OK.ru (Одноклассники)
+        match = url.match(/ok\.ru\/video\/(\d+)/);
+        if (match) return `https://ok.ru/videoembed/${match[1]}`;
+
+        match = url.match(/ok\.ru\/videoembed\/(\d+)/);
+        if (match) return url;
+
+        // Dzen.ru (Яндекс.Дзен)
+        match = url.match(/dzen\.ru\/video\/watch\/([a-zA-Z0-9_-]+)/);
+        if (match) return `https://dzen.ru/embed/${match[1]}`;
+
+        match = url.match(/dzen\.ru\/embed\/([a-zA-Z0-9_-]+)/);
+        if (match) return url;
+
+
+        return null;
+    }
+
+    function formatSize(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024) return bytes + ' Б';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' КБ';
+        return (bytes / 1048576).toFixed(1) + ' МБ';
+    }
+
+    function mediaItemHtml(m) {
+        const isAudio = m.file_type === 'audio';
+        const isLink = m.type === 'link';
+        const iconCls = isLink ? 'link' : (isAudio ? 'audio' : 'video');
+        const icon = isLink ? '🔗' : (isAudio ? '🎵' : '🎬');
+        const label = esc(m.original_name || m.label || (isLink ? m.url : 'Медиа') || 'Медиа');
+
+        let playerHtml = '';
+        if (!isLink) {
+            playerHtml = `<div style="margin:8px 0">
+              ${isAudio
+                ? `<audio controls preload="none" src="/api/media/${esc(m.stored_name)}"></audio>`
+                : `<video controls preload="none" src="/api/media/${esc(m.stored_name)}"></video>`}
+            </div>`;
+        } else if (m.url) {
+            const embed = getEmbedUrl(m.url);
+            playerHtml = embed
+                ? `<div style="margin:8px 0"><iframe src="${embed}" frameborder="0" allowfullscreen style="width:100%;border-radius:6px;min-height:200px"></iframe></div>`
+                : `<div class="media-url">🔗 <a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.label || m.url)}</a></div>`;
+        }
+
+        return `<div class="media-item" id="mi-${m.id}">
+          <div class="media-item-header">
+            <div class="media-icon ${iconCls}">${icon}</div>
+            <div class="media-name" title="${label}">${label}</div>
+            ${!isLink && m.size ? `<div class="media-size">${formatSize(m.size)}</div>` : ''}
+          </div>
+          ${playerHtml}
+          <div class="media-actions">
+            ${!isLink
+            ? `<a href="/api/media/${esc(m.stored_name)}/download" class="btn btn-ghost btn-sm">⬇ Скачать</a>`
+            : `<a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">↗ Открыть</a>`}
+            <button class="btn btn-danger btn-sm" onclick="deleteMedia('${m.id}','${label.replace(/'/g, "\\'")}')">🗑 Удалить</button>
+          </div>
+        </div>`;
+    }
+
+    function renderMediaList() {
+        const list = document.getElementById('media-list');
+        if (!list) return;
+        const files = recordingData.media_files || [];
+        list.innerHTML = files.length
+            ? files.map(m => mediaItemHtml(m)).join('')
+            : '<div style="color:var(--muted);font-size:13px;padding:8px 0">Медиафайлы не прикреплены</div>';
+    }
+
+    /* ── UPLOAD ────────────────────────────────────────────────── */
+    function onDragOver(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.add('drag-over');
+    }
+
+    function onDragLeave(e) {
+        document.getElementById('upload-zone').classList.remove('drag-over');
+    }
+
+    function onDrop(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) uploadFile(file);
+    }
+
+    function onFileChosen(e) {
+        const file = e.target.files[0];
+        if (file) uploadFile(file);
+        e.target.value = '';
+    }
+
+    async function uploadFile(file) {
+        const allowed = /\.(mp3|wav|ogg|flac|m4a|aac|wma|mp4|avi|mov|mkv|webm|wmv|flv)$/i;
+        if (!allowed.test(file.name)) {
+            toast('Недопустимый формат файла', 'err');
+            return;
+        }
+        if (file.size > 500 * 1024 * 1024) {
+            toast('Файл слишком большой (макс. 500 МБ)', 'err');
+            return;
+        }
+
+        const prog = document.getElementById('upload-progress');
+        const fill = document.getElementById('progress-fill');
+        const txt = document.getElementById('progress-text');
+        prog.style.display = 'block';
+        txt.textContent = `Загрузка «${file.name}»…`;
+        fill.style.width = '0%';
+
+        let fake = 0;
+        const ticker = setInterval(() => {
+            fake = Math.min(fake + Math.random() * 15, 85);
+            fill.style.width = fake + '%';
+        }, 200);
+
+        const fd = new FormData();
+        fd.append('file', file);
+        try {
+            const r = await fetch(`/api/recording/${recordingId}/upload_media`, {method: 'POST', body: fd});
+            clearInterval(ticker);
+            const j = await r.json();
+            if (j.status === 'success') {
+                fill.style.width = '100%';
+                txt.textContent = '✓ Загружено';
+                setTimeout(() => {
+                    prog.style.display = 'none';
+                    fill.style.width = '0%';
+                }, 1200);
+                recordingData.media_files = recordingData.media_files || [];
+                recordingData.media_files.push(j.media);
+                renderMediaList();
+                toast('Файл загружен');
+            } else {
+                prog.style.display = 'none';
+                toast(j.message || 'Ошибка загрузки', 'err');
+            }
+        } catch (e) {
+            clearInterval(ticker);
+            prog.style.display = 'none';
+            toast('Ошибка при загрузке', 'err');
+        }
+    }
+
+    /* ── LINK ──────────────────────────────────────────────────── */
+    function openLinkModal() {
+        document.getElementById('link-url').value = '';
+        document.getElementById('link-label').value = '';
+        document.getElementById('link-type').value = 'video';
+        document.getElementById('link-modal').style.display = 'flex';
+    }
+
+    function closeLinkModal() {
+        document.getElementById('link-modal').style.display = 'none';
+    }
+
+    async function addMediaLink() {
+        const url = document.getElementById('link-url').value.trim();
+        const label = document.getElementById('link-label').value.trim();
+        const ft = document.getElementById('link-type').value;
+        if (!url) {
+            toast('Введите URL', 'err');
+            return;
+        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            toast('URL должен начинаться с http(s)://', 'err');
+            return;
+        }
+        try {
+            const r = await fetch(`/api/recording/${recordingId}/add_media_link`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url, label, file_type: ft})
+            });
+            const j = await r.json();
+            if (j.status === 'success') {
+                recordingData.media_files = recordingData.media_files || [];
+                recordingData.media_files.push(j.media);
+                renderMediaList();
+                closeLinkModal();
+                toast('Ссылка добавлена');
+            } else toast(j.message || 'Ошибка', 'err');
+        } catch (e) {
+            toast('Ошибка сервера', 'err');
+        }
+    }
+
+    /* ── DELETE MEDIA ──────────────────────────────────────────── */
+    async function deleteMedia(mediaId, name) {
+        if (!confirm(`Удалить файл «${name}»?`)) return;
+        try {
+            const r = await fetch(`/api/recording/${recordingId}/delete_media/${mediaId}`, {method: 'DELETE'});
+            const j = await r.json();
+            if (j.status === 'success') {
+                recordingData.media_files = (recordingData.media_files || []).filter(m => m.id !== mediaId);
+                renderMediaList();
+                toast('Файл удалён');
+            } else toast(j.message || 'Ошибка', 'err');
+        } catch (e) {
+            toast('Ошибка', 'err');
+        }
+    }
+
+    /* ── FORM DISPLAY ──────────────────────────────────────────── */
     function displayEditForm() {
         let performers = [];
-        let durationHours = 0;
-        let durationMinutes = 0;
-        let durationSeconds = 0;
+        let dH = 0, dM = 0, dS = 0;
 
         if (recordingData.performers && recordingData.performers.length > 0) {
             performers = recordingData.performers;
@@ -175,29 +442,21 @@
                 instruments: []
             }];
         }
+        if (performers.length === 0) performers = [{name: '', ethnos: '', performance_form: '', instruments: []}];
 
-        if (performers.length === 0) {
-            performers = [{
-                name: '',
-                ethnos: '',
-                performance_form: '',
-                instruments: []
-            }];
-        }
-
-        const localTermsStr = recordingData.local_terms ?
-            (Array.isArray(recordingData.local_terms) ? recordingData.local_terms.join(', ') : recordingData.local_terms) : '';
+        const localTermsStr = recordingData.local_terms
+            ? (Array.isArray(recordingData.local_terms) ? recordingData.local_terms.join(', ') : recordingData.local_terms) : '';
 
         const durationStr = recordingData.duration || '';
         if (durationStr) {
-            const parts = durationStr.split(':');
-            if (parts.length === 2) {
-                durationMinutes = parseInt(parts[0]) || 0;
-                durationSeconds = parseInt(parts[1]) || 0;
-            } else if (parts.length === 3) {
-                durationHours = parseInt(parts[0]) || 0;
-                durationMinutes = parseInt(parts[1]) || 0;
-                durationSeconds = parseInt(parts[2]) || 0;
+            const p = durationStr.split(':');
+            if (p.length === 2) {
+                dM = parseInt(p[0]) || 0;
+                dS = parseInt(p[1]) || 0;
+            } else if (p.length === 3) {
+                dH = parseInt(p[0]) || 0;
+                dM = parseInt(p[1]) || 0;
+                dS = parseInt(p[2]) || 0;
             }
         }
 
@@ -207,26 +466,26 @@
                     <h3>Основная информация</h3>
                     <div class="form-group">
                         <label for="title">Название записи *</label>
-                        <input type="text" id="title" name="title" value="${escapeHtml(recordingData.title || '')}" required>
+                        <input type="text" id="title" name="title" value="${esc(recordingData.title || '')}" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="inventory_number">Инвентарный номер</label>
-                            <input type="text" id="inventory_number" name="inventory_number" value="${escapeHtml(recordingData.inventory_number || '')}">
+                            <input type="text" id="inventory_number" name="inventory_number" value="${esc(recordingData.inventory_number || '')}">
                         </div>
                         <div class="form-group">
                             <label for="recording_date">Дата записи</label>
-                            <input type="date" id="recording_date" name="recording_date" value="${escapeHtml(recordingData.date || '')}">
+                            <input type="date" id="recording_date" name="recording_date" value="${esc(recordingData.date || '')}">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Длительность</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="number" id="duration_hours" placeholder="Часы" min="0" max="99" value="${durationHours}" style="width: 80px; padding: 10px;">
+                        <div style="display:flex;gap:10px;align-items:center">
+                            <input type="number" id="duration_hours"   min="0" max="99"  value="${dH}" style="width:80px;padding:10px">
                             <span>:</span>
-                            <input type="number" id="duration_minutes" placeholder="Минуты" min="0" max="59" value="${durationMinutes}" style="width: 80px; padding: 10px;">
+                            <input type="number" id="duration_minutes" min="0" max="59"  value="${dM}" style="width:80px;padding:10px">
                             <span>:</span>
-                            <input type="number" id="duration_seconds" placeholder="Секунды" min="0" max="59" value="${durationSeconds}" style="width: 80px; padding: 10px;">
+                            <input type="number" id="duration_seconds" min="0" max="59"  value="${dS}" style="width:80px;padding:10px">
                         </div>
                         <input type="hidden" id="duration" name="duration">
                         <small class="form-hint">Введите часы, минуты и секунды</small>
@@ -235,10 +494,8 @@
 
                 <div class="form-section">
                     <h3>Информация об исполнителях</h3>
-                    <div id="performers-container">
-                        ${renderPerformers(performers)}
-                    </div>
-                    <button type="button" onclick="addPerformer()" class="btn-add">+ Добавить еще исполнителя</button>
+                    <div id="performers-container">${renderPerformers(performers)}</div>
+                    <button type="button" onclick="addPerformer()" class="btn-add">+ Добавить ещё исполнителя</button>
                 </div>
 
                 <div class="form-section">
@@ -248,20 +505,20 @@
                             <label for="genre">Жанр</label>
                             <select id="genre" name="genre">
                                 <option value="">Выберите жанр</option>
-                                ${vocabularyData.genres.map(g => `<option value="${g.name}" ${recordingData.genre === g.name ? 'selected' : ''}>${escapeHtml(g.name)}</option>`).join('')}
+                                ${vocabularyData.genres.map(g => `<option value="${esc(g.name)}" ${recordingData.genre === g.name ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
-                            <div id="new-genre-container" style="display: none;" class="new-item-input">
-                                <input type="text" id="new-genre" placeholder="Введите название нового жанра">
-                                <button type="button" onclick="addNewItem('genres', 'new-genre', 'genre')" class="btn-add-new">Добавить жанр</button>
+                            <div id="new-genre-container" style="display:none" class="new-item-input">
+                                <input type="text" id="new-genre" placeholder="Название нового жанра">
+                                <button type="button" onclick="addNewItem('genres','new-genre','genre')" class="btn-add-new">Добавить</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="ethical_status">Этический статус *</label>
                             <select id="ethical_status" name="ethical_status" required>
                                 <option value="">Выберите уровень доступа</option>
-                                <option value="публичный_доступ" ${recordingData.status === 'публичный_доступ' ? 'selected' : ''}>Публичный доступ</option>
-                                <option value="ограниченный_доступ" ${recordingData.status === 'ограниченный_доступ' ? 'selected' : ''}>Ограниченный доступ</option>
+                                <option value="публичный_доступ"      ${recordingData.status === 'публичный_доступ' ? 'selected' : ''}>Публичный доступ</option>
+                                <option value="ограниченный_доступ"   ${recordingData.status === 'ограниченный_доступ' ? 'selected' : ''}>Ограниченный доступ</option>
                                 <option value="требует_согласия_общины" ${recordingData.status === 'требует_согласия_общины' ? 'selected' : ''}>Требует согласия общины</option>
                             </select>
                         </div>
@@ -271,24 +528,24 @@
                             <label for="location">Локация</label>
                             <select id="location" name="location">
                                 <option value="">Выберите локацию</option>
-                                ${vocabularyData.locations.map(l => `<option value="${l.name}" ${recordingData.location === l.name ? 'selected' : ''}>${escapeHtml(l.name)}</option>`).join('')}
+                                ${vocabularyData.locations.map(l => `<option value="${esc(l.name)}" ${recordingData.location === l.name ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
-                            <div id="new-location-container" style="display: none;" class="new-item-input">
-                                <input type="text" id="new-location" placeholder="Введите название новой локации">
-                                <button type="button" onclick="addNewItem('locations', 'new-location', 'location')" class="btn-add-new">Добавить локацию</button>
+                            <div id="new-location-container" style="display:none" class="new-item-input">
+                                <input type="text" id="new-location" placeholder="Название новой локации">
+                                <button type="button" onclick="addNewItem('locations','new-location','location')" class="btn-add-new">Добавить</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="collection">Коллекция</label>
                             <select id="collection" name="collection">
                                 <option value="">Выберите коллекцию</option>
-                                ${vocabularyData.collections.map(c => `<option value="${c.name}" ${recordingData.collection === c.name ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
+                                ${vocabularyData.collections.map(c => `<option value="${esc(c.name)}" ${recordingData.collection === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
                                 <option value="new">➕ Создать новый...</option>
                             </select>
-                            <div id="new-collection-container" style="display: none;" class="new-item-input">
-                                <input type="text" id="new-collection" placeholder="Введите название новой коллекции">
-                                <button type="button" onclick="addNewItem('collections', 'new-collection', 'collection')" class="btn-add-new">Добавить коллекцию</button>
+                            <div id="new-collection-container" style="display:none" class="new-item-input">
+                                <input type="text" id="new-collection" placeholder="Название новой коллекции">
+                                <button type="button" onclick="addNewItem('collections','new-collection','collection')" class="btn-add-new">Добавить</button>
                             </div>
                         </div>
                     </div>
@@ -298,7 +555,7 @@
                     <h3>Местные термины</h3>
                     <div class="form-group">
                         <label for="local_terms">Местные термины</label>
-                        <input type="text" id="local_terms" name="local_terms" value="${escapeHtml(localTermsStr)}" placeholder="Например: пилгэйнгэн, мәнә бәлы, ситабы">
+                        <input type="text" id="local_terms" name="local_terms" value="${esc(localTermsStr)}" placeholder="Например: пилгэйнгэн, мәнә бәлы">
                         <small class="form-hint">Введите термины через запятую</small>
                     </div>
                 </div>
@@ -306,8 +563,33 @@
                 <div class="form-section">
                     <h3>Описание</h3>
                     <div class="form-group">
-                        <textarea id="description" name="description" rows="4">${escapeHtml(recordingData.description || '')}</textarea>
+                        <textarea id="description" name="description" rows="4">${esc(recordingData.description || '')}</textarea>
                     </div>
+                </div>
+
+                <!-- ── МЕДИАФАЙЛЫ ─────────────────────────────── -->
+                <div class="form-section">
+                    <h3>Медиафайлы</h3>
+
+                    <!-- Upload zone -->
+                    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+                         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                        <input type="file" id="file-input" accept="audio/*,video/*" onchange="onFileChosen(event)" style="display:none">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <p>Перетащите аудио или видео, или нажмите для выбора</p>
+                        <small>MP3, WAV, OGG, FLAC, M4A, MP4, AVI, MOV, MKV, WebM · до 500 МБ</small>
+                    </div>
+
+                    <div class="upload-progress" id="upload-progress" style="display:none">
+                        <div class="progress-text" id="progress-text">Загрузка…</div>
+                        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+                    </div>
+
+                    <div style="margin-bottom:12px">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="openLinkModal()">🔗 Добавить по ссылке</button>
+                    </div>
+
+                    <div class="media-list" id="media-list"></div>
                 </div>
 
                 <div class="form-actions">
@@ -319,308 +601,228 @@
 
         document.getElementById('edit-form').innerHTML = html;
 
+        // Duration sync
         function updateDuration() {
-            const hours = document.getElementById('duration_hours').value || 0;
-            const minutes = document.getElementById('duration_minutes').value || 0;
-            const seconds = document.getElementById('duration_seconds').value || 0;
-
-            let durationStr = '';
-            if (parseInt(hours) > 0) {
-                durationStr = `${String(parseInt(hours)).padStart(2, '0')}:${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
-            } else {
-                durationStr = `${String(parseInt(minutes)).padStart(2, '0')}:${String(parseInt(seconds)).padStart(2, '0')}`;
-            }
-            const durationField = document.getElementById('duration');
-            if (durationField) durationField.value = durationStr;
+            const h = parseInt(document.getElementById('duration_hours').value) || 0;
+            const m = parseInt(document.getElementById('duration_minutes').value) || 0;
+            const s = parseInt(document.getElementById('duration_seconds').value) || 0;
+            document.getElementById('duration').value = h > 0
+                ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        const hoursField = document.getElementById('duration_hours');
-        const minutesField = document.getElementById('duration_minutes');
-        const secondsField = document.getElementById('duration_seconds');
-        if (hoursField) hoursField.addEventListener('input', updateDuration);
-        if (minutesField) minutesField.addEventListener('input', updateDuration);
-        if (secondsField) secondsField.addEventListener('input', updateDuration);
+        ['duration_hours', 'duration_minutes', 'duration_seconds'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateDuration);
+        });
         updateDuration();
 
-        setupEventListeners();
+        setupSelectListeners();
+        renderMediaList();
     }
 
+    /* ── PERFORMER RENDERING ───────────────────────────────────── */
     function renderPerformers(performers) {
-        let html = '';
-        performers.forEach((performer, index) => {
-            const performanceForm = performer.performance_form || '';
-            const showInstruments = (performanceForm === 'instrumental' || performanceForm === 'vocal_instrumental');
-
-            html += `
-                <div class="performer-entry" data-performer-index="${index}" style="margin-bottom: 20px;">
-                    <h4>Исполнитель ${index + 1}</h4>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 2;">
-                            <label>Имя исполнителя</label>
-                            <input type="text" name="performer_name[]" value="${escapeHtml(performer.name || '')}" placeholder="Например: Т.Д. Костеркин" required>
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label>Этнос</label>
-                            <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${index})">
-                                <option value="">Выберите этнос</option>
-                                ${vocabularyData.ethnos.map(e => `<option value="${e.name}" ${performer.ethnos === e.name ? 'selected' : ''}>${escapeHtml(e.name)}</option>`).join('')}
-                                <option value="new">➕ Создать новый...</option>
-                            </select>
-                            <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
-                                <div class="new-item-input">
-                                    <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
-                                    <button type="button" onclick="addNewEthnos(this, ${index})" class="btn-add-new">Добавить</button>
-                                </div>
+        return performers.map((p, i) => {
+            const form = p.performance_form || '';
+            const showInst = form === 'instrumental' || form === 'vocal_instrumental';
+            return `
+            <div class="performer-entry" data-performer-index="${i}" style="margin-bottom:20px">
+                <h4>Исполнитель ${i + 1}</h4>
+                <div class="form-row">
+                    <div class="form-group" style="flex:2">
+                        <label>Имя исполнителя</label>
+                        <input type="text" name="performer_name[]" value="${esc(p.name || '')}" placeholder="Т.Д. Костеркин" required>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Этнос</label>
+                        <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this,${i})">
+                            <option value="">Выберите этнос</option>
+                            ${vocabularyData.ethnos.map(e => `<option value="${esc(e.name)}" ${p.ethnos === e.name ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}
+                            <option value="new">➕ Создать новый...</option>
+                        </select>
+                        <div class="new-ethnos-container" style="display:none;margin-top:5px">
+                            <div class="new-item-input">
+                                <input type="text" class="new-ethnos-input" placeholder="Новый этнос">
+                                <button type="button" onclick="addNewEthnos(this,${i})" class="btn-add-new">Добавить</button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label>Форма исполнения</label>
-                            <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this, ${index})">
-                                <option value="">Выберите форму исполнения</option>
-                                <option value="vocal" ${performanceForm === 'vocal' ? 'selected' : ''}>Вокальная</option>
-                                <option value="instrumental" ${performanceForm === 'instrumental' ? 'selected' : ''}>Инструментальная</option>
-                                <option value="vocal_instrumental" ${performanceForm === 'vocal_instrumental' ? 'selected' : ''}>Вокально-инструментальная</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="instruments-section-${index}" style="display: ${showInstruments ? 'block' : 'none'};">
-                        <div class="form-group">
-                            <label>Музыкальные инструменты</label>
-                            <div id="instruments-container-${index}" class="instruments-container">
-                                ${renderInstruments(performer.instruments || [], index)}
-                            </div>
-                            <button type="button" onclick="addInstrument(${index})" class="btn-add" style="margin-top: 10px;">+ Добавить инструмент</button>
-                        </div>
-                    </div>
-
-                    <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top: 10px;">✖</button>
-                </div>
-            `;
-        });
-        return html;
-    }
-
-    function renderInstruments(instruments, performerIndex) {
-        if (!instruments || instruments.length === 0) {
-            return '<div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>';
-        }
-
-        let html = '';
-        instruments.forEach((instrument, idx) => {
-            html += `
-                <div class="instrument-entry">
-                    <div style="display: flex; gap: 10px; align-items: flex-end;">
-                        <div style="flex: 1;">
-                            <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
-                                <option value="">Выберите инструмент</option>
-                                ${vocabularyData.instruments.map(i => `<option value="${i.name}" ${instrument.name === i.name ? 'selected' : ''}>${escapeHtml(i.name)}</option>`).join('')}
-                                <option value="new">➕ Создать новый...</option>
-                            </select>
-                            <div class="new-instrument-container" style="display: none; margin-top: 5px;">
-                                <div class="new-item-input" style="display: flex; gap: 5px;">
-                                    <input type="text" class="new-instrument-input" placeholder="Введите название нового инструмента" style="flex: 1;">
-                                    <button type="button" onclick="addNewInstrument(this, ${performerIndex})" class="btn-add-new">Добавить</button>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" onclick="removeInstrument(this, ${performerIndex})" class="btn-remove" style="width: 36px; height: 36px;">✖</button>
                     </div>
                 </div>
-            `;
+                <div class="form-row">
+                    <div class="form-group" style="flex:1">
+                        <label>Форма исполнения</label>
+                        <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this,${i})">
+                            <option value="">Выберите форму</option>
+                            <option value="vocal"              ${form === 'vocal' ? 'selected' : ''}>Вокальная</option>
+                            <option value="instrumental"       ${form === 'instrumental' ? 'selected' : ''}>Инструментальная</option>
+                            <option value="vocal_instrumental" ${form === 'vocal_instrumental' ? 'selected' : ''}>Вокально-инструментальная</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="instruments-section-${i}" style="display:${showInst ? 'block' : 'none'}">
+                    <div class="form-group">
+                        <label>Музыкальные инструменты</label>
+                        <div id="instruments-container-${i}" class="instruments-container">
+                            ${renderInstruments(p.instruments || [], i)}
+                        </div>
+                        <button type="button" onclick="addInstrument(${i})" class="btn-add" style="margin-top:10px">+ Добавить инструмент</button>
+                    </div>
+                </div>
+                <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top:10px">✖</button>
+            </div>`;
+        }).join('');
+    }
+
+    function renderInstruments(instruments, pi) {
+        if (!instruments.length)
+            return '<div class="empty-instruments-msg form-hint" style="padding:10px;text-align:center">🎵 Инструменты не добавлены</div>';
+        return instruments.map(inst => `
+            <div class="instrument-entry">
+                <div style="display:flex;gap:10px;align-items:flex-end">
+                    <div style="flex:1">
+                        <select name="performer_instrument_name_${pi}[]" class="instrument-select" onchange="handleInstrumentChange(this,${pi})">
+                            <option value="">Выберите инструмент</option>
+                            ${vocabularyData.instruments.map(i => `<option value="${esc(i.name)}" ${inst.name === i.name ? 'selected' : ''}>${esc(i.name)}</option>`).join('')}
+                            <option value="new">➕ Создать новый...</option>
+                        </select>
+                        <div class="new-instrument-container" style="display:none;margin-top:5px">
+                            <div class="new-item-input">
+                                <input type="text" class="new-instrument-input" placeholder="Новый инструмент" style="flex:1">
+                                <button type="button" onclick="addNewInstrument(this,${pi})" class="btn-add-new">Добавить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeInstrument(this,${pi})" class="btn-remove" style="width:36px;height:36px">✖</button>
+                </div>
+            </div>`).join('');
+    }
+
+    function setupSelectListeners() {
+        [['genre', 'new-genre-container'], ['location', 'new-location-container'], ['collection', 'new-collection-container']].forEach(([id, cid]) => {
+            const s = document.getElementById(id);
+            const c = document.getElementById(cid);
+            if (s && c) s.addEventListener('change', e => {
+                c.style.display = e.target.value === 'new' ? 'flex' : 'none';
+            });
         });
-        return html;
     }
 
-    function setupEventListeners() {
-        const genreSelect = document.getElementById('genre');
-        if (genreSelect) {
-            genreSelect.addEventListener('change', function(e) {
-                const container = document.getElementById('new-genre-container');
-                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
-            });
-        }
-        const locationSelect = document.getElementById('location');
-        if (locationSelect) {
-            locationSelect.addEventListener('change', function(e) {
-                const container = document.getElementById('new-location-container');
-                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
-            });
-        }
-        const collectionSelect = document.getElementById('collection');
-        if (collectionSelect) {
-            collectionSelect.addEventListener('change', function(e) {
-                const container = document.getElementById('new-collection-container');
-                if (container) container.style.display = e.target.value === 'new' ? 'flex' : 'none';
-            });
-        }
+    function handleEthnosChange(select, pi) {
+        const c = select.closest('.form-group').querySelector('.new-ethnos-container');
+        if (c) c.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
-    function handleEthnosChange(select, performerIndex) {
-        const container = select.closest('.form-group').querySelector('.new-ethnos-container');
-        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
-    }
-
-    function handlePerformanceFormChange(select, performerIndex) {
-        const instrumentsSection = document.getElementById(`instruments-section-${performerIndex}`);
-        const value = select.value;
-        if (value === 'instrumental' || value === 'vocal_instrumental') {
-            if (instrumentsSection) instrumentsSection.style.display = 'block';
-            const container = document.getElementById(`instruments-container-${performerIndex}`);
-            if (container && container.querySelectorAll('.instrument-entry').length === 0 && !container.querySelector('.empty-instruments-msg')) {
-                addInstrument(performerIndex);
-            }
+    function handlePerformanceFormChange(select, pi) {
+        const sec = document.getElementById(`instruments-section-${pi}`);
+        const val = select.value;
+        if (val === 'instrumental' || val === 'vocal_instrumental') {
+            if (sec) sec.style.display = 'block';
+            const cont = document.getElementById(`instruments-container-${pi}`);
+            if (cont && !cont.querySelector('.instrument-entry')) addInstrument(pi);
         } else {
-            if (instrumentsSection) instrumentsSection.style.display = 'none';
+            if (sec) sec.style.display = 'none';
         }
     }
 
     function addPerformer() {
         const container = document.getElementById('performers-container');
-        const performerCount = document.querySelectorAll('.performer-entry').length;
+        const idx = document.querySelectorAll('.performer-entry').length;
         const entry = document.createElement('div');
         entry.className = 'performer-entry';
-        entry.setAttribute('data-performer-index', performerCount);
+        entry.setAttribute('data-performer-index', idx);
         entry.style.marginBottom = '20px';
         entry.innerHTML = `
-            <h4>Исполнитель ${performerCount + 1}</h4>
+            <h4>Исполнитель ${idx + 1}</h4>
             <div class="form-row">
-                <div class="form-group" style="flex: 2;">
+                <div class="form-group" style="flex:2">
                     <label>Имя исполнителя</label>
-                    <input type="text" name="performer_name[]" placeholder="Например: Т.Д. Костеркин" required>
+                    <input type="text" name="performer_name[]" placeholder="Т.Д. Костеркин" required>
                 </div>
-                <div class="form-group" style="flex: 1;">
+                <div class="form-group" style="flex:1">
                     <label>Этнос</label>
-                    <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this, ${performerCount})">
+                    <select name="performer_ethnos[]" class="ethnos-select" onchange="handleEthnosChange(this,${idx})">
                         <option value="">Выберите этнос</option>
-                        ${vocabularyData.ethnos.map(e => `<option value="${e.name}">${escapeHtml(e.name)}</option>`).join('')}
+                        ${vocabularyData.ethnos.map(e => `<option value="${esc(e.name)}">${esc(e.name)}</option>`).join('')}
                         <option value="new">➕ Создать новый...</option>
                     </select>
-                    <div class="new-ethnos-container" style="display: none; margin-top: 5px;">
+                    <div class="new-ethnos-container" style="display:none;margin-top:5px">
                         <div class="new-item-input">
-                            <input type="text" class="new-ethnos-input" placeholder="Введите название нового этноса">
-                            <button type="button" onclick="addNewEthnos(this, ${performerCount})" class="btn-add-new">Добавить</button>
+                            <input type="text" class="new-ethnos-input" placeholder="Новый этнос">
+                            <button type="button" onclick="addNewEthnos(this,${idx})" class="btn-add-new">Добавить</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group" style="flex: 1;">
+                <div class="form-group" style="flex:1">
                     <label>Форма исполнения</label>
-                    <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this, ${performerCount})">
-                        <option value="">Выберите форму исполнения</option>
+                    <select name="performer_performance_form[]" class="performance-form-select" onchange="handlePerformanceFormChange(this,${idx})">
+                        <option value="">Выберите форму</option>
                         <option value="vocal">Вокальная</option>
                         <option value="instrumental">Инструментальная</option>
                         <option value="vocal_instrumental">Вокально-инструментальная</option>
                     </select>
                 </div>
             </div>
-            <div id="instruments-section-${performerCount}" style="display: none;">
+            <div id="instruments-section-${idx}" style="display:none">
                 <div class="form-group">
                     <label>Музыкальные инструменты</label>
-                    <div id="instruments-container-${performerCount}" class="instruments-container">
-                        <div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>
+                    <div id="instruments-container-${idx}" class="instruments-container">
+                        <div class="empty-instruments-msg form-hint" style="padding:10px;text-align:center">🎵 Инструменты не добавлены</div>
                     </div>
-                    <button type="button" onclick="addInstrument(${performerCount})" class="btn-add" style="margin-top: 10px;">+ Добавить инструмент</button>
+                    <button type="button" onclick="addInstrument(${idx})" class="btn-add" style="margin-top:10px">+ Добавить инструмент</button>
                 </div>
             </div>
-            <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top: 10px;">✖</button>
-        `;
+            <button type="button" onclick="removePerformer(this)" class="btn-remove" style="margin-top:10px">✖</button>`;
         container.appendChild(entry);
     }
 
     function removePerformer(btn) {
-        if (document.querySelectorAll('.performer-entry').length > 1) {
-            btn.closest('.performer-entry').remove();
-        } else {
-            toast('Должен быть хотя бы один исполнитель', 'err');
-        }
+        if (document.querySelectorAll('.performer-entry').length > 1) btn.closest('.performer-entry').remove();
+        else toast('Должен быть хотя бы один исполнитель', 'err');
     }
 
-    function addInstrument(performerIndex) {
-        const container = document.getElementById(`instruments-container-${performerIndex}`);
-        if (!container) return;
-        const emptyMsg = container.querySelector('.empty-instruments-msg');
-        if (emptyMsg) emptyMsg.remove();
-
+    function addInstrument(pi) {
+        const cont = document.getElementById(`instruments-container-${pi}`);
+        if (!cont) return;
+        const empty = cont.querySelector('.empty-instruments-msg');
+        if (empty) empty.remove();
         const entry = document.createElement('div');
         entry.className = 'instrument-entry';
         entry.style.marginBottom = '10px';
         entry.innerHTML = `
-            <div style="display: flex; gap: 10px; align-items: flex-end;">
-                <div style="flex: 1;">
-                    <select name="performer_instrument_name_${performerIndex}[]" class="instrument-select" onchange="handleInstrumentChange(this, ${performerIndex})">
+            <div style="display:flex;gap:10px;align-items:flex-end">
+                <div style="flex:1">
+                    <select name="performer_instrument_name_${pi}[]" class="instrument-select" onchange="handleInstrumentChange(this,${pi})">
                         <option value="">Выберите инструмент</option>
-                        ${vocabularyData.instruments.map(i => `<option value="${i.name}">${escapeHtml(i.name)}</option>`).join('')}
+                        ${vocabularyData.instruments.map(i => `<option value="${esc(i.name)}">${esc(i.name)}</option>`).join('')}
                         <option value="new">➕ Создать новый...</option>
                     </select>
-                    <div class="new-instrument-container" style="display: none; margin-top: 5px;">
-                        <div class="new-item-input" style="display: flex; gap: 5px;">
-                            <input type="text" class="new-instrument-input" placeholder="Введите название нового инструмента" style="flex: 1;">
-                            <button type="button" onclick="addNewInstrument(this, ${performerIndex})" class="btn-add-new">Добавить</button>
+                    <div class="new-instrument-container" style="display:none;margin-top:5px">
+                        <div class="new-item-input">
+                            <input type="text" class="new-instrument-input" placeholder="Новый инструмент" style="flex:1">
+                            <button type="button" onclick="addNewInstrument(this,${pi})" class="btn-add-new">Добавить</button>
                         </div>
                     </div>
                 </div>
-                <button type="button" onclick="removeInstrument(this, ${performerIndex})" class="btn-remove" style="width: 36px; height: 36px;">✖</button>
-            </div>
-        `;
-        container.appendChild(entry);
+                <button type="button" onclick="removeInstrument(this,${pi})" class="btn-remove" style="width:36px;height:36px">✖</button>
+            </div>`;
+        cont.appendChild(entry);
     }
 
-    function removeInstrument(btn, performerIndex) {
-        const entry = btn.closest('.instrument-entry');
-        if (entry) entry.remove();
-        const container = document.getElementById(`instruments-container-${performerIndex}`);
-        if (container && container.children.length === 0) {
-            container.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding: 10px; text-align: center;">🎵 Инструменты не добавлены</div>';
-        }
+    function removeInstrument(btn, pi) {
+        btn.closest('.instrument-entry').remove();
+        const cont = document.getElementById(`instruments-container-${pi}`);
+        if (cont && !cont.querySelector('.instrument-entry'))
+            cont.innerHTML = '<div class="empty-instruments-msg form-hint" style="padding:10px;text-align:center">🎵 Инструменты не добавлены</div>';
     }
 
-    function handleInstrumentChange(select, performerIndex) {
-        const container = select.closest('.instrument-entry').querySelector('.new-instrument-container');
-        if (container) container.style.display = select.value === 'new' ? 'block' : 'none';
+    function handleInstrumentChange(select, pi) {
+        const c = select.closest('.instrument-entry').querySelector('.new-instrument-container');
+        if (c) c.style.display = select.value === 'new' ? 'block' : 'none';
     }
 
-    async function addNewInstrument(button, performerIndex) {
-        const container = button.closest('.new-instrument-container');
-        const input = container.querySelector('.new-instrument-input');
-        const name = input.value.trim();
-
-        if (!name) {
-            toast('Введите название инструмента', 'err');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/add_to_vocabulary', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({category: 'instruments', name: name})
-            });
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                vocabularyData.instruments.push({name: name});
-                // Обновляем все селекты инструментов
-                refreshAllInstrumentSelects();
-                // Находим текущий селект и устанавливаем значение
-                const select = button.closest('.instrument-entry').querySelector('.instrument-select');
-                if (select) select.value = name;
-                container.style.display = 'none';
-                input.value = '';
-                toast(`✅ Добавлен новый инструмент: ${name}`, 'ok');
-            } else {
-                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            toast('Произошла ошибка при добавлении', 'err');
-        }
-    }
-
+    /* ── ADD NEW VOCAB ITEMS ───────────────────────────────────── */
     async function addNewItem(category, inputId, selectId) {
         const input = document.getElementById(inputId);
         const name = input.value.trim();
@@ -629,157 +831,142 @@
             return;
         }
         try {
-            const response = await fetch('/api/add_to_vocabulary', {
+            const r = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category, name})
             });
-            const result = await response.json();
-            if (result.status === 'success') {
+            const j = await r.json();
+            if (j.status === 'success') {
                 vocabularyData[category].push({name});
                 updateSelect(selectId, vocabularyData[category], name);
                 document.getElementById(inputId + '-container').style.display = 'none';
                 input.value = '';
-                toast(`✅ Добавлен новый ${category}: ${name}`, 'ok');
-            } else {
-                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            toast('Произошла ошибка при добавлении', 'err');
+                toast(`Добавлен: ${name}`);
+            } else toast('Ошибка: ' + (j.error || j.message || ''), 'err');
+        } catch (e) {
+            toast('Ошибка', 'err');
         }
     }
 
-    async function addNewEthnos(button, performerIndex) {
-        const container = button.closest('.new-ethnos-container');
-        const input = container.querySelector('.new-ethnos-input');
+    async function addNewEthnos(button, pi) {
+        const cont = button.closest('.new-ethnos-container');
+        const input = cont.querySelector('.new-ethnos-input');
         const name = input.value.trim();
         if (!name) {
             toast('Введите название этноса', 'err');
             return;
         }
         try {
-            const response = await fetch('/api/add_to_vocabulary', {
+            const r = await fetch('/api/add_to_vocabulary', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({category: 'ethnos', name})
             });
-            const result = await response.json();
-            if (result.status === 'success') {
+            const j = await r.json();
+            if (j.status === 'success') {
                 vocabularyData.ethnos.push({name});
                 const select = button.closest('.performer-entry').querySelector('.ethnos-select');
                 updateEthnosSelect(select, name);
-                container.style.display = 'none';
+                cont.style.display = 'none';
                 input.value = '';
-                toast(`✅ Добавлен новый этнос: ${name}`, 'ok');
-            } else {
-                toast('Ошибка при добавлении: ' + (result.error || 'Неизвестная ошибка'), 'err');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            toast('Произошла ошибка при добавлении', 'err');
+                toast(`Добавлен этнос: ${name}`);
+            } else toast('Ошибка', 'err');
+        } catch (e) {
+            toast('Ошибка', 'err');
         }
     }
 
-    function validateDuration(duration) {
-        if (!duration || duration.trim() === '') return true;
-        const pattern = /^([0-9]{1,2}:)?[0-5]?[0-9]:[0-5][0-9]$/;
-        if (!pattern.test(duration)) return false;
-        const parts = duration.split(':');
-        if (parts.length === 2) {
-            const minutes = parseInt(parts[0], 10);
-            const seconds = parseInt(parts[1], 10);
-            if (minutes > 599) return false;
-            if (seconds > 59) return false;
-        } else if (parts.length === 3) {
-            const hours = parseInt(parts[0], 10);
-            const minutes = parseInt(parts[1], 10);
-            const seconds = parseInt(parts[2], 10);
-            if (hours > 99) return false;
-            if (minutes > 59 || seconds > 59) return false;
+    async function addNewInstrument(button, pi) {
+        const cont = button.closest('.new-instrument-container');
+        const input = cont.querySelector('.new-instrument-input');
+        const name = input.value.trim();
+        if (!name) {
+            toast('Введите название инструмента', 'err');
+            return;
         }
-        return true;
+        try {
+            const r = await fetch('/api/add_to_vocabulary', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category: 'instruments', name})
+            });
+            const j = await r.json();
+            if (j.status === 'success') {
+                vocabularyData.instruments.push({name});
+                refreshAllInstrumentSelects();
+                const select = button.closest('.instrument-entry').querySelector('.instrument-select');
+                if (select) select.value = name;
+                cont.style.display = 'none';
+                input.value = '';
+                toast(`Добавлен инструмент: ${name}`);
+            } else toast('Ошибка', 'err');
+        } catch (e) {
+            toast('Ошибка', 'err');
+        }
     }
 
-    document.addEventListener('submit', async function(e) {
-        if (e.target && e.target.id === 'edit-recording-form') {
-            e.preventDefault();
+    /* ── FORM SUBMIT ───────────────────────────────────────────── */
+    document.addEventListener('submit', async function (e) {
+        if (!e.target || e.target.id !== 'edit-recording-form') return;
+        e.preventDefault();
 
-            const durationInput = document.getElementById('duration');
-            const duration = durationInput.value;
-            if (!validateDuration(duration)) {
-                toast('Неверный формат длительности!\nИспользуйте ММ:СС или ЧЧ:ММ:СС', 'err');
-                return;
-            }
+        const duration = document.getElementById('duration').value;
 
-            const formData = new FormData(e.target);
-            const performers = [];
+        const formData = new FormData(e.target);
+        const performers = [];
+        const names = formData.getAll('performer_name[]');
+        const ethnos = formData.getAll('performer_ethnos[]');
+        const forms = formData.getAll('performer_performance_form[]');
 
-            const performerNames = formData.getAll('performer_name[]');
-            const performerEthnos = formData.getAll('performer_ethnos[]');
-            const performerPerformanceForms = formData.getAll('performer_performance_form[]');
+        for (let i = 0; i < names.length; i++) {
+            if (!names[i].trim()) continue;
+            const instruments = [];
+            formData.getAll(`performer_instrument_name_${i}[]`).forEach(n => {
+                if (n && n !== 'new' && n !== '') instruments.push({name: n.trim()});
+            });
+            performers.push({
+                name: names[i].trim(),
+                ethnos: (ethnos[i] === 'new' ? '' : ethnos[i]) || null,
+                performance_form: forms[i] || '',
+                instruments
+            });
+        }
 
-            for (let i = 0; i < performerNames.length; i++) {
-                if (performerNames[i] && performerNames[i].trim()) {
-                    let ethnos = performerEthnos[i];
-                    if (ethnos === 'new') ethnos = '';
-                    const instruments = [];
-                    const instrumentNames = formData.getAll(`performer_instrument_name_${i}[]`);
-                    for (let j = 0; j < instrumentNames.length; j++) {
-                        if (instrumentNames[j] && instrumentNames[j] !== 'new' && instrumentNames[j] !== '') {
-                            instruments.push({name: instrumentNames[j].trim()});
-                        }
-                    }
-                    performers.push({
-                        name: performerNames[i].trim(),
-                        ethnos: ethnos || null,
-                        performance_form: performerPerformanceForms[i] || '',
-                        instruments: instruments
-                    });
-                }
-            }
+        const localTerms = (formData.get('local_terms') || '').split(',').map(t => t.trim()).filter(Boolean);
 
-            const localTermsStr = formData.get('local_terms') || '';
-            const localTerms = localTermsStr.split(',').map(t => t.trim()).filter(t => t);
+        let genre = formData.get('genre');
+        if (genre === 'new') genre = '';
+        let location = formData.get('location');
+        if (location === 'new') location = '';
+        let collection = formData.get('collection');
+        if (collection === 'new') collection = '';
 
-            let genre = formData.get('genre');
-            if (genre === 'new') genre = '';
-            let location = formData.get('location');
-            if (location === 'new') location = '';
-            let collection = formData.get('collection');
-            if (collection === 'new') collection = '';
+        const updatedData = {
+            title: formData.get('title'),
+            inventory_number: formData.get('inventory_number'),
+            recording_date: formData.get('recording_date'),
+            duration,
+            performers,
+            genre,
+            ethical_status: formData.get('ethical_status'),
+            location,
+            collection,
+            local_terms: localTerms,
+            description: formData.get('description')
+        };
 
-            const updatedData = {
-                title: formData.get('title'),
-                inventory_number: formData.get('inventory_number'),
-                recording_date: formData.get('recording_date'),
-                duration: duration,
-                performers: performers,
-                genre: genre,
-                ethical_status: formData.get('ethical_status'),
-                location: location,
-                collection: collection,
-                local_terms: localTerms,
-                description: formData.get('description')
-            };
-
-            try {
-                const response = await fetch(`/api/update_recording/${recordingId}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(updatedData)
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    toast('Запись успешно обновлена!', 'ok');
-                    setTimeout(() => window.location.href = `/recording/${recordingId}`, 1000);
-                } else {
-                    toast('Ошибка при обновлении: ' + result.message, 'err');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                toast('Произошла ошибка при сохранении', 'err');
-            }
+        try {
+            const r = await fetch(`/api/update_recording/${recordingId}`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(updatedData)
+            });
+            const j = await r.json();
+            if (j.status === 'success') {
+                toast('Запись обновлена!');
+                setTimeout(() => window.location.href = `/recording/${recordingId}`, 1000);
+            } else toast('Ошибка: ' + j.message, 'err');
+        } catch (e) {
+            toast('Ошибка при сохранении', 'err');
         }
     });
 

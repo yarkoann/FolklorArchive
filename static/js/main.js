@@ -461,3 +461,74 @@ function sortResults() {
     currentSort = document.getElementById('sort-select').value;
     performSearch(1);
 }
+
+function mediaItemHtml(m) {
+    const isAudio = m.file_type === 'audio';
+    const isLink = m.type === 'link';
+    const platform = isLink ? getVideoPlatform(m.url) : (isAudio ? 'audio' : 'video');
+    const icon = isLink ? getPlatformIcon(platform) : (isAudio ? '🎵' : '🎬');
+
+    let iconClass = 'link';
+    if (!isLink) {
+        iconClass = isAudio ? 'audio' : 'video';
+    } else {
+        iconClass = platform;
+    }
+
+    const label = m.original_name || m.label || (isLink ? m.url : 'Медиа') || 'Медиа';
+
+    let playerHtml = '';
+    if (!isLink && (isAudio || isVideo)) {
+        playerHtml = `<div style="margin:10px 0">
+            ${isAudio
+                ? `<audio controls preload="none" src="/api/media/${esc(m.stored_name)}"></audio>`
+                : `<video controls preload="none" src="/api/media/${esc(m.stored_name)}"></video>`}
+        </div>`;
+    } else if (isLink && m.url) {
+        const embedUrl = getEmbedUrl(m.url);
+        if (embedUrl) {
+            // Для VK нужно добавить параметры
+            let finalEmbedUrl = embedUrl;
+            if (platform === 'vk') {
+                finalEmbedUrl += '&autoplay=0&loop=0';
+            }
+            playerHtml = `<div style="margin:10px 0; position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px;">
+                <iframe src="${finalEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:8px;"></iframe>
+            </div>`;
+        } else {
+            playerHtml = `<div class="media-url">🔗 <a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.label || m.url)}</a></div>`;
+        }
+    }
+
+    // Добавляем подпись с платформой
+    let platformBadge = '';
+    if (isLink && platform !== 'link') {
+        const platformNames = {
+            'youtube': 'YouTube',
+            'rutube': 'Rutube',
+            'vk': 'VK Video',
+            'ok': 'OK.ru',
+            'dzen': 'Дзен',
+            'vimeo': 'Vimeo',
+            'coub': 'Coub',
+            'twitch': 'Twitch'
+        };
+        platformBadge = `<span class="chip chip-neutral" style="font-size:10px; margin-left:8px;">${platformNames[platform] || platform}</span>`;
+    }
+
+    return `<div class="media-item" id="mi-${m.id}">
+        <div class="media-item-header">
+            <div class="media-icon ${iconClass}">${icon}</div>
+            <div class="media-name" title="${esc(label)}">${esc(label)}${platformBadge}</div>
+            ${!isLink && m.size ? `<div class="media-size">${formatSize(m.size)}</div>` : ''}
+        </div>
+        ${playerHtml}
+        <div class="media-actions">
+            ${!isLink 
+                ? `<a href="/api/media/${esc(m.stored_name)}/download" class="btn btn-ghost btn-sm">⬇ Скачать</a>`
+                : `<a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">↗ Открыть</a>`}
+            <button class="btn btn-danger btn-sm" onclick="deleteMedia('${m.id}','${esc(label)}')">🗑 Удалить</button>
+        </div>
+    </div>`;
+}

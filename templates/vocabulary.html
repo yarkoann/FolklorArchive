@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-logo">Фоно<em>граф</em></div>
   <div class="topbar-sep"></div>
@@ -28,6 +27,7 @@
     <button class="vs-btn"        data-tab="locations"   style="--ac:var(--c-loc)"><span class="vs-dot" style="--ac:var(--c-loc)"></span>Локации<span class="vs-cnt" id="nc-locations">0</span></button>
     <button class="vs-btn"        data-tab="instruments" style="--ac:var(--c-ins)"><span class="vs-dot" style="--ac:var(--c-ins)"></span>Инструменты<span class="vs-cnt" id="nc-instruments">0</span></button>
     <button class="vs-btn"        data-tab="collections" style="--ac:var(--c-col)"><span class="vs-dot" style="--ac:var(--c-col)"></span>Коллекции<span class="vs-cnt" id="nc-collections">0</span></button>
+    <button class="vs-btn"        data-tab="performers"  style="--ac:var(--c-perf)"><span class="vs-dot" style="--ac:var(--c-perf)"></span>Исполнители<span class="vs-cnt" id="nc-performers">0</span></button>
     <button class="vs-btn"        data-tab="local_terms" style="--ac:var(--c-trm)"><span class="vs-dot" style="--ac:var(--c-trm)"></span>Местные термины<span class="vs-cnt" id="nc-local_terms">0</span></button>
   </nav>
 
@@ -103,6 +103,20 @@
       <div class="vocab-grid" id="g-collections"></div>
     </div>
 
+    <!-- ИСПОЛНИТЕЛИ -->
+    <div id="pane-performers" class="vocab-pane" style="--ac:var(--c-perf)">
+      <div class="vp-header">
+        <div class="vp-title">Исполнители</div>
+        <span class="vp-cnt" id="pc-performers">0</span>
+        <div style="margin-left:auto;font-size:12px;color:var(--muted)">Исполнители из записей архива</div>
+      </div>
+      <div class="vocab-toolbar">
+        <div class="vocab-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="s-performers" placeholder="Поиск исполнителя…" oninput="filterPerformers()"></div>
+        <select class="vocab-sort" id="o-performers" onchange="renderPerformers()"><option value="az">А → Я</option><option value="za">Я → А</option><option value="count">По кол-ву записей</option></select>
+      </div>
+      <div class="vocab-grid" id="g-performers"></div>
+    </div>
+
     <!-- МЕСТНЫЕ ТЕРМИНЫ -->
     <div id="pane-local_terms" class="vocab-pane" style="--ac:var(--c-trm)">
       <div class="vp-header">
@@ -150,7 +164,7 @@
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────
 const CATS  = ['ethnos','genres','locations','instruments','collections'];
-const ICONS = {ethnos:'🌍',genres:'🎵',locations:'📍',instruments:'🎸',collections:'📀',local_terms:'📘'};
+const ICONS = {ethnos:'🌍',genres:'🎵',locations:'📍',instruments:'🎸',collections:'📀',performers:'🎤',local_terms:'📘'};
 const TYPE_NAMES = {
   region:'Регион',city:'Город',settlement:'Населённый пункт',other:'Другое',
   idiophone:'Идиофон',membranophone:'Мембранофон',chordophone:'Хордофон',
@@ -180,6 +194,7 @@ const FIELD_DEFS = {
 
 let DATA = {ethnos:[],genres:[],locations:[],instruments:[],collections:[]};
 let LOCAL_TERMS = [];
+let PERFORMERS  = [];
 let currentTab = 'ethnos';
 
 // ── INIT ──────────────────────────────────────────────────────────
@@ -192,7 +207,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       b.classList.add('active');
       currentTab = b.dataset.tab;
       document.getElementById('pane-' + currentTab).classList.add('active');
-      if (currentTab === 'local_terms') renderLocalTerms();
+      if (currentTab === 'local_terms')  renderLocalTerms();
+      else if (currentTab === 'performers') renderPerformers();
       else renderGrid(currentTab);
     });
   });
@@ -210,9 +226,10 @@ async function reloadAll() {
       if (pc) pc.textContent = n + ' ' + plu(n,'элемент','элемента','элементов');
     }),
     loadLocalTerms(),
+    loadPerformers(),
   ]);
-  renderGrid(currentTab === 'local_terms' ? 'ethnos' : currentTab);
   if (currentTab === 'local_terms') renderLocalTerms();
+  else if (currentTab === 'performers') renderPerformers();
   else renderGrid(currentTab);
 }
 
@@ -226,9 +243,20 @@ async function loadLocalTerms() {
   if (pc) pc.textContent = n + ' ' + plu(n,'термин','термина','терминов');
 }
 
+async function loadPerformers() {
+  const r = await fetch('/api/performers_all').catch(() => ({json:()=>[]}));
+  PERFORMERS = await r.json().catch(() => []);
+  const n = PERFORMERS.length;
+  const nc = document.getElementById('nc-performers');
+  const pc = document.getElementById('pc-performers');
+  if (nc) nc.textContent = n;
+  if (pc) pc.textContent = n + ' ' + plu(n,'исполнитель','исполнителя','исполнителей');
+}
+
 // ── GRID RENDER ───────────────────────────────────────────────────
 function renderGrid(tab) {
   if (tab === 'local_terms') { renderLocalTerms(); return; }
+  if (tab === 'performers')  { renderPerformers(); return; }
   const grid = document.getElementById('g-' + tab);
   const q    = (document.getElementById('s-' + tab)||{}).value || '';
   const ord  = (document.getElementById('o-' + tab)||{}).value || 'az';
@@ -293,6 +321,122 @@ function termsBlock(tab, item, field, label, terms) {
   </div>`;
 }
 
+// ── PERFORMERS ────────────────────────────────────────────────────
+function filterPerformers() { renderPerformers(); }
+
+function renderPerformers() {
+  const q   = (document.getElementById('s-performers')||{}).value || '';
+  const ord = (document.getElementById('o-performers')||{}).value || 'az';
+  const grid = document.getElementById('g-performers');
+
+  let items = [...PERFORMERS].filter(p =>
+    p.name.toLowerCase().includes(q.toLowerCase()) ||
+    (p.ethnos || '').toLowerCase().includes(q.toLowerCase())
+  );
+  if (ord === 'az')    items.sort((a,b) => a.name.localeCompare(b.name, 'ru'));
+  else if (ord === 'za')    items.sort((a,b) => b.name.localeCompare(a.name, 'ru'));
+  else if (ord === 'count') items.sort((a,b) => (b.recordings||[]).length - (a.recordings||[]).length);
+
+  if (!items.length) {
+    grid.innerHTML = `<div class="vc-empty"><span class="ei">🎤</span><h3>Исполнители не найдены</h3><p>${q ? 'Ничего по «'+esc(q)+'»' : 'В архиве нет записей с исполнителями'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = items.map(p => performerCardHtml(p)).join('');
+}
+
+function performerCardHtml(p) {
+  const recs = p.recordings || [];
+  const recLinks = recs.map(r =>
+    `<a href="/recording/${r.id}" class="perf-rec-link" title="${esc(r.title)}">🎵 ${esc(r.title.length > 40 ? r.title.substring(0,40)+'...' : r.title)}</a>`
+  ).join('');
+
+  // Получаем уникальные формы исполнения
+  const uniqueForms = [...new Set((p.performance_forms || []))];
+
+  // Фото исполнителя (пока заглушка, можно будет добавить позже)
+  const photoUrl = p.photo_url || null;
+
+  return `<div class="vc" style="--ac:var(--c-perf)">
+    <div class="vc-head">
+      <div class="vc-icon" style="background: var(--c-perf-lt); font-size: 24px;">
+        ${photoUrl ? `<img src="${esc(photoUrl)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">` : '🎤'}
+      </div>
+      <div class="vc-info">
+        <div class="vc-name" title="${esc(p.name)}">${esc(p.name)}</div>
+        <div class="vc-id">${p.ethnos ? `<span class="chip chip-blue" style="margin-top:3px;display:inline-block">🌍 ${esc(p.ethnos)}</span>` : '<span style="color:var(--muted)">Этнос не указан</span>'}</div>
+      </div>
+    </div>
+    <div class="vc-chips">
+      <span class="chip chip-slate">${recs.length} ${plu(recs.length,'запись','записи','записей')}</span>
+      ${uniqueForms.map(f => `<span class="chip chip-neutral">${formLabel(f)}</span>`).join('')}
+    </div>
+    ${p.description
+      ? `<div class="perf-vc-desc">${esc(p.description)}</div>`
+      : `<div class="perf-vc-desc" style="color:var(--muted);font-style:italic">Описание не добавлено</div>`
+    }
+    ${recs.length ? `<div class="perf-vc-recs">
+      <div class="vc-terms-lbl">Записи</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">${recLinks}</div>
+    </div>` : ''}
+    <div class="vc-actions">
+      <button class="btn btn-ghost btn-sm" onclick="editPerformerDesc('${esc(p.name)}')">✏️ Описание</button>
+      ${!photoUrl ? `<button class="btn btn-ghost btn-sm" onclick="addPerformerPhoto('${esc(p.name)}')">📷 Фото</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function formLabel(f) {
+  return {vocal:'🎤 Вокал', instrumental:'🎸 Инструмент', vocal_instrumental:'🎤🎸 Вокал-инстр.'}[f] || f;
+}
+
+function addPerformerPhoto(name) {
+  toast('Функция добавления фото будет реализована позже', 'ok');
+}
+
+function editPerformerDesc(name) {
+  const p = PERFORMERS.find(x => x.name === name) || {name, description: ''};
+  document.getElementById('modal-title').textContent = 'Описание исполнителя';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="margin-bottom:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--r-sm)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:3px">ИСПОЛНИТЕЛЬ</div>
+      <div style="font-weight:700;font-size:15px">${esc(name)}</div>
+      ${p.ethnos ? `<div style="font-size:12px;color:var(--tx3);margin-top:3px">🌍 ${esc(p.ethnos)}</div>` : ''}
+    </div>
+    <div class="modal-field">
+      <label>Краткое описание</label>
+      <textarea id="mf-perf-desc" rows="4" placeholder="Биография, роль в традиции, особенности исполнения…">${esc(p.description || '')}</textarea>
+      <span class="form-hint">Отображается в карточке исполнителя в словаре</span>
+    </div>
+    <div class="modal-field">
+      <label>Ссылка на фото (опционально)</label>
+      <input type="url" id="mf-perf-photo" placeholder="https://example.com/photo.jpg" value="${esc(p.photo_url || '')}">
+      <span class="form-hint">URL изображения исполнителя</span>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+    <button class="btn btn-success" onclick="savePerformerDesc('${esc(name)}')">💾 Сохранить</button>`;
+  document.getElementById('modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('mf-perf-desc')?.focus(), 60);
+}
+
+async function savePerformerDesc(name) {
+  const desc = document.getElementById('mf-perf-desc')?.value || '';
+  const photoUrl = document.getElementById('mf-perf-photo')?.value || '';
+  try {
+    const r = await fetch('/api/performer_desc/update', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, description: desc, photo_url: photoUrl})
+    });
+    const j = await r.json();
+    if (j.status === 'success') {
+      closeModal();
+      await loadPerformers();
+      renderPerformers();
+      toast('Описание сохранено');
+    } else toast(j.message || 'Ошибка', 'err');
+  } catch(e) { toast('Ошибка сервера', 'err'); }
+}
+
 // ── LOCAL TERMS ───────────────────────────────────────────────────
 function filterLocalTerms() { renderLocalTerms(); }
 
@@ -355,15 +499,10 @@ async function ltAddAlt(term, inputId) {
   const newAlts = [...(item.alt_names||[])];
   if (!newAlts.includes(alt)) newAlts.push(alt);
   try {
-    const r = await fetch('/api/local_terms_meta/update', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({term, alt_names: newAlts})
-    });
+    const r = await fetch('/api/local_terms_meta/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({term, alt_names: newAlts}) });
     const j = await r.json();
-    if (j.status === 'success') {
-      if (el) el.value = '';
-      await loadLocalTerms(); renderLocalTerms(); toast('Добавлено');
-    } else toast(j.message||'Ошибка','err');
+    if (j.status === 'success') { if (el) el.value = ''; await loadLocalTerms(); renderLocalTerms(); toast('Добавлено'); }
+    else toast(j.message||'Ошибка','err');
   } catch(e) { toast('Ошибка сервера','err'); }
 }
 
@@ -372,14 +511,10 @@ async function ltRemoveAlt(term, alt) {
   if (!item) return;
   const newAlts = (item.alt_names||[]).filter(a => a !== alt);
   try {
-    const r = await fetch('/api/local_terms_meta/update', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({term, alt_names: newAlts})
-    });
+    const r = await fetch('/api/local_terms_meta/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({term, alt_names: newAlts}) });
     const j = await r.json();
-    if (j.status === 'success') {
-      await loadLocalTerms(); renderLocalTerms(); toast('Удалено');
-    } else toast(j.message||'Ошибка','err');
+    if (j.status === 'success') { await loadLocalTerms(); renderLocalTerms(); toast('Удалено'); }
+    else toast(j.message||'Ошибка','err');
   } catch(e) { toast('Ошибка','err'); }
 }
 
@@ -406,14 +541,10 @@ async function ltSaveEdit(term) {
   const raw  = document.getElementById('mf-lt-alts')?.value || '';
   const alts = raw.split(',').map(s => s.trim()).filter(Boolean);
   try {
-    const r = await fetch('/api/local_terms_meta/update', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({term, alt_names: alts})
-    });
+    const r = await fetch('/api/local_terms_meta/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({term, alt_names: alts}) });
     const j = await r.json();
-    if (j.status === 'success') {
-      closeModal(); await loadLocalTerms(); renderLocalTerms(); toast('Сохранено');
-    } else toast(j.message||'Ошибка','err');
+    if (j.status === 'success') { closeModal(); await loadLocalTerms(); renderLocalTerms(); toast('Сохранено'); }
+    else toast(j.message||'Ошибка','err');
   } catch(e) { toast('Ошибка','err'); }
 }
 
@@ -479,9 +610,7 @@ async function doAdd(tab) {
   const fd = getFormData(tab);
   if (!fd.name) { toast('Введите название','err'); return; }
   try {
-    const r = await fetch(`/api/vocabulary/${tab}/add_item`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(fd)
-    });
+    const r = await fetch(`/api/vocabulary/${tab}/add_item`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(fd) });
     const j = await r.json();
     if (j.status === 'success') { closeModal(); await reloadAll(); toast('Добавлено'); }
     else toast(j.message||'Ошибка','err');
@@ -492,9 +621,7 @@ async function doEdit(tab, id) {
   const fd = getFormData(tab);
   if (!fd.name) { toast('Название не может быть пустым','err'); return; }
   try {
-    const r = await fetch(`/api/vocabulary/${tab}/update`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, updates:fd})
-    });
+    const r = await fetch(`/api/vocabulary/${tab}/update`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, updates:fd}) });
     const j = await r.json();
     if (j.status === 'success') { closeModal(); await reloadAll(); toast('Сохранено'); }
     else toast(j.message||'Ошибка','err');
@@ -511,9 +638,7 @@ function askDelete(tab, id, name) {
 async function doDelete(tab, id) {
   document.getElementById('confirm').style.display = 'none';
   try {
-    const r = await fetch(`/api/vocabulary/${tab}/delete`, {
-      method:'DELETE', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})
-    });
+    const r = await fetch(`/api/vocabulary/${tab}/delete`, { method:'DELETE', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
     const j = await r.json();
     if (j.status === 'success') { await reloadAll(); toast('Удалено'); }
     else toast(j.message||'Ошибка','err');
@@ -526,9 +651,7 @@ async function doAddTerm(tab, id, field, inputId) {
   const term = el?.value?.trim();
   if (!term) return;
   try {
-    const r = await fetch(`/api/vocabulary/${tab}/add_term`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id,field,term})
-    });
+    const r = await fetch(`/api/vocabulary/${tab}/add_term`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id,field,term}) });
     const j = await r.json();
     if (j.status === 'success') { if (el) el.value=''; await reloadAll(); toast('Добавлено'); }
     else toast(j.message||'Ошибка','err');
@@ -537,9 +660,7 @@ async function doAddTerm(tab, id, field, inputId) {
 
 async function doRemoveTerm(tab, id, field, term) {
   try {
-    const r = await fetch(`/api/vocabulary/${tab}/remove_term`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id,field,term})
-    });
+    const r = await fetch(`/api/vocabulary/${tab}/remove_term`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id,field,term}) });
     const j = await r.json();
     if (j.status === 'success') { await reloadAll(); toast('Удалено'); }
     else toast(j.message||'Ошибка','err');

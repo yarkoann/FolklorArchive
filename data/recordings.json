@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-05-12T23:36:35.946766",
+  "last_updated": "2026-05-13T23:40:11.193219",
   "total_recordings": 11,
   "recordings": [
     {
@@ -174,7 +174,7 @@
     },
     {
       "id": "rec_e7f539e5",
-      "title": "Test Народная казахская песня «Бопем»",
+      "title": " Народная казахская песня «Бопем»",
       "inventory_number": "VB-569",
       "recording_date": "2011-06-03",
       "duration": "03:30",
@@ -193,17 +193,17 @@
       "genre": "Инструментальная песня",
       "ethical_status": "публичный_доступ",
       "location": "Алматы",
-      "collection": "Диск №16-N",
+      "collection": "Программа Elem6",
       "local_terms": [
         "Бопем"
       ],
       "description": "Казахская народная музыка",
-      "updated_at": "2026-05-12T23:36:35.946766",
+      "updated_at": "2026-05-13T22:47:47.041803",
       "created_at": "2026-04-10T13:04:11.730931",
       "media_files": [
         {
           "id": "018b8208",
-          "original_name": "-_.mp3",
+          "original_name": "Данеш_Ракишев-Бопем(Дитя).mp3",
           "stored_name": "rec_e7f539e5_e09dfcdf.mp3",
           "file_type": "audio",
           "size": 8417614,
@@ -279,8 +279,9 @@
       "collection": "Диск №396(2)",
       "local_terms": [],
       "description": "Инструментальная аварская песня о битве между небом и солнцем",
-      "updated_at": "2026-04-10T14:20:56.246718",
-      "created_at": "2026-04-10T14:14:35.038716"
+      "updated_at": "2026-05-13T23:40:11.193219",
+      "created_at": "2026-04-10T14:14:35.038716",
+      "media_files": []
     },
     {
       "id": "rec_6a4a3070",
@@ -320,41 +321,41 @@
       "created_at": "2026-04-10T18:43:58.267976"
     },
     {
-      "id": "rec_d3f5cb98",
-      "title": "Test 1",
-      "inventory_number": "PO-2020-01",
-      "recording_date": "2009-02-10",
-      "duration": "03:20",
+      "id": "rec_296308b4",
+      "title": "Башкирская песня «Доға ҡылайыҡ»",
+      "inventory_number": "BB-125-M",
+      "recording_date": "2014-10-20",
+      "duration": "02:50",
       "performers": [
         {
-          "name": "Мокорин Е.К.",
-          "ethnos": "Русские",
+          "name": "Лилия Динисламова",
+          "ethnos": "Башкиры",
           "performance_form": "vocal",
           "instruments": []
-        },
-        {
-          "name": "Душино К.У.",
-          "ethnos": "Русские",
-          "performance_form": "instrumental",
-          "instruments": [
-            {
-              "name": "Бас-гитара"
-            }
-          ]
         }
       ],
-      "genre": "Личная песня",
+      "genre": "Духовная песня",
       "ethical_status": "публичный_доступ",
-      "location": "Москва",
+      "location": "Республика Башкортостан",
       "collection": "Программа Elem6",
       "local_terms": [
-        "ирек",
-        "көҥүл"
+        "Доға",
+        "өмөт",
+        "яҙмыш"
       ],
-      "description": "Поп-песня о общей культуре и свободе",
-      "updated_at": "2026-05-12T23:19:33.322621",
-      "created_at": "2026-05-12T23:19:33.322621",
-      "media_files": []
+      "description": "Лирическая, душевная башкирская композиция, призывающая к добру, надежде и вере.",
+      "updated_at": "2026-05-13T22:46:43.966698",
+      "created_at": "2026-05-13T21:58:44.944113",
+      "media_files": [
+        {
+          "id": "60ceec72",
+          "type": "link",
+          "url": "https://vkvideo.ru/video-75094756_170391292?list=ln-UjBOUVi6znOeVBUaII",
+          "label": "Лилия Динисламова - \"Дога кылайык\"",
+          "file_type": "video",
+          "added_at": "2026-05-13T21:58:45.188269"
+        }
+      ]
     }
   ]
 }
